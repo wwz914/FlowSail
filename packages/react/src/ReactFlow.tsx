@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import './style.scss';
 import { useFlowStore } from './store/index.ts';
-import { NodeRenderer } from './NodeRenderer.tsx';
-import { EdgeRenderer } from './EdgeRenderer.tsx';
+import { NodeRenderer } from './components/NodeRenderer.tsx';
+import { EdgeRenderer } from './components/EdgeRenderer.tsx';
 import type { Node, Edge } from '@system/types.ts';
 
 export interface ReactFlowProps {

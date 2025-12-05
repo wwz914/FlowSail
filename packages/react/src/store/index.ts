@@ -11,6 +11,12 @@ interface FlowState {
 export const useFlowStore = create<FlowState>(set => ({
   nodes: [],
   edges: [],
-  setNodes: (nodes: Node[]) => set({ nodes }),
+  setNodes: (nodesOrFn) => 
+    set(state => ({
+      nodes: typeof nodesOrFn === 'function'
+        ? (nodesOrFn as (nodes: Node[]) => Node[])(state.nodes as Node[])
+        : nodesOrFn
+    })),
+  // setNodes: (nodes: Node[]) => set({ nodes }),
   setEdges: (edges: Edge[]) => set({ edges }),
 }))

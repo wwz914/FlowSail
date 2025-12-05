@@ -14,7 +14,10 @@
   "dependencies": {
     "@system": "workspace:*",
     "react": "*",
-    "react-dom": "*"
+    "react-dom": "*",
+    "d3-drag": "*",
+    "d3-selection": "*",
+    "d3-zoom": "*"
   },
   "devDependencies": {
     "@types/react": "*",
