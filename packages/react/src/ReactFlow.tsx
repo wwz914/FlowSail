@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import './style.scss';
 import { useFlowStore } from './store/index.ts';
+import { NodeRenderer } from './NodeRenderer.tsx';
+import { EdgeRenderer } from './EdgeRenderer.tsx';
 import type { Node, Edge } from '@system/types.ts';
 
 export interface ReactFlowProps {
@@ -25,6 +27,10 @@ export const ReactFlow: React.FC<ReactFlowProps> = ({
   }, [nodes, edges, setNodes, setEdges]);
 
   return (
-    <div className="react-flow">{children}</div>
+    <div className="react-flow">
+      <EdgeRenderer edges={edges} nodes={nodes} />
+      <NodeRenderer nodes={nodes} />
+      {children}
+    </div>
   )
 }

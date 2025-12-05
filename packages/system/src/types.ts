@@ -3,7 +3,7 @@ export interface Node {
   id: string;
   type?: string;
   data?: any;
-  position?: { x: number; y: number };
+  position: { x: number; y: number };
   selected?: boolean;
 }
 
