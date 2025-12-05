@@ -47,6 +47,7 @@
     "paths": {
       "@system": ["packages/system/src"], // 映射别名到 system 包的 src 目录
       "@system/*": ["packages/system/src/*"] // 支持子路径导入（如 @system/types）
-    }
+    },
+    "typeRoots": ["node_modules/@types", "packages/*/node_modules/@types"]
   }
 }
