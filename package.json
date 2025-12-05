@@ -1,8 +1,9 @@
 {
-  "name": "my-flow",
+  "name": "react",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,18 +11,8 @@
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.23.0",
-  "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
-  "devDependencies": {
-    "autoprefixer": "^10.4.22",
-    "postcss": "^8.5.6",
-    "postcss-nested": "^7.0.2",
-    "rollup": "^4.53.3",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-postcss": "^4.0.2",
-    "rollup-plugin-typescript2": "^0.36.0"
+  "dependencies": {
+    "@system": "workspace:*",
+    "zustand": "^5.0.9"
   }
 }

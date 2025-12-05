@@ -1,4 +1,4 @@
-import type { Node, Edge } from './types'
+import type { Node, Edge } from './types.ts'
 
 // 节点变更应用
 export function applyNodeChanges(nodes: Node[], changes: Partial<Node>[]): Node[] {

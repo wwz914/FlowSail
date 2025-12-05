@@ -7,7 +7,8 @@
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
-    "module": "ESNext",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "target": "esnext",
     "types": [],
     // For nodejs:
@@ -40,5 +41,12 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "emitDeclarationOnly": true,
+    "baseUrl": ".", // 基础路径（必填，用于解析相对路径）
+    "paths": {
+      "@system": ["packages/system/src"], // 映射别名到 system 包的 src 目录
+      "@system/*": ["packages/system/src/*"] // 支持子路径导入（如 @system/types）
+    }
   }
 }
