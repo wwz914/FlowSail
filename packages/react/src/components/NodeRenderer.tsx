@@ -47,7 +47,7 @@ export const NodeRenderer: React.FC<NodeRendererProps> = ({ nodes }) => {
               border: '2px solid #1e88e5',
               background: '#fff',
               padding: 8,
-              borderRadius: 4,
+              borderRadius: 8,
               width: 100,
               height: 40,
               boxSizing: 'border-box',
