@@ -1,64 +1,34 @@
-import React, { useEffect, useRef } from 'react';
-import type { Node } from '@system/types.ts';
-import { select } from 'd3-selection';
-import { drag, type D3DragEvent } from 'd3-drag';
-import { useFlowStore } from '../index.ts';
+import type { Node } from '@system'
+import { useFlowStore } from '../store/index.ts'
+import type { ConnectionState } from '../lib/connection.ts'
+import { NodeCard } from './NodeCard.tsx'
 
-interface NodeRendererProps {
-  nodes: Node[];
+export interface NodeRendererProps {
+  connection: ConnectionState | null
+  onNodesChange?: ((nodes: Node[]) => void) | undefined
+  onConnectStart: (nodeId: string, clientX: number, clientY: number) => void
 }
 
-// 节点渲染组件
-export const NodeRenderer: React.FC<NodeRendererProps> = ({ nodes }) => {
-  const { setNodes } = useFlowStore();
+/** 节点层：把节点列表映射成卡片；所有 Hooks 都在 NodeCard 顶层调用（G-3）。 */
+export const NodeRenderer = ({ connection, onNodesChange, onConnectStart }: NodeRendererProps) => {
+  const nodes = useFlowStore((state) => state.nodes)
+
   return (
     <>
       {nodes.map((node) => {
-        const nodeRef = useRef<HTMLDivElement | null>(null);
-        useEffect(() => {
-          // if (!nodeRef.current) return;
-
-          const d3Node = select(nodeRef.current as HTMLDivElement);
-          d3Node.call(
-            drag<HTMLDivElement, unknown, unknown>()
-              .on('drag', (event: D3DragEvent<HTMLDivElement, unknown, unknown>) => {
-                setNodes((nds) => nds.map((n) =>
-                    n.id === node.id ? {
-                      ...n,
-                      position: {
-                        x: event.x,
-                        y: event.y
-                      }
-                    } : n
-                  )
-                )
-              })
-          )
-        }, [node.id, setNodes]);
-
+        const isConnectionTarget = connection?.targetId === node.id
         return (
-          <div
+          <NodeCard
             key={node.id}
-            ref={nodeRef}
-            style={{
-              position: 'absolute',
-              left: node.position.x,
-              top: node.position.y,
-              border: '2px solid #1e88e5',
-              background: '#fff',
-              padding: 8,
-              borderRadius: 8,
-              width: 100,
-              height: 40,
-              boxSizing: 'border-box',
-              cursor: 'move',
-              zIndex: 10,
-            }}
-          >
-            {node.data?.label || node.id}
-          </div>
+            node={node}
+            isConnectionSource={connection?.sourceId === node.id}
+            isConnectionTarget={isConnectionTarget}
+            isConnectionTargetInvalid={Boolean(isConnectionTarget && connection?.error)}
+            onNodesChange={onNodesChange}
+            onConnectStart={onConnectStart}
+          />
         )
       })}
     </>
-  );
+  )
 }

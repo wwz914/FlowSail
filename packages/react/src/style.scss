@@ -4,4 +4,244 @@
   height: 100%;
   background: #fafafa;
   overflow: hidden;
+  touch-action: none;
+
+  &.is-pannable {
+    cursor: grab;
+  }
+
+  &.is-panning {
+    cursor: grabbing;
+  }
+
+  &.is-connecting {
+    cursor: crosshair;
+  }
+}
+
+// 点阵网格背景：位置与尺寸跟随视口，缩放时网格与图元一起变化（C-3）。
+.flow-background {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, #cbd2d9 1px, transparent 1px);
+  pointer-events: none;
+}
+
+// 视口层：世界坐标 → 屏幕坐标的唯一变换点。
+.flow-viewport {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+
+.flow-node {
+  position: absolute;
+  box-sizing: border-box;
+  width: 100px;
+  height: 40px;
+  padding: 8px;
+  border: 2px solid #1e88e5;
+  border-radius: 8px;
+  background: #fff;
+  cursor: move;
+  user-select: none;
+  pointer-events: auto;
+  z-index: 1;
+
+  &.is-dragging {
+    z-index: 3;
+    box-shadow: 0 6px 16px rgb(15 23 42 / 12%);
+  }
+
+  &.is-connection-source {
+    box-shadow: 0 0 0 2px rgb(30 136 229 / 20%);
+  }
+}
+
+.flow-node__title {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+// 锚点：16px 命中区（≥ 12px），默认隐藏，悬停节点或连线时显示（C-4）。
+.flow-handle {
+  position: absolute;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 120ms ease;
+  z-index: 2;
+
+  &::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #1e88e5;
+    border: 1px solid #fff;
+    box-shadow: 0 0 0 1px rgb(30 136 229 / 35%);
+    transition: transform 120ms ease, background 120ms ease;
+  }
+
+  &--target {
+    top: -8px;
+    cursor: crosshair;
+    pointer-events: none;
+  }
+
+  &--source {
+    bottom: -8px;
+    cursor: crosshair;
+  }
+}
+
+.flow-node:hover .flow-handle,
+.flow-node.is-connection-source .flow-handle,
+.react-flow.is-connecting .flow-handle {
+  opacity: 1;
+}
+
+.flow-handle--target.is-connection-target {
+  opacity: 1;
+
+  &::after {
+    transform: scale(1.4);
+    box-shadow: 0 0 0 4px rgb(30 136 229 / 18%);
+  }
+
+  &.is-invalid::after {
+    background: #e5484d;
+    box-shadow: 0 0 0 4px rgb(229 72 77 / 18%);
+  }
+}
+
+// 连线层：位于节点层下方，只有 16px 宽的透明命中路径接收指针。
+.flow-edges {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.flow-edge__hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 16;
+  pointer-events: stroke;
+}
+
+.flow-edge__line {
+  fill: none;
+  stroke: #94a3b8;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  transition: stroke 120ms ease;
+}
+
+.flow-edge__arrowhead {
+  fill: #94a3b8;
+}
+
+.flow-edge__label {
+  fill: #52606d;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 12px;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  paint-order: stroke;
+  stroke: #fafafa;
+  stroke-width: 4px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.flow-edge:hover .flow-edge__line {
+  stroke: #1e88e5;
+  stroke-width: 3;
+}
+
+.flow-edge:hover .flow-edge__arrowhead {
+  fill: #1e88e5;
+}
+
+.flow-edge__preview {
+  fill: none;
+  stroke: #1e88e5;
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+
+  &.is-invalid {
+    stroke: #e5484d;
+  }
+}
+
+// 左下角视口控件：比例显示、重置、缩放与适应画布（C-1、C-2）。
+.flow-controls {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid #e4e7eb;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 8%);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #3e4c59;
+}
+
+.flow-controls__button,
+.flow-controls__zoom {
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: #f0f4f8;
+  }
+
+  &:disabled {
+    color: #9aa5b1;
+    cursor: not-allowed;
+    background: transparent;
+  }
+}
+
+.flow-controls__zoom {
+  min-width: 48px;
+}
+
+.flow-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgb(229 72 77 / 95%);
+  color: #fff;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+  transform: translateX(-50%);
+  pointer-events: none;
 }
