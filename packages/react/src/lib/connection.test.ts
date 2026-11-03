@@ -17,19 +17,19 @@ const edges: Edge[] = [{ id: 'e-a-b', source: 'a', target: 'b' }]
 
 describe('findTargetNode', () => {
   it('命中输入锚点（节点上边缘中点）时返回节点 id', () => {
-    // 节点 a 的输入锚点在 (50, 0)，指针在其下方 2px
-    expect(findTargetNode(nodes, { x: 50, y: 2 }, 1)).toBe('a')
+    // 节点 a 的输入锚点在 (80, 0)，指针在其下方 2px
+    expect(findTargetNode(nodes, { x: 80, y: 2 }, 1)).toBe('a')
   })
 
   it('超出命中半径时返回 null', () => {
-    expect(findTargetNode(nodes, { x: 50, y: 30 }, 1)).toBeNull()
+    expect(findTargetNode(nodes, { x: 80, y: 30 }, 1)).toBeNull()
   })
 
   it('命中半径按缩放换算，始终对应屏幕上的固定像素', () => {
     const offset = HANDLE_HIT_RADIUS / 2 + 1
 
-    expect(findTargetNode(nodes, { x: 50, y: offset }, 1)).toBe('a')
-    expect(findTargetNode(nodes, { x: 50, y: offset }, 2)).toBeNull()
+    expect(findTargetNode(nodes, { x: 80, y: offset }, 1)).toBe('a')
+    expect(findTargetNode(nodes, { x: 80, y: offset }, 2)).toBeNull()
   })
 
   it('多个锚点同时命中时取最近的', () => {
@@ -38,7 +38,7 @@ describe('findTargetNode', () => {
       { id: 'b', position: { x: 0, y: 10 } },
     ]
 
-    expect(findTargetNode(overlapping, { x: 50, y: 9 }, 1)).toBe('b')
+    expect(findTargetNode(overlapping, { x: 80, y: 9 }, 1)).toBe('b')
   })
 })
 

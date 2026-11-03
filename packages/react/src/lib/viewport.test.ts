@@ -71,8 +71,8 @@ describe('getFitViewport', () => {
   it('把全部节点框进容器并居中', () => {
     const viewport = getFitViewport(nodes, 800, 600, 48)
 
-    // 包围盒 200 × 140，受最大缩放 200% 限制，中心为 (100, 70)
-    expect(viewport).toEqual({ x: 200, y: 160, zoom: 2 })
+    // 卡片 160 × 48：包围盒 260 × 148，受最大缩放 200% 限制，中心为 (130, 74)
+    expect(viewport).toEqual({ x: 140, y: 152, zoom: 2 })
   })
 
   it('空画布返回默认视口', () => {

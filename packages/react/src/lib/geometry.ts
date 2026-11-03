@@ -7,11 +7,11 @@ export interface Point {
 }
 
 /**
- * M1 阶段节点卡片使用固定尺寸；节点类型体系（N-1/N-2）建立后再替换为测量值。
- * 连线端点与框选命中都依赖这两个常量。
+ * R2 阶段节点卡片使用固定尺寸（PRD Q7：160 × 48）；节点类型体系（N-1/N-2）
+ * 建立后再替换为测量值。连线端点与适应画布都依赖这两个常量。
  */
-export const NODE_WIDTH = 100
-export const NODE_HEIGHT = 40
+export const NODE_WIDTH = 160
+export const NODE_HEIGHT = 48
 
 /** 输出锚点：节点下边缘中点。 */
 export function getSourceHandlePosition(node: Node): Point {

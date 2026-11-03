@@ -2,9 +2,9 @@ import './App.css'
 import { ReactFlow, type Edge, type Node } from 'reactflow';
 
 const initialNodes: Node[] = [
-  { id: 'start', position: { x: 320, y: 120 }, data: { label: 'Start' } },
-  { id: 'llm', position: { x: 320, y: 280 }, data: { label: 'LLM' } },
-  { id: 'end', position: { x: 320, y: 440 }, data: { label: 'End' } },
+  { id: 'start', type: 'start', position: { x: 320, y: 120 }, data: { label: 'Start' } },
+  { id: 'llm', type: 'llm', position: { x: 320, y: 280 }, data: { label: 'LLM' } },
+  { id: 'end', type: 'end', position: { x: 320, y: 440 }, data: { label: 'End' } },
 ];
 
 const initialEdges: Edge[] = [
