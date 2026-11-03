@@ -105,8 +105,9 @@ pnpm lint
   创建连线，非法目标标红并给出原因；单击/Shift 多选、Delete/Backspace 删除、
   `Ctrl/Cmd+Z` / `Ctrl/Cmd+Shift+Z` 撤销重做、Esc 取消选择；左下角有缩放比例与适应画布；
   左侧 `NodePanel` 支持点击或拖入创建节点（首版开始 / 大模型 / 结束 3 类）。
-- 尚未实现（M2 及以后）：框选、复制粘贴、节点类型注册表、配置面板与变量引用、
-  文档序列化/校验、运行调试。
+- 尚未实现（M2 及以后）：框选、复制粘贴、节点类型注册表、6 类内置节点、条件分支与分支标签、
+  配置面板与变量引用、文档序列化/校验、运行调试。其中注册表、6 类节点、条件分支与参数表单
+  计划在第三轮（v1.3）落地，范围见 [docs/ROADMAP.md §8](docs/ROADMAP.md#8-第三轮v13范围提议)。
 - `packages/react/src/index.ts` 导出 store、`ReactFlow` 与 `Node` / `Edge` / `Workflow` /
   `Viewport` / change 类型；`NodePanel` / `NodeRenderer` / `EdgeRenderer` / 各 `lib`
   内部模块**没有**对外导出。
