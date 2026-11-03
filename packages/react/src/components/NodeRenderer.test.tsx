@@ -6,49 +6,69 @@ import { useFlowStore } from '../store/index.ts'
 import { DEFAULT_VIEWPORT } from '../lib/viewport.ts'
 
 const nodes: Node[] = [
-  { id: 'start', position: { x: 10, y: 20 }, data: { label: 'Start' } },
-  { id: 'end', position: { x: 10, y: 200 }, data: { label: 'End' } },
+  { id: 'start', type: 'start', position: { x: 10, y: 20 }, data: { label: 'Start' } },
+  { id: 'end', type: 'end', position: { x: 10, y: 200 }, data: { label: 'End' } },
 ]
 
-beforeEach(() => {
+function resetStore() {
   useFlowStore.setState({
-    nodes: [],
-    edges: [],
-    viewport: { ...DEFAULT_VIEWPORT },
+    workflow: { nodes: [], edges: [], viewport: { ...DEFAULT_VIEWPORT } },
+    past: [],
+    future: [],
   })
-})
+}
+
+beforeEach(resetStore)
 
 describe('NodeRenderer', () => {
-  it('渲染节点标题与输入/输出锚点', () => {
-    useFlowStore.setState({ nodes })
+  it('渲染节点标题、类型徽标与输入/输出锚点', () => {
+    useFlowStore.setState({
+      workflow: { nodes, edges: [], viewport: { ...DEFAULT_VIEWPORT } },
+    })
 
     const { container } = render(<NodeRenderer connection={null} onConnectStart={vi.fn()} />)
 
     expect(screen.getByText('Start')).toBeTruthy()
     expect(screen.getByText('End')).toBeTruthy()
+    expect(screen.getByText('开始')).toBeTruthy()
+    expect(screen.getByText('结束')).toBeTruthy()
     expect(container.querySelectorAll('.flow-node')).toHaveLength(2)
+    expect(container.querySelectorAll('.flow-node__icon')).toHaveLength(2)
+    expect(container.querySelectorAll('.flow-node__badge')).toHaveLength(2)
     expect(container.querySelectorAll('.flow-handle--target')).toHaveLength(2)
     expect(container.querySelectorAll('.flow-handle--source')).toHaveLength(2)
-    expect(container.querySelector('[data-node-id="start"]')).toBeTruthy()
+    expect(container.querySelector('[data-node-id="start"]')?.getAttribute('data-node-type')).toBe(
+      'start',
+    )
   })
 
   it('增删节点不会触发 Hooks 数量变化错误', () => {
-    useFlowStore.setState({ nodes: [nodes[0]] })
+    useFlowStore.setState({
+      workflow: { nodes: [nodes[0]!], edges: [], viewport: { ...DEFAULT_VIEWPORT } },
+    })
     const { rerender } = render(<NodeRenderer connection={null} onConnectStart={vi.fn()} />)
 
-    useFlowStore.setState({ nodes })
+    useFlowStore.setState({ workflow: { nodes, edges: [], viewport: { ...DEFAULT_VIEWPORT } } })
     rerender(<NodeRenderer connection={null} onConnectStart={vi.fn()} />)
 
     expect(screen.getByText('End')).toBeTruthy()
 
-    useFlowStore.setState({ nodes: [nodes[1]] })
+    useFlowStore.setState({
+      workflow: { nodes: [nodes[1]!], edges: [], viewport: { ...DEFAULT_VIEWPORT } },
+    })
     rerender(<NodeRenderer connection={null} onConnectStart={vi.fn()} />)
 
     expect(screen.queryByText('Start')).toBeNull()
   })
 
   it('拖拽位移按当前缩放换算为画布坐标', () => {
-    useFlowStore.setState({ nodes: [nodes[0]], viewport: { ...DEFAULT_VIEWPORT, zoom: 2 } })
+    useFlowStore.setState({
+      workflow: {
+        nodes: [nodes[0]!],
+        edges: [],
+        viewport: { ...DEFAULT_VIEWPORT, zoom: 2 },
+      },
+    })
 
     const { container } = render(<NodeRenderer connection={null} onConnectStart={vi.fn()} />)
     const node = container.querySelector('[data-node-id="start"]') as HTMLElement
@@ -57,11 +77,13 @@ describe('NodeRenderer', () => {
     fireEvent.pointerMove(node, { pointerId: 1, clientX: 140, clientY: 120 })
     fireEvent.pointerUp(node, { pointerId: 1, clientX: 140, clientY: 120 })
 
-    expect(useFlowStore.getState().nodes[0].position).toEqual({ x: 30, y: 30 })
+    expect(useFlowStore.getState().workflow.nodes[0]?.position).toEqual({ x: 30, y: 30 })
   })
 
   it('从输出锚点开始连线时不移动节点', () => {
-    useFlowStore.setState({ nodes: [nodes[0]] })
+    useFlowStore.setState({
+      workflow: { nodes: [nodes[0]!], edges: [], viewport: { ...DEFAULT_VIEWPORT } },
+    })
     const onConnectStart = vi.fn()
 
     const { container } = render(
@@ -73,6 +95,73 @@ describe('NodeRenderer', () => {
     fireEvent.pointerMove(source, { pointerId: 2, clientX: 90, clientY: 90 })
 
     expect(onConnectStart).toHaveBeenCalledTimes(1)
-    expect(useFlowStore.getState().nodes[0].position).toEqual({ x: 10, y: 20 })
+    expect(useFlowStore.getState().workflow.nodes[0]?.position).toEqual({ x: 10, y: 20 })
+  })
+
+  it('单击选中节点，Shift 追加选择，多选拖拽整体移动且只产生一条历史', () => {
+    useFlowStore.setState({
+      workflow: { nodes, edges: [], viewport: { ...DEFAULT_VIEWPORT } },
+    })
+
+    const { container } = render(<NodeRenderer connection={null} onConnectStart={vi.fn()} />)
+    const start = container.querySelector('[data-node-id="start"]') as HTMLElement
+    const end = container.querySelector('[data-node-id="end"]') as HTMLElement
+
+    fireEvent.pointerDown(start, { button: 0, pointerId: 1, clientX: 100, clientY: 100 })
+    fireEvent.pointerUp(start, { button: 0, pointerId: 1, clientX: 100, clientY: 100 })
+    expect(start.className).toContain('is-selected')
+
+    fireEvent.pointerDown(end, { button: 0, pointerId: 2, clientX: 100, clientY: 300, shiftKey: true })
+    expect(useFlowStore.getState().workflow.nodes.map((node) => Boolean(node.selected))).toEqual([
+      true,
+      true,
+    ])
+
+    fireEvent.pointerDown(start, { button: 0, pointerId: 3, clientX: 100, clientY: 100 })
+    fireEvent.pointerMove(start, { pointerId: 3, clientX: 120, clientY: 120 })
+    fireEvent.pointerUp(start, { pointerId: 3, clientX: 120, clientY: 120 })
+
+    expect(useFlowStore.getState().workflow.nodes[0]?.position).toEqual({ x: 30, y: 40 })
+    expect(useFlowStore.getState().workflow.nodes[1]?.position).toEqual({ x: 30, y: 220 })
+    expect(useFlowStore.getState().past).toHaveLength(1)
+
+    useFlowStore.getState().undo()
+    expect(useFlowStore.getState().workflow.nodes[0]?.position).toEqual({ x: 10, y: 20 })
+    expect(useFlowStore.getState().workflow.nodes[1]?.position).toEqual({ x: 10, y: 200 })
+  })
+
+  it('多选状态下单击不拖动会收敛为单选', () => {
+    useFlowStore.setState({
+      workflow: {
+        nodes: [{ ...nodes[0]!, selected: true }, { ...nodes[1]!, selected: true }],
+        edges: [],
+        viewport: { ...DEFAULT_VIEWPORT },
+      },
+    })
+
+    const { container } = render(<NodeRenderer connection={null} onConnectStart={vi.fn()} />)
+    const start = container.querySelector('[data-node-id="start"]') as HTMLElement
+
+    fireEvent.pointerDown(start, { button: 0, pointerId: 1, clientX: 100, clientY: 100 })
+    fireEvent.pointerUp(start, { button: 0, pointerId: 1, clientX: 100, clientY: 100 })
+
+    expect(useFlowStore.getState().workflow.nodes.map((node) => Boolean(node.selected))).toEqual([
+      true,
+      false,
+    ])
+  })
+
+  it('未知节点类型回落到通用图标与类型名', () => {
+    useFlowStore.setState({
+      workflow: {
+        nodes: [{ id: 'custom', type: 'custom', position: { x: 0, y: 0 }, data: {} }],
+        edges: [],
+        viewport: { ...DEFAULT_VIEWPORT },
+      },
+    })
+
+    render(<NodeRenderer connection={null} onConnectStart={vi.fn()} />)
+
+    expect(screen.getAllByText('custom')).toHaveLength(2)
   })
 })

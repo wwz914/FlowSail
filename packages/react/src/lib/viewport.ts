@@ -1,12 +1,7 @@
-import type { Node } from '@system'
+import type { Node, Viewport } from '@system'
 import { getNodesBounds, type Point } from './geometry.ts'
 
-/** 视口变换：画布世界的平移 + 缩放。 */
-export interface Viewport {
-  x: number
-  y: number
-  zoom: number
-}
+export type { Viewport }
 
 export const MIN_ZOOM = 0.25
 export const MAX_ZOOM = 2

@@ -1,17 +1,15 @@
-import type { Node } from '@system'
 import { useFlowStore } from '../store/index.ts'
 import type { ConnectionState } from '../lib/connection.ts'
 import { NodeCard } from './NodeCard.tsx'
 
 export interface NodeRendererProps {
   connection: ConnectionState | null
-  onNodesChange?: ((nodes: Node[]) => void) | undefined
   onConnectStart: (nodeId: string, clientX: number, clientY: number) => void
 }
 
 /** 节点层：把节点列表映射成卡片；所有 Hooks 都在 NodeCard 顶层调用（G-3）。 */
-export const NodeRenderer = ({ connection, onNodesChange, onConnectStart }: NodeRendererProps) => {
-  const nodes = useFlowStore((state) => state.nodes)
+export const NodeRenderer = ({ connection, onConnectStart }: NodeRendererProps) => {
+  const nodes = useFlowStore((state) => state.workflow.nodes)
 
   return (
     <>
@@ -24,7 +22,6 @@ export const NodeRenderer = ({ connection, onNodesChange, onConnectStart }: Node
             isConnectionSource={connection?.sourceId === node.id}
             isConnectionTarget={isConnectionTarget}
             isConnectionTargetInvalid={Boolean(isConnectionTarget && connection?.error)}
-            onNodesChange={onNodesChange}
             onConnectStart={onConnectStart}
           />
         )

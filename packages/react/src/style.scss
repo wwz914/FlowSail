@@ -35,23 +35,41 @@
   pointer-events: none;
 }
 
+// 节点卡片（C-11、PRD Q7）：160 × 48，图标 + 标题 + 类型徽标，常态 / 悬停 / 选中三态。
 .flow-node {
   position: absolute;
   box-sizing: border-box;
-  width: 100px;
-  height: 40px;
-  padding: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 160px;
+  height: 48px;
+  padding: 0 10px;
   border: 2px solid #1e88e5;
   border-radius: 8px;
   background: #fff;
+  color: #1f2933;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 13px;
   cursor: move;
   user-select: none;
   pointer-events: auto;
+  transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
   z-index: 1;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgb(15 23 42 / 12%);
+  }
+
+  &.is-selected {
+    border-color: #1565c0;
+    background: #f5faff;
+    box-shadow: 0 0 0 3px rgb(30 136 229 / 25%);
+  }
 
   &.is-dragging {
     z-index: 3;
-    box-shadow: 0 6px 16px rgb(15 23 42 / 12%);
+    box-shadow: 0 6px 16px rgb(15 23 42 / 18%);
   }
 
   &.is-connection-source {
@@ -59,11 +77,30 @@
   }
 }
 
+.flow-node__icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
 .flow-node__title {
-  display: block;
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.flow-node__badge {
+  flex: none;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  line-height: 1.3;
+  white-space: nowrap;
 }
 
 // 锚点：16px 命中区（≥ 12px），默认隐藏，悬停节点或连线时显示（C-4）。
@@ -174,6 +211,15 @@
   fill: #1e88e5;
 }
 
+.flow-edge.is-selected .flow-edge__line {
+  stroke: #1e88e5;
+  stroke-width: 3;
+}
+
+.flow-edge__arrowhead.is-selected {
+  fill: #1e88e5;
+}
+
 .flow-edge__preview {
   fill: none;
   stroke: #1e88e5;
@@ -185,6 +231,63 @@
   &.is-invalid {
     stroke: #e5484d;
   }
+}
+
+// 左侧最小节点面板（R2-6）：点击在画布中心创建，或拖到画布按落点创建。
+.flow-node-panel {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 132px;
+  padding: 8px;
+  border: 1px solid #e4e7eb;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 8%);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  color: #3e4c59;
+  z-index: 4;
+}
+
+.flow-node-panel__title {
+  padding: 2px 8px 6px;
+  color: #7b8794;
+  font-size: 12px;
+}
+
+.flow-node-panel__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: grab;
+
+  &:hover {
+    background: #f0f4f8;
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.flow-node-panel__icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
 }
 
 // 左下角视口控件：比例显示、重置、缩放与适应画布（C-1、C-2）。
