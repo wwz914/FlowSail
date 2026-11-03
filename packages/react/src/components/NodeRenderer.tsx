@@ -44,7 +44,7 @@ export const NodeRenderer: React.FC<NodeRendererProps> = ({ nodes }) => {
               position: 'absolute',
               left: node.position.x,
               top: node.position.y,
-              border: '1px solid #333',
+              border: '2px solid #1e88e5',
               background: '#fff',
               padding: 8,
               borderRadius: 4,
