@@ -6,10 +6,16 @@
   "types": "src/index.ts",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "vite build && tsc -p tsconfig.build.json",
+    "test": "vitest run --config ../../vitest.config.ts packages/system"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.23.0"
+  "packageManager": "pnpm@10.23.0",
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^7.2.4",
+    "vitest": "^5.1.0"
+  }
 }

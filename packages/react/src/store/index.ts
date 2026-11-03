@@ -1,22 +1,44 @@
-import type { Node, Edge } from '@system'
+import type { Edge, Node } from '@system'
 import { create } from 'zustand'
+import { DEFAULT_VIEWPORT, type Viewport } from '../lib/viewport.ts'
 
-interface FlowState {
+export type NodesUpdater = Node[] | ((nodes: Node[]) => Node[])
+export type EdgesUpdater = Edge[] | ((edges: Edge[]) => Edge[])
+export type ViewportUpdater = Viewport | ((viewport: Viewport) => Viewport)
+
+export interface FlowState {
   nodes: Node[]
   edges: Edge[]
-  setNodes: (nodes: Node[]) => void
-  setEdges: (edges: Edge[]) => void
+  viewport: Viewport
+  /** 与 React 的 setState 一致：接受新数组或基于当前值的更新函数（G-2）。 */
+  setNodes: (nodes: NodesUpdater) => void
+  setEdges: (edges: EdgesUpdater) => void
+  setViewport: (viewport: ViewportUpdater) => void
 }
 
-export const useFlowStore = create<FlowState>(set => ({
+export const useFlowStore = create<FlowState>((set) => ({
   nodes: [],
   edges: [],
-  setNodes: (nodesOrFn) => 
-    set(state => ({
-      nodes: typeof nodesOrFn === 'function'
-        ? (nodesOrFn as (nodes: Node[]) => Node[])(state.nodes as Node[])
-        : nodesOrFn
+  viewport: { ...DEFAULT_VIEWPORT },
+  setNodes: (nodesOrUpdater) =>
+    set((state) => ({
+      nodes:
+        typeof nodesOrUpdater === 'function'
+          ? nodesOrUpdater(state.nodes)
+          : nodesOrUpdater,
     })),
-  // setNodes: (nodes: Node[]) => set({ nodes }),
-  setEdges: (edges: Edge[]) => set({ edges }),
+  setEdges: (edgesOrUpdater) =>
+    set((state) => ({
+      edges:
+        typeof edgesOrUpdater === 'function'
+          ? edgesOrUpdater(state.edges)
+          : edgesOrUpdater,
+    })),
+  setViewport: (viewportOrUpdater) =>
+    set((state) => ({
+      viewport:
+        typeof viewportOrUpdater === 'function'
+          ? viewportOrUpdater(state.viewport)
+          : viewportOrUpdater,
+    })),
 }))

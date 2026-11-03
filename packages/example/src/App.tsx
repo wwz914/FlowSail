@@ -1,20 +1,21 @@
 import './App.css'
-import { ReactFlow } from 'reactflow';
+import { ReactFlow, type Edge, type Node } from 'reactflow';
+
+const initialNodes: Node[] = [
+  { id: 'start', position: { x: 320, y: 120 }, data: { label: 'Start' } },
+  { id: 'llm', position: { x: 320, y: 280 }, data: { label: 'LLM' } },
+  { id: 'end', position: { x: 320, y: 440 }, data: { label: 'End' } },
+];
+
+const initialEdges: Edge[] = [
+  { id: 'e-start-llm', source: 'start', target: 'llm' },
+];
 
 function App() {
-  const nodes = [
-    { id: '1', position: { x: 100, y: 100 }, data: { label: 'Node 1' } },
-    { id: '2', position: { x: 400, y: 100 }, data: { label: 'Node 2' } },
-  ];
-  const edges = [
-    { id: 'e1-2', source: '1', target: '2', label: 'Connector' },
-  ];
   return (
-    <>
-      <div style={{width: '100vw', height: '100vh'}}>
-        <ReactFlow nodes={nodes} edges={edges} />
-      </div>
-    </>
+    <div style={{width: '100vw', height: '100vh'}}>
+      <ReactFlow nodes={initialNodes} edges={initialEdges} />
+    </div>
   )
 }
 

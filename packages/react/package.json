@@ -5,7 +5,8 @@
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "vite build && tsc -p tsconfig.build.json",
+    "test": "vitest run --config ../../vitest.config.ts packages/react"
   },
   "keywords": [],
   "author": "",
@@ -14,13 +15,14 @@
   "dependencies": {
     "@system": "workspace:*",
     "react": "*",
-    "react-dom": "*",
-    "d3-drag": "*",
-    "d3-selection": "*",
-    "d3-zoom": "*"
+    "react-dom": "*"
   },
   "devDependencies": {
     "@types/react": "*",
-    "@types/react-dom": "*"
+    "@types/react-dom": "*",
+    "sass-embedded": "^1.93.3",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.4",
+    "vitest": "^5.1.0"
   }
 }
