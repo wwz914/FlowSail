@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type {
   DragEvent as ReactDragEvent,
   PointerEvent as ReactPointerEvent,
@@ -10,6 +10,7 @@ import { useFlowStore, getSelection, getSelectionKey, type SelectionState } from
 import { NodeRenderer } from './components/NodeRenderer.tsx'
 import { EdgeRenderer } from './components/EdgeRenderer.tsx'
 import { NodePanel, NODE_DRAG_MIME } from './components/NodePanel.tsx'
+import { ConfigPanel } from './components/ConfigPanel.tsx'
 import {
   CONNECTION_ERROR_MESSAGES,
   findTargetNode,
@@ -21,8 +22,16 @@ import {
   screenToFlow,
   zoomAtPoint,
 } from './lib/viewport.ts'
-import { NODE_HEIGHT, NODE_WIDTH, type Point } from './lib/geometry.ts'
-import { getNodeTypeMeta } from './lib/nodeTypes.tsx'
+import {
+  NODE_HEIGHT,
+  NODE_WIDTH,
+  findInputHandle,
+  findOutputHandle,
+  type Point,
+} from './lib/geometry.ts'
+import { resolveNodeType } from './lib/registry.ts'
+import { NodeTypeRegistryContext, buildRegistry } from './lib/registryContext.tsx'
+import type { NodeTypeDefinition } from './lib/registry.ts'
 
 const EMPTY_NODES: Node[] = []
 const EMPTY_EDGES: Edge[] = []
@@ -32,6 +41,13 @@ let nodeIdSequence = 0
 function createNodeId(type: string): string {
   nodeIdSequence += 1
   return `node-${type}-${nodeIdSequence}`
+}
+
+let edgeIdSequence = 0
+
+function createEdgeId(sourceId: string, targetId: string): string {
+  edgeIdSequence += 1
+  return `e-${sourceId}-${targetId}-${edgeIdSequence}`
 }
 
 function isEditableTarget(target: EventTarget | null): boolean {
@@ -55,9 +71,15 @@ export interface ReactFlowProps {
   /** 初始文档（R2-7：v1 为非受控主语义，props 变化时按内容差异同步，宿主重渲染不会冲掉内部编辑）。 */
   nodes?: Node[]
   edges?: Edge[]
+  /** 宿主注册的自定义节点类型（R3-1、FR-X2）；同名类型覆盖内置定义。 */
+  nodeTypes?: NodeTypeDefinition[]
   onNodesChange?: (nodes: Node[]) => void
   onEdgesChange?: (edges: Edge[]) => void
   onSelectionChange?: (selection: SelectionState) => void
+  /** 是否显示内置的左侧节点面板覆盖层；宿主自建三栏布局时可关闭（R3-8）。 */
+  showNodePanel?: boolean
+  /** 是否显示内置的右侧配置面板覆盖层；宿主自建三栏布局时可关闭（R3-8）。 */
+  showConfigPanel?: boolean
   children?: ReactNode
 }
 
@@ -76,11 +98,15 @@ interface PanState {
 export const ReactFlow = ({
   nodes = EMPTY_NODES,
   edges = EMPTY_EDGES,
+  nodeTypes,
   onNodesChange,
   onEdgesChange,
   onSelectionChange,
+  showNodePanel = true,
+  showConfigPanel = true,
   children,
 }: ReactFlowProps) => {
+  const registry = useMemo(() => buildRegistry(nodeTypes), [nodeTypes])
   const viewport = useFlowStore((state) => state.workflow.viewport)
   const nodeCount = useFlowStore((state) => state.workflow.nodes.length)
   const setNodes = useFlowStore((state) => state.setNodes)
@@ -90,6 +116,7 @@ export const ReactFlow = ({
   const containerRef = useRef<HTMLDivElement | null>(null)
   const panRef = useRef<PanState | null>(null)
   const connectionSourceRef = useRef<string | null>(null)
+  const connectionHandleRef = useRef<string | null>(null)
   const onNodesChangeRef = useRef(onNodesChange)
   const onEdgesChangeRef = useRef(onEdgesChange)
   const onSelectionChangeRef = useRef(onSelectionChange)
@@ -215,7 +242,7 @@ export const ReactFlow = ({
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  // 连线创建：拖动中实时预览、命中校验、松开落库（C-4、C-5、C-7）。
+  // 连线创建：拖动中实时预览、命中校验、松开落库（C-4、C-5、C-7、R3-3、R3-4）。
   useEffect(() => {
     if (!isConnecting) return undefined
     const container = containerRef.current
@@ -223,6 +250,7 @@ export const ReactFlow = ({
 
     const resolveConnection = (event: PointerEvent, commit: boolean) => {
       const sourceId = connectionSourceRef.current
+      const sourceHandleId = connectionHandleRef.current
       if (!sourceId) return
 
       const { nodes: currentNodes, edges: currentEdges } = useFlowStore.getState().workflow
@@ -231,21 +259,41 @@ export const ReactFlow = ({
         currentNodes,
         pointer,
         useFlowStore.getState().workflow.viewport.zoom,
+        registry,
       )
       const error = targetId ? validateConnection(currentEdges, sourceId, targetId) : null
 
       if (commit && targetId && !error) {
-        useFlowStore
-          .getState()
-          .addEdge({ id: `e-${sourceId}-${targetId}`, source: sourceId, target: targetId })
+        // 条件节点的连线默认带出口名作为分支标签（R3-4）。
+        const sourceNode = currentNodes.find((node) => node.id === sourceId)
+        const sourceDefinition = sourceNode
+          ? resolveNodeType(registry, sourceNode.type)
+          : undefined
+        const output = findOutputHandle(sourceDefinition?.outputs, sourceHandleId ?? undefined)
+        const targetNode = currentNodes.find((node) => node.id === targetId)
+        const targetDefinition = targetNode
+          ? resolveNodeType(registry, targetNode.type)
+          : undefined
+        const input = findInputHandle(targetDefinition?.inputs)
+
+        useFlowStore.getState().addEdge({
+          id: createEdgeId(sourceId, targetId),
+          source: sourceId,
+          target: targetId,
+          ...(output ? { sourceHandle: output.id } : {}),
+          ...(input ? { targetHandle: input.id } : {}),
+          ...(output?.label ? { label: output.label } : {}),
+        })
       }
 
       connectionSourceRef.current = null
+      connectionHandleRef.current = null
       setConnection(null)
     }
 
     const handlePointerMove = (event: PointerEvent) => {
       const sourceId = connectionSourceRef.current
+      const sourceHandleId = connectionHandleRef.current
       if (!sourceId) return
 
       const {
@@ -254,10 +302,10 @@ export const ReactFlow = ({
         viewport: currentViewport,
       } = useFlowStore.getState().workflow
       const pointer = toFlowPoint(container, event.clientX, event.clientY)
-      const targetId = findTargetNode(currentNodes, pointer, currentViewport.zoom)
+      const targetId = findTargetNode(currentNodes, pointer, currentViewport.zoom, registry)
       const error = targetId ? validateConnection(currentEdges, sourceId, targetId) : null
 
-      setConnection({ sourceId, pointer, targetId, error })
+      setConnection({ sourceId, sourceHandle: sourceHandleId ?? 'out', pointer, targetId, error })
     }
 
     const handlePointerUp = (event: PointerEvent) => {
@@ -268,6 +316,7 @@ export const ReactFlow = ({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return
       connectionSourceRef.current = null
+      connectionHandleRef.current = null
       setConnection(null)
     }
 
@@ -279,7 +328,7 @@ export const ReactFlow = ({
       window.removeEventListener('pointerup', handlePointerUp)
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [isConnecting])
+  }, [isConnecting, registry])
 
   // 点击画布空白取消选择（R2-2）；节点、连线与覆盖层各自阻止冒泡。
   const handleCanvasPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -288,12 +337,19 @@ export const ReactFlow = ({
     useFlowStore.getState().clearSelection()
   }
 
-  const handleConnectStart = (nodeId: string, clientX: number, clientY: number) => {
+  const handleConnectStart = (
+    nodeId: string,
+    handleId: string,
+    clientX: number,
+    clientY: number,
+  ) => {
     const container = containerRef.current
     if (!container) return
     connectionSourceRef.current = nodeId
+    connectionHandleRef.current = handleId
     setConnection({
       sourceId: nodeId,
+      sourceHandle: handleId,
       pointer: toFlowPoint(container, clientX, clientY),
       targetId: null,
       error: null,
@@ -305,12 +361,12 @@ export const ReactFlow = ({
     if (!container) return
 
     const point = toFlowPoint(container, clientX, clientY)
-    const meta = getNodeTypeMeta(type)
+    const definition = resolveNodeType(registry, type)
     useFlowStore.getState().addNode({
       id: createNodeId(type),
       type,
       position: { x: point.x - NODE_WIDTH / 2, y: point.y - NODE_HEIGHT / 2 },
-      data: { label: meta.defaultLabel },
+      data: { ...(definition.defaultData ?? {}), label: definition.defaultData?.label ?? definition.label },
     })
   }
 
@@ -404,82 +460,86 @@ export const ReactFlow = ({
   const connectionError = connection?.targetId ? connection.error : null
 
   return (
-    <div
-      ref={containerRef}
-      className={className}
-      onPointerDownCapture={handlePointerDownCapture}
-      onPointerDown={handleCanvasPointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={endPan}
-      onPointerCancel={endPan}
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
-    >
+    <NodeTypeRegistryContext.Provider value={registry}>
       <div
-        className="flow-background"
-        style={{
-          backgroundPosition: `${viewport.x}px ${viewport.y}px`,
-          backgroundSize: `${20 * viewport.zoom}px ${20 * viewport.zoom}px`,
-        }}
-      />
-
-      <div
-        className="flow-viewport"
-        style={{ transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})` }}
+        ref={containerRef}
+        className={className}
+        onPointerDownCapture={handlePointerDownCapture}
+        onPointerDown={handleCanvasPointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={endPan}
+        onPointerCancel={endPan}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
       >
-        <EdgeRenderer connection={connection} />
-        <NodeRenderer connection={connection} onConnectStart={handleConnectStart} />
-      </div>
+        <div
+          className="flow-background"
+          style={{
+            backgroundPosition: `${viewport.x}px ${viewport.y}px`,
+            backgroundSize: `${20 * viewport.zoom}px ${20 * viewport.zoom}px`,
+          }}
+        />
 
-      <NodePanel onAddNode={handlePanelAdd} />
-
-      <div className="flow-controls">
-        <button
-          type="button"
-          className="flow-controls__button"
-          onClick={() => zoomAtCenter(viewport.zoom * 0.8)}
-          aria-label="缩小"
-          title="缩小"
+        <div
+          className="flow-viewport"
+          style={{ transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})` }}
         >
-          −
-        </button>
-        <button
-          type="button"
-          className="flow-controls__zoom"
-          onClick={() => zoomAtCenter(1)}
-          aria-label={`当前缩放 ${Math.round(viewport.zoom * 100)}%，点击重置为 100%`}
-          title="重置为 100%"
-        >
-          {Math.round(viewport.zoom * 100)}%
-        </button>
-        <button
-          type="button"
-          className="flow-controls__button"
-          onClick={() => zoomAtCenter(viewport.zoom * 1.25)}
-          aria-label="放大"
-          title="放大"
-        >
-          +
-        </button>
-        <button
-          type="button"
-          className="flow-controls__button flow-controls__fit"
-          onClick={fitView}
-          disabled={nodeCount === 0}
-          aria-label="适应画布"
-          title="适应画布"
-        >
-          适应
-        </button>
-      </div>
-
-      {connectionError ? (
-        <div className="flow-hint" role="status">
-          {CONNECTION_ERROR_MESSAGES[connectionError]}
+          <EdgeRenderer connection={connection} />
+          <NodeRenderer connection={connection} onConnectStart={handleConnectStart} />
         </div>
-      ) : null}
 
-      {children}
-    </div>
+        {showNodePanel ? <NodePanel onAddNode={handlePanelAdd} /> : null}
+
+        {showConfigPanel ? <ConfigPanel /> : null}
+
+        <div className="flow-controls">
+          <button
+            type="button"
+            className="flow-controls__button"
+            onClick={() => zoomAtCenter(viewport.zoom * 0.8)}
+            aria-label="缩小"
+            title="缩小"
+          >
+            −
+          </button>
+          <button
+            type="button"
+            className="flow-controls__zoom"
+            onClick={() => zoomAtCenter(1)}
+            aria-label={`当前缩放 ${Math.round(viewport.zoom * 100)}%，点击重置为 100%`}
+            title="重置为 100%"
+          >
+            {Math.round(viewport.zoom * 100)}%
+          </button>
+          <button
+            type="button"
+            className="flow-controls__button"
+            onClick={() => zoomAtCenter(viewport.zoom * 1.25)}
+            aria-label="放大"
+            title="放大"
+          >
+            +
+          </button>
+          <button
+            type="button"
+            className="flow-controls__button flow-controls__fit"
+            onClick={fitView}
+            disabled={nodeCount === 0}
+            aria-label="适应画布"
+            title="适应画布"
+          >
+            适应
+          </button>
+        </div>
+
+        {connectionError ? (
+          <div className="flow-hint" role="status">
+            {CONNECTION_ERROR_MESSAGES[connectionError]}
+          </div>
+        ) : null}
+
+        {children}
+      </div>
+    </NodeTypeRegistryContext.Provider>
   )
 }

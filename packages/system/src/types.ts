@@ -26,6 +26,11 @@ export interface Edge {
   source: string;
   target: string;
   type?: string;
+  /** 源节点上的出口锚点 id（R3-3）。缺省表示节点的默认出口。 */
+  sourceHandle?: string;
+  /** 目标节点上的入口锚点 id（R3-3）。缺省表示节点的默认入口。 */
+  targetHandle?: string;
+  /** 连线标签，用于条件节点的分支名（R3-4）。 */
   label?: string;
   selected?: boolean;
 }

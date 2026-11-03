@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react'
 import type { PointerEvent as ReactPointerEvent } from 'react'
 import type { Node, Workflow } from '@system'
-import { getNodeTypeMeta } from '../lib/nodeTypes.tsx'
+import { useNodeTypeRegistry } from '../lib/registryContext.tsx'
+import { resolveNodeType } from '../lib/registry.ts'
 import { useFlowStore } from '../store/index.ts'
 
 export interface NodeCardProps {
@@ -12,7 +13,7 @@ export interface NodeCardProps {
   isConnectionTarget: boolean
   /** 命中但连线非法时高亮为错误色。 */
   isConnectionTargetInvalid: boolean
-  onConnectStart: (nodeId: string, clientX: number, clientY: number) => void
+  onConnectStart: (nodeId: string, handleId: string, clientX: number, clientY: number) => void
 }
 
 interface DragOrigin {
@@ -41,6 +42,7 @@ const DRAG_THRESHOLD = 3
 /**
  * 单个节点卡片。拖拽逻辑封在组件顶层，避免在 `nodes.map()` 里调用 Hooks（G-3）。
  * 选择在 pointerdown 时发生（R2-2），位移在 pointermove 时更新，松手才写入历史（R2-4）。
+ * 锚点来自节点类型注册表（R3-1、R3-3）：条件节点因此能有两个具名出口。
  */
 export const NodeCard = ({
   node,
@@ -49,7 +51,8 @@ export const NodeCard = ({
   isConnectionTargetInvalid,
   onConnectStart,
 }: NodeCardProps) => {
-  const meta = getNodeTypeMeta(node.type)
+  const registry = useNodeTypeRegistry()
+  const meta = resolveNodeType(registry, node.type)
   const dragRef = useRef<DragState | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const isSelected = Boolean(node.selected)
@@ -123,10 +126,13 @@ export const NodeCard = ({
     else if (drag.collapseOnClick) useFlowStore.getState().selectNode(node.id)
   }
 
-  const handleConnectStart = (event: ReactPointerEvent<HTMLSpanElement>) => {
+  const handleConnectStart = (
+    event: ReactPointerEvent<HTMLSpanElement>,
+    handleId: string,
+  ) => {
     if (event.button !== 0) return
     event.stopPropagation()
-    onConnectStart(node.id, event.clientX, event.clientY)
+    onConnectStart(node.id, handleId, event.clientX, event.clientY)
   }
 
   const className = [
@@ -138,16 +144,10 @@ export const NodeCard = ({
     .filter(Boolean)
     .join(' ')
 
-  const targetHandleClassName = [
-    'flow-handle',
-    'flow-handle--target',
-    isConnectionTarget ? 'is-connection-target' : '',
-    isConnectionTargetInvalid ? 'is-invalid' : '',
-  ]
-    .filter(Boolean)
-    .join(' ')
+  const title = String(node.data?.label ?? meta.label)
 
-  const title = String(node.data?.label ?? meta.defaultLabel)
+  const inputs = meta.inputs ?? []
+  const outputs = meta.outputs ?? []
 
   return (
     <div
@@ -172,13 +172,35 @@ export const NodeCard = ({
       >
         {meta.label}
       </span>
-      <span className={targetHandleClassName} aria-hidden="true" />
-      <span
-        className="flow-handle flow-handle--source"
-        aria-hidden="true"
-        title="拖拽创建连线"
-        onPointerDown={handleConnectStart}
-      />
+
+      {inputs.map((handle) => (
+        <span
+          key={`in-${handle.id}`}
+          className={[
+            'flow-handle',
+            'flow-handle--target',
+            isConnectionTarget ? 'is-connection-target' : '',
+            isConnectionTargetInvalid ? 'is-invalid' : '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+          data-handle-id={handle.id}
+          style={{ left: `${handle.offset * 100}%` }}
+          aria-hidden="true"
+        />
+      ))}
+
+      {outputs.map((handle) => (
+        <span
+          key={`out-${handle.id}`}
+          className="flow-handle flow-handle--source"
+          data-handle-id={handle.id}
+          style={{ left: `${handle.offset * 100}%` }}
+          aria-hidden="true"
+          title={handle.label ? `拖拽创建连线（${handle.label}）` : '拖拽创建连线'}
+          onPointerDown={(event) => handleConnectStart(event, handle.id)}
+        />
+      ))}
     </div>
   )
 }

@@ -1,3 +1,59 @@
 body {
   margin: 0;
 }
+
+/* 三栏布局（R3-8）：顶部工具栏 + 左节点面板 + 中画布 + 右配置面板。 */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: #3e4c59;
+}
+
+.app-toolbar {
+  display: flex;
+  flex: none;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid #e4e7eb;
+  background: #fff;
+}
+
+.app-toolbar__title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.app-toolbar__hint {
+  color: #7b8794;
+  font-size: 12px;
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.app-sidebar {
+  display: flex;
+  flex: none;
+  width: 160px;
+  background: #fff;
+}
+
+.app-canvas {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.app-inspector {
+  display: flex;
+  flex: none;
+  width: 300px;
+  background: #fff;
+}

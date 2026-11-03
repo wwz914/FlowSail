@@ -2,12 +2,21 @@ import { useId } from 'react'
 import type { PointerEvent as ReactPointerEvent } from 'react'
 import type { Edge } from '@system'
 import { useFlowStore } from '../store/index.ts'
-import { getSourceHandlePosition, getTargetHandlePosition } from '../lib/geometry.ts'
+import {
+  findInputHandle,
+  findOutputHandle,
+  getSourceHandlePosition,
+  getSourceHandlePositionById,
+  getTargetHandlePosition,
+  getTargetHandlePositionById,
+} from '../lib/geometry.ts'
 import {
   getBezierMidpoint,
   getBezierPath,
   type ConnectionState,
 } from '../lib/connection.ts'
+import { useNodeTypeRegistry } from '../lib/registryContext.tsx'
+import { resolveNodeType } from '../lib/registry.ts'
 
 export interface EdgeRendererProps {
   connection: ConnectionState | null
@@ -15,9 +24,11 @@ export interface EdgeRendererProps {
 
 /**
  * 连线层：SVG 贝塞尔曲线 + 箭头，位于节点层下方。
- * 选中高亮与点击选择在 R2-2 补齐（C-6、C-8）。
+ * 连线端点按 `sourceHandle` / `targetHandle` 落到具体锚点（R3-3）；
+ * 分支标签显示在曲线上（R3-4）。
  */
 export const EdgeRenderer = ({ connection }: EdgeRendererProps) => {
+  const registry = useNodeTypeRegistry()
   const nodes = useFlowStore((state) => state.workflow.nodes)
   const edges = useFlowStore((state) => state.workflow.edges)
   const selectEdge = useFlowStore((state) => state.selectEdge)
@@ -27,15 +38,53 @@ export const EdgeRenderer = ({ connection }: EdgeRendererProps) => {
   const connectionTarget =
     connection?.targetId != null ? nodeById.get(connection.targetId) : undefined
 
-  const previewPath =
+  const resolveEndpoints = (edge: Edge) => {
+    const sourceNode = nodeById.get(edge.source)
+    const targetNode = nodeById.get(edge.target)
+    if (!sourceNode || !targetNode) return null
+
+    const sourceDefinition = resolveNodeType(registry, sourceNode.type)
+    const targetDefinition = resolveNodeType(registry, targetNode.type)
+    const output = findOutputHandle(sourceDefinition.outputs, edge.sourceHandle)
+    const input = findInputHandle(targetDefinition.inputs, edge.targetHandle)
+
+    return {
+      source: output
+        ? getSourceHandlePositionById(sourceNode, output)
+        : getSourceHandlePosition(sourceNode),
+      target: input
+        ? getTargetHandlePositionById(targetNode, input)
+        : getTargetHandlePosition(targetNode),
+    }
+  }
+
+  const previewEndpoints =
     connection && connectionSource
-      ? getBezierPath(
-          getSourceHandlePosition(connectionSource),
-          connectionTarget
-            ? getTargetHandlePosition(connectionTarget)
-            : connection.pointer,
-        )
+      ? (() => {
+          const sourceDefinition = resolveNodeType(registry, connectionSource.type)
+          const output = findOutputHandle(
+            sourceDefinition.outputs,
+            connection.sourceHandle,
+          )
+          const source = output
+            ? getSourceHandlePositionById(connectionSource, output)
+            : getSourceHandlePosition(connectionSource)
+          const target = connectionTarget
+            ? (() => {
+                const targetDefinition = resolveNodeType(registry, connectionTarget.type)
+                const input = findInputHandle(targetDefinition.inputs)
+                return input
+                  ? getTargetHandlePositionById(connectionTarget, input)
+                  : getTargetHandlePosition(connectionTarget)
+              })()
+            : connection.pointer
+          return { source, target }
+        })()
       : null
+
+  const previewPath = previewEndpoints
+    ? getBezierPath(previewEndpoints.source, previewEndpoints.target)
+    : null
 
   const handleSelect = (edge: Edge, event: ReactPointerEvent<SVGGElement>) => {
     if (event.button !== 0) return
@@ -71,12 +120,10 @@ export const EdgeRenderer = ({ connection }: EdgeRendererProps) => {
       </defs>
 
       {edges.map((edge: Edge) => {
-        const sourceNode = nodeById.get(edge.source)
-        const targetNode = nodeById.get(edge.target)
-        if (!sourceNode || !targetNode) return null
+        const endpoints = resolveEndpoints(edge)
+        if (!endpoints) return null
 
-        const source = getSourceHandlePosition(sourceNode)
-        const target = getTargetHandlePosition(targetNode)
+        const { source, target } = endpoints
         const path = getBezierPath(source, target)
         const midpoint = getBezierMidpoint(source, target)
 
@@ -85,6 +132,7 @@ export const EdgeRenderer = ({ connection }: EdgeRendererProps) => {
             key={edge.id}
             className={`flow-edge${edge.selected ? ' is-selected' : ''}`}
             data-edge-id={edge.id}
+            data-source-handle={edge.sourceHandle ?? ''}
             onPointerDown={(event) => handleSelect(edge, event)}
           >
             <path className="flow-edge__hit" d={path} />
