@@ -1,2 +1,2 @@
 # FlowSail
-a mini workflow dev-kit
+A mini workflow dev-kit
