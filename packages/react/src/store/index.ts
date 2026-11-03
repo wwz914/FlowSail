@@ -1,4 +1,5 @@
 import type { Edge, Node, Viewport, Workflow } from '@system'
+import { createWorkflow } from '@system'
 import { create } from 'zustand'
 import { DEFAULT_VIEWPORT } from '../lib/viewport.ts'
 
@@ -53,6 +54,18 @@ export interface FlowState {
   redo: () => boolean
   /** 宿主替换初始文档时清空历史，避免撤销回上一份文档。 */
   resetHistory: () => void
+  /**
+   * 受控模式开关（R4-2、FR-X1）。
+   * 为 true 时内部编辑会通过 `onChange` 写回宿主，且宿主传入的 `workflow` 会回流画布。
+   */
+  controlled: boolean
+  /** 设置受控模式；切换到受控时清空历史，避免撤销回上一份文档。 */
+  setControlled: (controlled: boolean) => void
+  /**
+   * 应用宿主传入的文档（R4-2）。
+   * 受控模式下宿主改文档后调用；内容相同则不写 store，避免打断内部编辑。
+   */
+  applyExternalDocument: (document: Workflow) => void
 }
 
 function resolve<T>(value: T | ((current: T) => T), current: T): T {
@@ -74,8 +87,24 @@ export function getSelectionKey(workflow: Workflow): string {
   return JSON.stringify([nodeIds, edgeIds])
 }
 
+/**
+ * 文档的内容指纹（R4-2、R4-3）。
+ * 只比较影响画布与文档语义的部分，忽略 `selected` 这类视图态标记。
+ * 视口计入指纹：宿主只改视口时也要回流到画布。
+ */
+export function getDocumentKey(workflow: Workflow): string {
+  return JSON.stringify({
+    id: workflow.id,
+    name: workflow.name,
+    version: workflow.version,
+    viewport: workflow.viewport,
+    nodes: workflow.nodes.map((node) => ({ ...node, selected: undefined })),
+    edges: workflow.edges.map((edge) => ({ ...edge, selected: undefined })),
+  })
+}
+
 function createInitialWorkflow(): Workflow {
-  return { nodes: [], edges: [], viewport: { ...DEFAULT_VIEWPORT } }
+  return { ...createWorkflow(), viewport: { ...DEFAULT_VIEWPORT } }
 }
 
 /** 用新文档替换当前文档，并把旧文档压入撤销栈。 */
@@ -304,4 +333,28 @@ export const useFlowStore = create<FlowState>((set, get) => ({
     set((state) =>
       state.past.length === 0 && state.future.length === 0 ? {} : { past: [], future: [] },
     ),
+
+  controlled: false,
+
+  setControlled: (controlled) =>
+    set((state) => {
+      if (state.controlled === controlled) return {}
+      return {
+        controlled,
+        // 切换受控/非受控会换掉文档来源，历史不再连续（R4-2）。
+        past: [],
+        future: [],
+      }
+    }),
+
+  applyExternalDocument: (document) =>
+    set((state) => {
+      // 内容相同则不写 store：宿主每次渲染传出的新对象不应打断内部编辑（R4-2）。
+      if (getDocumentKey(state.workflow) === getDocumentKey(document)) return {}
+      return {
+        workflow: { ...document, viewport: document.viewport },
+        // 宿主改文档不入历史：历史栈记录的是用户自己的编辑序列（R4-2）。
+        future: [],
+      }
+    }),
 }))

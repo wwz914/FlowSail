@@ -3,6 +3,7 @@ import type { PointerEvent as ReactPointerEvent } from 'react'
 import type { Node, Workflow } from '@system'
 import { useNodeTypeRegistry } from '../lib/registryContext.tsx'
 import { resolveNodeType } from '../lib/registry.ts'
+import { hasReference } from '../lib/variables.ts'
 import { useFlowStore } from '../store/index.ts'
 
 export interface NodeCardProps {
@@ -149,6 +150,11 @@ export const NodeCard = ({
   const inputs = meta.inputs ?? []
   const outputs = meta.outputs ?? []
 
+  // 变量引用标记（R4-5）：参数里有 `{{nodeId.field}}` 时在卡片上给一个轻量提示。
+  const hasVariableReference = (meta.params ?? []).some((schema) =>
+    hasReference(node.data?.[schema.key]),
+  )
+
   return (
     <div
       className={className}
@@ -172,6 +178,16 @@ export const NodeCard = ({
       >
         {meta.label}
       </span>
+
+      {hasVariableReference ? (
+        <span
+          className="flow-node__reference"
+          title="该节点的参数引用了上游变量"
+          aria-label="该节点的参数引用了上游变量"
+        >
+          {'{{}}'}
+        </span>
+      ) : null}
 
       {inputs.map((handle) => (
         <span

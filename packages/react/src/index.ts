@@ -3,6 +3,14 @@ export * from './ReactFlow.tsx';
 export * from './components/ConfigPanel.tsx';
 export { NodePanel, NODE_DRAG_MIME } from './components/NodePanel.tsx';
 export type { NodePanelProps } from './components/NodePanel.tsx';
+export { VariablePicker } from './components/VariablePicker.tsx';
+export type { VariablePickerProps } from './components/VariablePicker.tsx';
+export { SchemaPreview } from './components/SchemaPreview.tsx';
+export type { SchemaPreviewProps } from './components/SchemaPreview.tsx';
+export { ValidationPanel } from './components/ValidationPanel.tsx';
+export type { ValidationPanelProps } from './components/ValidationPanel.tsx';
+export { Toolbar } from './components/Toolbar.tsx';
+export type { ToolbarProps } from './components/Toolbar.tsx';
 export {
   BUILTIN_NODE_TYPE_DEFINITIONS,
 } from './lib/builtinTypes.tsx';
@@ -23,6 +31,8 @@ export {
   resolveNodeType,
 } from './lib/registry.ts';
 export type {
+  FieldSchema,
+  FieldType,
   HandleDefinition,
   NodeTypeDefinition,
   NodeTypeRegistry,
@@ -36,6 +46,59 @@ export {
   validateParams,
 } from './lib/params.ts';
 export type { ParamValidationResult } from './lib/params.ts';
+export {
+  REFERENCE_PATTERN,
+  checkReferences,
+  findOutputField,
+  getUpstreamNodeIds,
+  groupVariablesByNode,
+  hasInvalidReference,
+  hasReference,
+  insertReference,
+  isTypeCompatible,
+  listAvailableVariables,
+  parseReferences,
+} from './lib/variables.ts';
+export type {
+  ParsedReference,
+  ReferenceCheck,
+  ReferenceErrorCode,
+  VariableGroup,
+  VariableOption,
+} from './lib/variables.ts';
+export {
+  findDanglingEdges,
+  findMissingRequired,
+  findOrphanNodes,
+  getNodeIssues,
+  getParamIssues,
+  validateDocument,
+} from './lib/validation.ts';
+export type {
+  DocumentIssue,
+  IssueCode,
+  IssueSeverity,
+  ValidationResult,
+} from './lib/validation.ts';
+export {
+  downloadWorkflow,
+  exportWorkflow,
+  findUnregisteredNodeTypes,
+  importWorkflow,
+  readFileText,
+  validateDocumentStructure,
+} from './lib/serialization.ts';
+export type { ExportOutcome, ImportOutcome } from './lib/serialization.ts';
+export {
+  canRedo,
+  canUndo,
+  fitViewToNodes,
+  getCanvasContainer,
+  redoStep,
+  registerCanvasContainer,
+  replaceDocument,
+  undoStep,
+} from './lib/actions.ts';
 export type {
   Edge,
   EdgeChange,
@@ -44,4 +107,16 @@ export type {
   Position,
   Viewport,
   Workflow,
+  WorkflowMeta,
 } from '@system';
+export {
+  CURRENT_WORKFLOW_VERSION,
+  createDocumentId,
+  createWorkflow,
+  migrateWorkflow,
+  normalizeWorkflow,
+  parseWorkflowDocument,
+  serializeWorkflow,
+  validateWorkflowDocument,
+} from '@system';
+export type { ImportResult, MigrateResult } from '@system';

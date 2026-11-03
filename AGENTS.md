@@ -5,8 +5,8 @@
 ## 仓库结构
 
 ```
-packages/system    @system   框架无关的数据层：Node/Edge/Workflow 类型、变更合并工具。无运行时依赖。
-packages/react     react     React 画布实现：ReactFlow 组件、NodePanel、ConfigPanel、NodeRenderer/NodeCard、EdgeRenderer、节点类型注册表、zustand store、viewport/connection 纯函数。
+packages/system    @system   框架无关的数据层：Node/Edge/Workflow 类型、变更合并工具、文档模型与 schema 迁移。无运行时依赖。
+packages/react     react     React 画布实现：ReactFlow 组件、NodePanel、ConfigPanel、Toolbar、ValidationPanel、VariablePicker、SchemaPreview、NodeRenderer/NodeCard、EdgeRenderer、节点类型注册表、变量引用与文档校验、zustand store、viewport/connection 纯函数。
 packages/example   example   Vite + React 演示应用（private，不发布）。
 ```
 
@@ -43,7 +43,7 @@ packages/example   example   Vite + React 演示应用（private，不发布）�
 | `pnpm install` | 安装依赖（首次进入 worktree 必须执行） |
 | `pnpm dev` | 启动 example 开发服务器（http://localhost:5173） |
 | `pnpm build` | 构建 system → react → example |
-| `pnpm test` | Vitest（jsdom），覆盖 `@system` 纯函数、视口/连线计算、选择/删除/历史、节点渲染、节点类型注册表与参数表单 |
+| `pnpm test` | Vitest（jsdom），覆盖 `@system` 纯函数与文档模型、视口/连线计算、选择/删除/历史、节点渲染、节点类型注册表与参数表单、变量引用、文档级校验、导入导出与受控模式 |
 | `pnpm lint` | ESLint（example 的 flat config） |
 | `pnpm typecheck` | `tsc -b packages/example/tsconfig.json`，覆盖全部库源码 |
 
@@ -88,14 +88,25 @@ pnpm lint
 
 - `NodeRenderer` 只做 `nodes.map()`，每个节点由 `NodeCard` 组件渲染；拖拽、选择与
   指针捕获的 `useRef` / `useState` 都在 `NodeCard` 顶层，节点数量变化不会触发 Hooks 错误。
-- `store/index.ts` 以单份 `workflow`（`nodes` / `edges` / `viewport`）为唯一事实源，
-  `setNodes` / `setEdges` / `setViewport` 只写文档、不入历史；`addNode` / `addEdge` /
-  `deleteSelection` 入历史栈。历史是整份快照（容量 `HISTORY_LIMIT = 50`），拖拽开始时
-  取快照、松手时 `pushHistory` 合并为一条；`undo` / `redo` 不还原视口。
+- `store/index.ts` 以单份 `workflow`（`id` / `name` / `version` / `meta` / `nodes` /
+  `edges` / `viewport`）为唯一事实源，`setNodes` / `setEdges` / `setViewport` 只写文档、
+  不入历史；`addNode` / `addEdge` / `deleteSelection` 入历史栈。历史是整份快照
+  （容量 `HISTORY_LIMIT = 50`），拖拽开始时取快照、松手时 `pushHistory` 合并为一条；
+  `undo` / `redo` 不还原视口。**`pushHistory(snapshot)` 压入的是"编辑前"的快照**——
+  想让撤销回到某个状态，就传那个状态的文档，别传当前文档。
+- 文档模型在 `packages/system/src/document.ts`（`@system` 直接导出）：
+  `createWorkflow` / `normalizeWorkflow` / `migrateWorkflow` / `validateWorkflowDocument` /
+  `serializeWorkflow` / `parseWorkflowDocument`。`CURRENT_WORKFLOW_VERSION = 1`；
+  `migrate` 按版本逐级升级，版本过新或非整数时拒绝导入并给出可读原因；
+  文档里的**未知顶层字段与 `meta` 内字段原样保留**（宿主扩展信息不丢）。
 - `ReactFlow.tsx` 对 `nodes` / `edges` props 做**内容差异**同步（非受控主语义，R2-7）：
   props 是初始文档与显式内容变更来源，内部编辑不回写 props；宿主每次渲染传入
   内容相同的新数组不会冲掉内部编辑。内部文档变化通过 store 订阅回调
   `onNodesChange` / `onEdgesChange` / `onSelectionChange`。
+- **受控模式（R4-2）**：传入 `workflow` prop 即进入受控模式——内部编辑经 `onChange`
+  写回宿主，宿主改文档经 `store.applyExternalDocument` 回流画布。两者都用
+  `getDocumentKey` 做**内容指纹去重**（忽略 `selected` 这类视图态），因此宿主每次
+  渲染传出的同内容文档不会打断内部编辑。不传 `workflow` 时行为与 v1.3 完全一致。
 - 视口数学与节点几何是纯函数，分别在 `lib/viewport.ts`（25%–200% 缩放、锚点缩放、
   fit view）与 `lib/geometry.ts`（节点固定 160×48，输出/输入锚点在上/下边缘中点）。
   连线校验（禁自连、禁重复、单入）在 `lib/connection.ts`。
@@ -110,6 +121,24 @@ pnpm lint
 - 配置面板在 `components/ConfigPanel.tsx`：只消费注册表给出的参数 schema，不认识具体
   节点类型；改值经 `store.updateNodeData` 写回 `node.data`，连续输入在 600ms 合并窗口
   内合成一条历史记录（`pushHistory`）。
+- **变量引用（R4-5、R4-6）**：语法是 `{{nodeId.field}}`（`lib/variables.ts`）。
+  字段作用域的**唯一来源是节点类型注册表**——`NodeTypeDefinition` 的 `inputFields` /
+  `outputFields`（`FieldSchema`）。`checkReferences` 依次检查目标节点存在、字段已声明、
+  目标在拓扑上游（`getUpstreamNodeIds` 沿连线回溯）、类型与参数类型匹配（`isTypeCompatible`）；
+  失败时配置面板标红。`listAvailableVariables` 只列上游节点的输出字段，
+  `components/VariablePicker.tsx` 按节点分组展示并写入 `{{nodeId.field}}` 字面量。
+  **不要引入第二套变量模型**，也不要改引用语法。
+- **文档级校验（R4-7）**：`lib/validation.ts` 的 `validateDocument` 产出问题列表
+  （孤立节点 / 悬空连线 / 必填缺失 / 引用失效 / 类型未注册）；孤立节点是**警告**，
+  其余是**错误**。`components/ValidationPanel.tsx` 展示列表，点击问题定位并选中节点，
+  面板可折叠、不阻塞编辑。
+- **导入导出（R4-3）**：`lib/serialization.ts` 的 `exportWorkflow` / `importWorkflow` /
+  `downloadWorkflow` / `readFileText`。导入校验结构与节点类型是否注册，不通过时给可读错误
+  并拒绝导入。**导入成功后可撤销一次**——`replaceDocument`（`lib/actions.ts`）压入的是
+  **导入前**的快照。
+- **工具栏（R4-9）**：`components/Toolbar.tsx` 提供撤销 / 重做 / 适应画布 / 导出 / 导入；
+  按钮态随可用性禁用。`lib/actions.ts` 用模块级引用登记画布容器（`registerCanvasContainer`），
+  让"适应画布"能拿到容器尺寸——**不要把 DOM 引用塞进 store 状态**。
 - 交互：滚轮以指针为锚点缩放；空格 + 左键或中键拖拽平移；从节点下方锚点拖到上方锚点
   创建连线，非法目标标红并给出原因；单击/Shift 多选、Delete/Backspace 删除、
   `Ctrl/Cmd+Z` / `Ctrl/Cmd+Shift+Z` 撤销重做、Esc 取消选择；左下角有缩放比例与适应画布；
@@ -117,12 +146,15 @@ pnpm lint
 - `ReactFlow` 的 `showNodePanel` / `showConfigPanel` 默认开启（画布上的浮动覆盖层）；
   宿主自建三栏布局时关掉这两个，改用导出的 `NodePanel` / `ConfigPanel`（`variant="inline"`）
   并用 `NodeTypeProvider` 让面板与画布共享同一份注册表。
-- 尚未实现（v1.4 及以后）：框选、复制粘贴、变量引用与变量选择器、输入/输出 schema 预览、
-  文档序列化与 schema 版本号与迁移、文档级校验、受控 `workflow` API、顶部工具栏、运行调试。
-  v1.4 的范围见 [docs/ROADMAP.md §9](docs/ROADMAP.md#9-v14-范围)，v1.3 的实施记录见 §8.10。
+- 尚未实现（v1.5 及以后）：框选、复制粘贴、节点重命名、网格吸附、自动布局、小地图、
+  主题与可访问性、发布流程与包改名、**运行调试（试运行 / 运行记录 / 运行态，属 M3）**、
+  运行期的输入 / 输出快照。v1.4 的范围与实施记录见 [docs/ROADMAP.md §9](docs/ROADMAP.md#9-v14-范围)
+  与 §9.10，v1.3 的实施记录见 §8.10。
 - `packages/react/src/index.ts` 导出 store、`ReactFlow`、`NodePanel`、`ConfigPanel`、
-  `NodeTypeProvider`、注册表与参数校验工具，以及 `Node` / `Edge` / `Workflow` /
-  `Viewport` / change 类型；`NodeRenderer` / `EdgeRenderer` / 各 `lib` 内部模块**没有**对外导出。
+  `Toolbar`、`ValidationPanel`、`VariablePicker`、`SchemaPreview`、`NodeTypeProvider`、
+  注册表与参数校验工具、变量引用与文档校验工具、导入导出工具，以及 `Node` / `Edge` /
+  `Workflow` / `WorkflowMeta` / `Viewport` / change 类型与文档模型函数；
+  `NodeRenderer` / `EdgeRenderer` / 各 `lib` 内部模块**没有**对外导出。
 
 ## 交流约定
 

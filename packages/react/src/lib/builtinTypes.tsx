@@ -69,6 +69,9 @@ const singleOutput = [{ id: 'out', label: '输出', offset: 0.5 }]
 /**
  * 6 类内置节点（R3-2，FR-N4）：开始、结束、大模型、插件、条件、代码。
  * 每类各有图标、默认数据、锚点定义与参数 schema。
+ *
+ * v1.4 起每类还声明了变量作用域（`inputFields` / `outputFields`，R4-4）：
+ * 变量选择器与引用解析以此为唯一来源。
  */
 export const BUILTIN_NODE_TYPE_DEFINITIONS: NodeTypeDefinition[] = [
   {
@@ -79,6 +82,10 @@ export const BUILTIN_NODE_TYPE_DEFINITIONS: NodeTypeDefinition[] = [
     defaultData: { label: 'Start' },
     outputs: singleOutput,
     params: [],
+    outputFields: [
+      { name: 'query', type: 'string', description: '流程的输入内容' },
+      { name: 'variables', type: 'object', description: '流程启动时传入的变量集合' },
+    ],
   },
   {
     type: 'end',
@@ -88,6 +95,7 @@ export const BUILTIN_NODE_TYPE_DEFINITIONS: NodeTypeDefinition[] = [
     defaultData: { label: 'End' },
     inputs: singleInput,
     params: [],
+    inputFields: [{ name: 'result', type: 'any', description: '流程的输出结果' }],
   },
   {
     type: 'llm',
@@ -130,6 +138,8 @@ export const BUILTIN_NODE_TYPE_DEFINITIONS: NodeTypeDefinition[] = [
         default: true,
       },
     ],
+    inputFields: [{ name: 'text', type: 'string', description: '送入模型的文本' }],
+    outputFields: [{ name: 'text', type: 'string', description: '模型生成的文本' }],
   },
   {
     type: 'plugin',
@@ -154,6 +164,8 @@ export const BUILTIN_NODE_TYPE_DEFINITIONS: NodeTypeDefinition[] = [
         default: 30000,
       },
     ],
+    inputFields: [{ name: 'input', type: 'any', description: '传给插件的入参' }],
+    outputFields: [{ name: 'result', type: 'any', description: '插件的返回结果' }],
   },
   {
     type: 'condition',
@@ -176,6 +188,8 @@ export const BUILTIN_NODE_TYPE_DEFINITIONS: NodeTypeDefinition[] = [
         description: '求值为布尔的表达式',
       },
     ],
+    inputFields: [{ name: 'value', type: 'any', description: '参与判断的值' }],
+    outputFields: [{ name: 'result', type: 'boolean', description: '条件分支的判断结果' }],
   },
   {
     type: 'code',
@@ -210,6 +224,8 @@ export const BUILTIN_NODE_TYPE_DEFINITIONS: NodeTypeDefinition[] = [
         description: 'JSON 格式的节点配置',
       },
     ],
+    inputFields: [{ name: 'input', type: 'any', description: '传给代码的入参' }],
+    outputFields: [{ name: 'result', type: 'any', description: '代码的返回值' }],
   },
 ]
 

@@ -24,6 +24,28 @@ export interface ParamSchema {
   description?: string
 }
 
+/**
+ * 变量的字段类型（R4-4、FR-P3）。
+ * 与 `ParamType` 区分：这里描述的是节点暴露的**数据字段**，
+ * 而不是配置表单里的**控件类型**。
+ */
+export type FieldType = 'string' | 'number' | 'boolean' | 'object' | 'array' | 'any'
+
+/**
+ * 变量作用域里的一个字段声明（R4-4、FR-P3）。
+ *
+ * 节点类型定义通过 `inputFields` / `outputFields` 声明它暴露哪些字段，
+ * 变量选择器与引用解析都以此为唯一来源（ROADMAP Q15）。
+ */
+export interface FieldSchema {
+  /** 字段名，写在 `{{nodeId.field}}` 的 `field` 部分。 */
+  name: string
+  /** 字段类型，用于类型匹配校验。 */
+  type: FieldType
+  /** 字段说明，显示在选择器与 schema 预览里。 */
+  description?: string
+}
+
 /** 锚点定义（R3-3）：条件节点有多个具名出口。 */
 export interface HandleDefinition {
   /** 锚点 id，写在 `Edge.sourceHandle` / `Edge.targetHandle` 上。 */
@@ -52,6 +74,16 @@ export interface NodeTypeDefinition {
   outputs?: HandleDefinition[]
   /** 参数 schema，驱动配置面板的表单（R3-5）。 */
   params?: ParamSchema[]
+  /**
+   * 该节点**消费**的输入字段声明（R4-4、FR-N3）。
+   * 缺省表示空作用域。
+   */
+  inputFields?: FieldSchema[]
+  /**
+   * 该节点**产出**的输出字段声明（R4-4、FR-N3）。
+   * 变量引用只能指向这里声明的字段；缺省表示空作用域。
+   */
+  outputFields?: FieldSchema[]
 }
 
 /** 未注册类型的回落定义：保证宿主的未知节点仍能渲染，不报错（R3-1）。 */

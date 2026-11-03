@@ -47,8 +47,16 @@ body {
 
 .app-canvas {
   position: relative;
+  display: flex;
+  flex-direction: column;
   flex: 1;
   min-width: 0;
+}
+
+/* 画布本体占据剩余高度，校验面板贴在底部（R4-7）。 */
+.app-canvas > .react-flow {
+  flex: 1;
+  min-height: 0;
 }
 
 .app-inspector {
