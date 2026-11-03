@@ -1,4 +1,5 @@
 import type { Node } from '@system'
+import type { HandleDefinition } from './registry.ts'
 
 /** 画布上的一个点，单位为 px。 */
 export interface Point {
@@ -27,6 +28,60 @@ export function getTargetHandlePosition(node: Node): Point {
     x: node.position.x + NODE_WIDTH / 2,
     y: node.position.y,
   }
+}
+
+/**
+ * 具名出口锚点的位置（R3-3）。
+ * 出口在节点下边缘按 `offset` 横向分布，条件节点的两个出口因此分开。
+ */
+export function getSourceHandlePositionById(
+  node: Node,
+  handle: HandleDefinition,
+): Point {
+  return {
+    x: node.position.x + NODE_WIDTH * handle.offset,
+    y: node.position.y + NODE_HEIGHT,
+  }
+}
+
+/** 具名入口锚点的位置（R3-3）。 */
+export function getTargetHandlePositionById(
+  node: Node,
+  handle: HandleDefinition,
+): Point {
+  return {
+    x: node.position.x + NODE_WIDTH * handle.offset,
+    y: node.position.y,
+  }
+}
+
+/**
+ * 找到节点的出口锚点定义（R3-3）。
+ * 连线没写 `sourceHandle` 时回落到第一个出口。
+ */
+export function findOutputHandle(
+  outputs: HandleDefinition[] | undefined,
+  handleId?: string,
+): HandleDefinition | undefined {
+  if (!outputs || outputs.length === 0) return undefined
+  if (handleId) {
+    const matched = outputs.find((handle) => handle.id === handleId)
+    if (matched) return matched
+  }
+  return outputs[0]
+}
+
+/** 找到节点的入口锚点定义（R3-3）。 */
+export function findInputHandle(
+  inputs: HandleDefinition[] | undefined,
+  handleId?: string,
+): HandleDefinition | undefined {
+  if (!inputs || inputs.length === 0) return undefined
+  if (handleId) {
+    const matched = inputs.find((handle) => handle.id === handleId)
+    if (matched) return matched
+  }
+  return inputs[0]
 }
 
 export interface Bounds {

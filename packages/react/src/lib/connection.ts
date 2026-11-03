@@ -1,5 +1,12 @@
 import type { Edge, Node } from '@system'
-import { getTargetHandlePosition, type Point } from './geometry.ts'
+import {
+  findInputHandle,
+  getTargetHandlePosition,
+  getTargetHandlePositionById,
+  type Point,
+} from './geometry.ts'
+import type { NodeTypeRegistry } from './registry.ts'
+import { resolveNodeType } from './registry.ts'
 
 /** 输入锚点的屏幕命中半径（px），对应 PRD「命中区 ≥ 12px」。 */
 export const HANDLE_HIT_RADIUS = 12
@@ -15,6 +22,8 @@ export const CONNECTION_ERROR_MESSAGES: Record<ConnectionError, string> = {
 /** 连线进行中的预览状态。 */
 export interface ConnectionState {
   sourceId: string
+  /** 拖拽起点的出口锚点 id（R3-3）。 */
+  sourceHandle: string
   /** 指针当前所在的画布世界坐标。 */
   pointer: Point
   targetId: string | null
@@ -25,7 +34,12 @@ export interface ConnectionState {
  * 找到指针命中范围内的输入锚点。命中半径按屏幕像素计算，随缩放换算到世界坐标，
  * 因此任何缩放下命中区都保持同样的手感。
  */
-export function findTargetNode(nodes: Node[], point: Point, zoom: number): string | null {
+export function findTargetNode(
+  nodes: Node[],
+  point: Point,
+  zoom: number,
+  registry?: NodeTypeRegistry,
+): string | null {
   if (nodes.length === 0) return null
 
   const radius = HANDLE_HIT_RADIUS / (zoom > 0 ? zoom : 1)
@@ -33,7 +47,11 @@ export function findTargetNode(nodes: Node[], point: Point, zoom: number): strin
   let closestDistance = Number.POSITIVE_INFINITY
 
   for (const node of nodes) {
-    const handle = getTargetHandlePosition(node)
+    const definition = registry ? resolveNodeType(registry, node.type) : undefined
+    const input = findInputHandle(definition?.inputs)
+    const handle = input
+      ? getTargetHandlePositionById(node, input)
+      : getTargetHandlePosition(node)
     const distance = Math.hypot(handle.x - point.x, handle.y - point.y)
     if (distance <= radius && distance < closestDistance) {
       closestId = node.id
@@ -48,7 +66,11 @@ export function findTargetNode(nodes: Node[], point: Point, zoom: number): strin
  * 校验一条待创建的连线（FR-E4）：禁自连、禁重复、输入锚点默认单入。
  * 返回 null 表示可以创建。
  */
-export function validateConnection(edges: Edge[], sourceId: string, targetId: string): ConnectionError | null {
+export function validateConnection(
+  edges: Edge[],
+  sourceId: string,
+  targetId: string,
+): ConnectionError | null {
   if (sourceId === targetId) return 'self'
   if (edges.some((edge) => edge.source === sourceId && edge.target === targetId)) return 'duplicate'
   if (edges.some((edge) => edge.target === targetId)) return 'target-occupied'

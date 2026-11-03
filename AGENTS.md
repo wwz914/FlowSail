@@ -6,7 +6,7 @@
 
 ```
 packages/system    @system   框架无关的数据层：Node/Edge/Workflow 类型、变更合并工具。无运行时依赖。
-packages/react     react     React 画布实现：ReactFlow 组件、NodePanel、NodeRenderer/NodeCard、EdgeRenderer、zustand store、viewport/connection 纯函数。
+packages/react     react     React 画布实现：ReactFlow 组件、NodePanel、ConfigPanel、NodeRenderer/NodeCard、EdgeRenderer、节点类型注册表、zustand store、viewport/connection 纯函数。
 packages/example   example   Vite + React 演示应用（private，不发布）。
 ```
 
@@ -43,7 +43,7 @@ packages/example   example   Vite + React 演示应用（private，不发布）�
 | `pnpm install` | 安装依赖（首次进入 worktree 必须执行） |
 | `pnpm dev` | 启动 example 开发服务器（http://localhost:5173） |
 | `pnpm build` | 构建 system → react → example |
-| `pnpm test` | Vitest（jsdom），覆盖 `@system` 纯函数、视口/连线计算、选择/删除/历史与节点渲染 |
+| `pnpm test` | Vitest（jsdom），覆盖 `@system` 纯函数、视口/连线计算、选择/删除/历史、节点渲染、节点类型注册表与参数表单 |
 | `pnpm lint` | ESLint（example 的 flat config） |
 | `pnpm typecheck` | `tsc -b packages/example/tsconfig.json`，覆盖全部库源码 |
 
@@ -99,18 +99,30 @@ pnpm lint
 - 视口数学与节点几何是纯函数，分别在 `lib/viewport.ts`（25%–200% 缩放、锚点缩放、
   fit view）与 `lib/geometry.ts`（节点固定 160×48，输出/输入锚点在上/下边缘中点）。
   连线校验（禁自连、禁重复、单入）在 `lib/connection.ts`。
-- 节点类型元数据（图标、类型名、默认标题、强调色）在 `lib/nodeTypes.tsx`；
-  M2 的注册表只接管数据来源，不改卡片渲染结构。
+- 节点类型体系（R3-1、R3-2）：类型定义在 `lib/registry.ts`（`NodeTypeDefinition` /
+  `ParamSchema` / `HandleDefinition`），内置 6 类在 `lib/builtinTypes.tsx`，上下文与
+  `nodeTypes` prop 的合并在 `lib/registryContext.tsx`。**新增一种节点类型只需新增一个
+  定义文件**，不改内核；未注册类型回落为通用卡片，不报错。
+- 锚点由注册表的 `handle.offset` 决定横向位置；`Edge` 带 `sourceHandle` /
+  `targetHandle`，条件节点有两个具名出口（`true` / `false`），普通节点单入单出。
+  `lib/geometry.ts` 的 `getSourceHandlePositionById` / `getTargetHandlePositionById`
+  按锚点 id 算端点。
+- 配置面板在 `components/ConfigPanel.tsx`：只消费注册表给出的参数 schema，不认识具体
+  节点类型；改值经 `store.updateNodeData` 写回 `node.data`，连续输入在 600ms 合并窗口
+  内合成一条历史记录（`pushHistory`）。
 - 交互：滚轮以指针为锚点缩放；空格 + 左键或中键拖拽平移；从节点下方锚点拖到上方锚点
   创建连线，非法目标标红并给出原因；单击/Shift 多选、Delete/Backspace 删除、
   `Ctrl/Cmd+Z` / `Ctrl/Cmd+Shift+Z` 撤销重做、Esc 取消选择；左下角有缩放比例与适应画布；
-  左侧 `NodePanel` 支持点击或拖入创建节点（首版开始 / 大模型 / 结束 3 类）。
-- 尚未实现（M2 及以后）：框选、复制粘贴、节点类型注册表、6 类内置节点、条件分支与分支标签、
-  配置面板与变量引用、文档序列化/校验、运行调试。其中注册表、6 类节点、条件分支与参数表单
-  计划在第三轮（v1.3）落地，范围见 [docs/ROADMAP.md §8](docs/ROADMAP.md#8-第三轮v13范围提议)。
-- `packages/react/src/index.ts` 导出 store、`ReactFlow` 与 `Node` / `Edge` / `Workflow` /
-  `Viewport` / change 类型；`NodePanel` / `NodeRenderer` / `EdgeRenderer` / 各 `lib`
-  内部模块**没有**对外导出。
+  左侧 `NodePanel` 列出注册表里的全部类型（内置 6 类 + 宿主自定义），支持点击或拖入创建。
+- `ReactFlow` 的 `showNodePanel` / `showConfigPanel` 默认开启（画布上的浮动覆盖层）；
+  宿主自建三栏布局时关掉这两个，改用导出的 `NodePanel` / `ConfigPanel`（`variant="inline"`）
+  并用 `NodeTypeProvider` 让面板与画布共享同一份注册表。
+- 尚未实现（M2 及以后）：框选、复制粘贴、变量引用与变量选择器、输入/输出预览、
+  文档序列化与 schema 版本号、文档级校验、顶部工具栏、运行调试。下一轮的范围见
+  [docs/ROADMAP.md §8](docs/ROADMAP.md#8-第三轮v13范围提议) 与 §8.10。
+- `packages/react/src/index.ts` 导出 store、`ReactFlow`、`NodePanel`、`ConfigPanel`、
+  `NodeTypeProvider`、注册表与参数校验工具，以及 `Node` / `Edge` / `Workflow` /
+  `Viewport` / change 类型；`NodeRenderer` / `EdgeRenderer` / 各 `lib` 内部模块**没有**对外导出。
 
 ## 交流约定
 

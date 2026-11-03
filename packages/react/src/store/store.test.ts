@@ -185,3 +185,43 @@ describe('历史栈', () => {
     expect(useFlowStore.getState().past).toHaveLength(HISTORY_LIMIT)
   })
 })
+
+describe('参数写回与分支标签（R3-6、R3-7）', () => {
+  it('updateNodeData 合并进 node.data 并入历史栈', () => {
+    useFlowStore.getState().addNode(nodeA)
+    useFlowStore.getState().updateNodeData(nodeA.id, { prompt: '你好' })
+
+    const stored = useFlowStore.getState().workflow.nodes[0]
+    expect(stored?.data).toMatchObject({ prompt: '你好' })
+    expect(useFlowStore.getState().past).toHaveLength(2)
+  })
+
+  it('history 为 false 时只写文档不入栈', () => {
+    useFlowStore.getState().addNode(nodeA)
+    const before = useFlowStore.getState().past.length
+
+    useFlowStore.getState().updateNodeData(nodeA.id, { prompt: '你好' }, false)
+
+    expect(useFlowStore.getState().past).toHaveLength(before)
+    expect(useFlowStore.getState().workflow.nodes[0]?.data?.prompt).toBe('你好')
+  })
+
+  it('修改参数可撤销可重做', () => {
+    useFlowStore.getState().addNode(nodeA)
+    useFlowStore.getState().updateNodeData(nodeA.id, { prompt: '你好' })
+
+    useFlowStore.getState().undo()
+    expect(useFlowStore.getState().workflow.nodes[0]?.data?.prompt).toBeUndefined()
+
+    useFlowStore.getState().redo()
+    expect(useFlowStore.getState().workflow.nodes[0]?.data?.prompt).toBe('你好')
+  })
+
+  it('setEdgeLabel 写入标签并入历史栈', () => {
+    useFlowStore.getState().addEdge({ id: 'e1', source: nodeA.id, target: 'b' })
+    useFlowStore.getState().setEdgeLabel('e1', '是')
+
+    expect(useFlowStore.getState().workflow.edges[0]?.label).toBe('是')
+    expect(useFlowStore.getState().past).toHaveLength(2)
+  })
+})

@@ -4,7 +4,7 @@ import { NodeCard } from './NodeCard.tsx'
 
 export interface NodeRendererProps {
   connection: ConnectionState | null
-  onConnectStart: (nodeId: string, clientX: number, clientY: number) => void
+  onConnectStart: (nodeId: string, handleId: string, clientX: number, clientY: number) => void
 }
 
 /** 节点层：把节点列表映射成卡片；所有 Hooks 都在 NodeCard 顶层调用（G-3）。 */

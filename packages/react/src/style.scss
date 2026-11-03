@@ -104,12 +104,13 @@
 }
 
 // 锚点：16px 命中区（≥ 12px），默认隐藏，悬停节点或连线时显示（C-4）。
+// 横向位置由注册表的 handle.offset 决定（R3-3），因此用 translateX 居中。
 .flow-handle {
   position: absolute;
   left: 50%;
   width: 16px;
   height: 16px;
-  margin-left: -8px;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -347,4 +348,181 @@
   line-height: 1.4;
   transform: translateX(-50%);
   pointer-events: none;
+}
+
+// 右侧配置面板（R3-5）：选中节点时展开，样式隔离在 .flow-config-panel 下（FR-X4）。
+.flow-config-panel {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  width: 280px;
+  border: 1px solid #e4e7eb;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 8%);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  color: #3e4c59;
+  overflow: hidden;
+  z-index: 4;
+}
+
+.flow-config-panel__header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #eef1f4;
+}
+
+.flow-config-panel__icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.flow-config-panel__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.flow-config-panel__node-id {
+  flex: none;
+  max-width: 120px;
+  overflow: hidden;
+  color: #9aa5b1;
+  font-size: 11px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.flow-config-panel__body {
+  flex: 1;
+  min-height: 0;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.flow-config-panel__empty {
+  padding: 12px;
+  color: #7b8794;
+}
+
+.flow-config-panel__field {
+  display: block;
+  margin-bottom: 14px;
+}
+
+.flow-config-panel__label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  color: #52606d;
+  font-size: 12px;
+}
+
+.flow-config-panel__required {
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: #fff4e6;
+  color: #d9480f;
+  font-size: 10px;
+}
+
+.flow-config-panel__input,
+.flow-config-panel__select,
+.flow-config-panel__textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #d9dee3;
+  border-radius: 6px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+
+  &:focus {
+    border-color: #1e88e5;
+    outline: none;
+    box-shadow: 0 0 0 2px rgb(30 136 229 / 15%);
+  }
+}
+
+.flow-config-panel__textarea {
+  resize: vertical;
+}
+
+.flow-config-panel__textarea--code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+
+.flow-config-panel__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #52606d;
+  font-size: 12px;
+}
+
+.flow-config-panel__description {
+  display: block;
+  margin-top: 4px;
+  color: #9aa5b1;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.flow-config-panel__error {
+  display: block;
+  margin-top: 4px;
+  color: #e5484d;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.flow-config-panel__hint {
+  margin: 0 0 10px;
+  color: #7b8794;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+// 参与宿主分栏布局的面板变体（R3-8）：去掉绝对定位，交给宿主排版。
+.flow-config-panel--inline {
+  position: relative;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-left: 1px solid #e4e7eb;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.flow-node-panel--inline {
+  position: relative;
+  top: auto;
+  left: auto;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-right: 1px solid #e4e7eb;
+  border-radius: 0;
+  box-shadow: none;
 }
