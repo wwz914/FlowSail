@@ -22,8 +22,13 @@ import {
   screenToFlow,
   zoomAtPoint,
 } from './lib/viewport.ts'
-import { NODE_HEIGHT, NODE_WIDTH, type Point } from './lib/geometry.ts'
-import { findInputHandle, findOutputHandle } from './lib/geometry.ts'
+import {
+  NODE_HEIGHT,
+  NODE_WIDTH,
+  findInputHandle,
+  findOutputHandle,
+  type Point,
+} from './lib/geometry.ts'
 import { resolveNodeType } from './lib/registry.ts'
 import { NodeTypeRegistryContext, buildRegistry } from './lib/registryContext.tsx'
 import type { NodeTypeDefinition } from './lib/registry.ts'
