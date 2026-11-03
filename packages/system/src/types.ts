@@ -36,13 +36,42 @@ export interface Edge {
 }
 
 /**
- * 编辑器持有的工作流文档快照（R2-1）。
- * 第二轮只包含画布状态；M2 的 N-7 再在此基础上扩展 id / name / version / meta。
+ * 文档元信息（FR-D1、R4-1）。
+ * 宿主可放任意扩展信息；编辑器只写自己认识的那几个字段。
+ */
+export interface WorkflowMeta {
+  /** 创建时间（ISO 字符串）。 */
+  createdAt?: string;
+  /** 最近修改时间（ISO 字符串）。 */
+  updatedAt?: string;
+  /** 文档作者（宿主写入）。 */
+  author?: string;
+  /** 文档说明（宿主写入）。 */
+  description?: string;
+  /** 宿主自定义扩展信息，原样保留、不被迁移改写（R4-1）。 */
+  [key: string]: unknown;
+}
+
+/**
+ * 编辑器持有的工作流文档快照（R2-1、FR-D1、R4-1）。
+ *
+ * v1.4 起文档是一等对象：`id` / `name` / `version` / `meta` 让它能被宿主
+ * 持久化、被序列化、能按版本迁移。未知的顶层字段在迁移时原样保留。
  */
 export interface Workflow {
+  /** 文档唯一标识（FR-D1）。 */
+  id: string;
+  /** 文档名称（FR-D1）。 */
+  name: string;
+  /** 文档 schema 版本（FR-D1、R4-1）：整数，随 schema 演进递增。 */
+  version: number;
+  /** 文档元信息（FR-D1）。 */
+  meta?: WorkflowMeta;
   nodes: Node[];
   edges: Edge[];
   viewport: Viewport;
+  /** 宿主自定义的顶层扩展字段，原样保留（R4-1）。 */
+  [key: string]: unknown;
 }
 
 // 节点变更原语（FR-D2）：add / remove / replace / position / select

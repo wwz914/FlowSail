@@ -5,6 +5,9 @@ import { useNodeTypeRegistry } from '../lib/registryContext.tsx'
 import { resolveNodeType } from '../lib/registry.ts'
 import { coerceParamValue, validateParams } from '../lib/params.ts'
 import { findOutputHandle } from '../lib/geometry.ts'
+import { checkReferences, insertReference } from '../lib/variables.ts'
+import { VariablePicker } from './VariablePicker.tsx'
+import { SchemaPreview } from './SchemaPreview.tsx'
 import type { ParamSchema } from '../lib/registry.ts'
 
 export interface ConfigPanelProps {
@@ -54,6 +57,29 @@ export const ConfigPanel = ({ className, variant = 'overlay' }: ConfigPanelProps
 
   const values = (selectedNode?.data ?? {}) as Record<string, unknown>
   const errors = validateParams(params, values)
+
+  // 变量引用校验（R4-5）：引用失效时在控件下标红并给出可读原因。
+  const referenceErrors = useMemo(() => {
+    if (!selectedNode) return {} as Record<string, string>
+
+    const result: Record<string, string> = {}
+    for (const schema of params) {
+      const value = values[schema.key]
+      if (typeof value !== 'string' || !value.includes('{{')) continue
+
+      const checks = checkReferences(value, {
+        nodeId: selectedNode.id,
+        nodes,
+        edges,
+        registry,
+        schema,
+      })
+
+      const failed = checks.find((check) => !check.ok)
+      if (failed?.message) result[schema.key] = failed.message
+    }
+    return result
+  }, [selectedNode, params, values, nodes, edges, registry])
 
   // 连续输入期间只写文档不入栈，停止输入后才压一条快照（R3-7）。
   const pendingRef = useRef<PendingEdit | null>(null)
@@ -266,11 +292,15 @@ export const ConfigPanel = ({ className, variant = 'overlay' }: ConfigPanelProps
               schema={schema}
               value={values[schema.key]}
               error={errors[schema.key]}
+              referenceError={referenceErrors[schema.key]}
+              nodeId={selectedNode.id}
               onChange={(raw) => writeParam(schema, raw)}
               onBlur={endEdit}
             />
           ))
         )}
+
+        <SchemaPreview node={selectedNode} />
       </div>
     </aside>
   )
@@ -280,14 +310,30 @@ interface ParamFieldProps {
   schema: ParamSchema
   value: unknown
   error?: string | undefined
+  /** 变量引用失效的原因（R4-5）。 */
+  referenceError?: string | undefined
+  /** 当前节点 id（R4-6：变量选择器需要知道从谁出发选变量）。 */
+  nodeId: string
   onChange: (raw: unknown) => void
   /** 失焦时结束连续编辑，立即把这次修改压成一条历史记录（R3-7）。 */
   onBlur: () => void
 }
 
-/** 单个参数控件（R3-5）：按 schema 类型渲染五类控件之一。 */
-const ParamField = ({ schema, value, error, onChange, onBlur }: ParamFieldProps) => {
+/**
+ * 单个参数控件（R3-5）：按 schema 类型渲染五类控件之一。
+ * v1.4 起文本类参数附带变量选择器（R4-6），引用失效时额外标红（R4-5）。
+ */
+const ParamField = ({
+  schema,
+  value,
+  error,
+  referenceError,
+  nodeId,
+  onChange,
+  onBlur,
+}: ParamFieldProps) => {
   const id = `flow-param-${schema.key}`
+  const isTextual = schema.type === 'string' || schema.type === 'json'
 
   return (
     <div className="flow-config-panel__field">
@@ -361,6 +407,23 @@ const ParamField = ({ schema, value, error, onChange, onBlur }: ParamFieldProps)
 
       {schema.description ? (
         <span className="flow-config-panel__description">{schema.description}</span>
+      ) : null}
+
+      {isTextual ? (
+        <VariablePicker
+          nodeId={nodeId}
+          value={value}
+          onInsert={(reference) => {
+            const current = typeof value === 'string' ? value : ''
+            onChange(insertReference(current, reference))
+          }}
+        />
+      ) : null}
+
+      {referenceError ? (
+        <span className="flow-config-panel__error" role="alert">
+          {referenceError}
+        </span>
       ) : null}
 
       {error ? (

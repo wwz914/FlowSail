@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
-import type { Edge, Node } from '@system'
+import type { Edge, Node, Workflow } from '@system'
+import { createWorkflow } from '@system'
 import { ReactFlow } from './ReactFlow.tsx'
 import { useFlowStore } from './store/index.ts'
 import { DEFAULT_VIEWPORT } from './lib/viewport.ts'
@@ -240,5 +241,111 @@ describe('props 同步边界', () => {
     rerender(<ReactFlow nodes={moved} edges={[]} />)
 
     expect(useFlowStore.getState().workflow.nodes[0]?.position).toEqual({ x: 500, y: 500 })
+  })
+})
+
+describe('受控模式（R4-2、FR-X1）', () => {
+  it('传入 workflow prop 后画布渲染宿主文档', () => {
+    const doc = createWorkflow({ name: '受控文档' })
+    doc.nodes = nodes
+    doc.edges = edges
+
+    render(<ReactFlow workflow={doc} />)
+
+    expect(useFlowStore.getState().workflow.nodes).toEqual(nodes)
+    expect(screen.getByText('Start')).toBeTruthy()
+  })
+
+  it('内部编辑通过 onChange 写回宿主', () => {
+    const doc = createWorkflow({ name: '受控文档' })
+    doc.nodes = nodes
+    doc.edges = edges
+    const onChange = vi.fn()
+
+    render(<ReactFlow workflow={doc} onChange={onChange} />)
+
+    const node = document.querySelector('[data-node-id="start"]') as HTMLElement
+    fireEvent.pointerDown(node, { button: 0, pointerId: 1, clientX: 100, clientY: 100 })
+    fireEvent.pointerMove(node, { pointerId: 1, clientX: 140, clientY: 120 })
+    fireEvent.pointerUp(node, { pointerId: 1, clientX: 140, clientY: 120 })
+
+    expect(onChange).toHaveBeenCalled()
+    const latest = onChange.mock.calls.at(-1)?.[0] as Workflow
+    // 缩放为 1，位移 40×20 屏幕像素对应 40×20 世界坐标。
+    expect(latest.nodes[0]?.position).toEqual({ x: 80, y: 80 })
+  })
+
+  it('宿主改文档后画布回流', () => {
+    const doc = createWorkflow({ name: '受控文档' })
+    doc.nodes = nodes
+    doc.edges = edges
+
+    const { rerender } = render(<ReactFlow workflow={doc} />)
+
+    const moved = {
+      ...doc,
+      nodes: nodes.map((item) =>
+        item.id === 'start' ? { ...item, position: { x: 500, y: 500 } } : item,
+      ),
+    }
+    rerender(<ReactFlow workflow={moved} />)
+
+    expect(useFlowStore.getState().workflow.nodes[0]?.position).toEqual({ x: 500, y: 500 })
+  })
+
+  it('宿主每次渲染传入内容相同的文档不会冲掉内部编辑', () => {
+    const doc = createWorkflow({ name: '受控文档' })
+    doc.nodes = nodes
+    doc.edges = edges
+
+    const { rerender } = render(<ReactFlow workflow={doc} />)
+
+    const node = document.querySelector('[data-node-id="start"]') as HTMLElement
+    fireEvent.pointerDown(node, { button: 0, pointerId: 1, clientX: 100, clientY: 100 })
+    fireEvent.pointerMove(node, { pointerId: 1, clientX: 150, clientY: 150 })
+    fireEvent.pointerUp(node, { pointerId: 1, clientX: 150, clientY: 150 })
+
+    rerender(<ReactFlow workflow={{ ...doc, nodes: nodes.map((item) => ({ ...item })) }} />)
+
+    expect(useFlowStore.getState().workflow.nodes[0]?.position).toEqual({ x: 90, y: 110 })
+  })
+
+  it('受控模式下撤销重做仍然可用', () => {
+    const doc = createWorkflow({ name: '受控文档' })
+    doc.nodes = nodes
+    doc.edges = edges
+
+    render(<ReactFlow workflow={doc} />)
+
+    clickNode('start')
+    fireEvent.keyDown(window, { key: 'Delete' })
+    expect(useFlowStore.getState().workflow.nodes).toHaveLength(1)
+
+    fireEvent.keyDown(window, { key: 'z', ctrlKey: true })
+    expect(useFlowStore.getState().workflow.nodes).toHaveLength(2)
+  })
+
+  it('没有 workflow prop 时保持非受控行为', () => {
+    const onChange = vi.fn()
+    render(<ReactFlow nodes={nodes} edges={[]} onChange={onChange} />)
+
+    expect(useFlowStore.getState().workflow.nodes).toEqual(nodes)
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  it('宿主只改视口时画布也回流', () => {
+    const doc = createWorkflow({ name: '受控文档' })
+    doc.nodes = nodes
+    doc.edges = edges
+
+    const { rerender } = render(<ReactFlow workflow={doc} />)
+
+    rerender(
+      <ReactFlow
+        workflow={{ ...doc, viewport: { x: 100, y: 50, zoom: 1.5 } }}
+      />,
+    )
+
+    expect(useFlowStore.getState().workflow.viewport).toEqual({ x: 100, y: 50, zoom: 1.5 })
   })
 })

@@ -4,7 +4,7 @@ import type {
   PointerEvent as ReactPointerEvent,
   ReactNode,
 } from 'react'
-import type { Edge, Node } from '@system'
+import type { Edge, Node, Workflow } from '@system'
 import './style.scss'
 import { useFlowStore, getSelection, getSelectionKey, type SelectionState } from './store/index.ts'
 import { NodeRenderer } from './components/NodeRenderer.tsx'
@@ -22,6 +22,7 @@ import {
   screenToFlow,
   zoomAtPoint,
 } from './lib/viewport.ts'
+import { registerCanvasContainer } from './lib/actions.ts'
 import {
   NODE_HEIGHT,
   NODE_WIDTH,
@@ -71,11 +72,22 @@ export interface ReactFlowProps {
   /** 初始文档（R2-7：v1 为非受控主语义，props 变化时按内容差异同步，宿主重渲染不会冲掉内部编辑）。 */
   nodes?: Node[]
   edges?: Edge[]
+  /**
+   * 受控模式下的文档（R4-2、FR-X1）。
+   * 传入后画布进入受控模式：内部编辑通过 `onChange` 写回宿主，
+   * 宿主改文档后画布同步回流。省略时保持非受控用法，行为与 v1.3 一致。
+   */
+  workflow?: Workflow
   /** 宿主注册的自定义节点类型（R3-1、FR-X2）；同名类型覆盖内置定义。 */
   nodeTypes?: NodeTypeDefinition[]
   onNodesChange?: (nodes: Node[]) => void
   onEdgesChange?: (edges: Edge[]) => void
   onSelectionChange?: (selection: SelectionState) => void
+  /**
+   * 文档变化回调（R4-2、FR-X1）。
+   * 受控模式下每次文档变化都会触发，宿主据此更新自己的 `workflow` 状态。
+   */
+  onChange?: (workflow: Workflow) => void
   /** 是否显示内置的左侧节点面板覆盖层；宿主自建三栏布局时可关闭（R3-8）。 */
   showNodePanel?: boolean
   /** 是否显示内置的右侧配置面板覆盖层；宿主自建三栏布局时可关闭（R3-8）。 */
@@ -98,10 +110,12 @@ interface PanState {
 export const ReactFlow = ({
   nodes = EMPTY_NODES,
   edges = EMPTY_EDGES,
+  workflow,
   nodeTypes,
   onNodesChange,
   onEdgesChange,
   onSelectionChange,
+  onChange,
   showNodePanel = true,
   showConfigPanel = true,
   children,
@@ -112,6 +126,8 @@ export const ReactFlow = ({
   const setNodes = useFlowStore((state) => state.setNodes)
   const setEdges = useFlowStore((state) => state.setEdges)
   const resetHistory = useFlowStore((state) => state.resetHistory)
+  const setControlled = useFlowStore((state) => state.setControlled)
+  const applyExternalDocument = useFlowStore((state) => state.applyExternalDocument)
 
   const containerRef = useRef<HTMLDivElement | null>(null)
   const panRef = useRef<PanState | null>(null)
@@ -120,37 +136,61 @@ export const ReactFlow = ({
   const onNodesChangeRef = useRef(onNodesChange)
   const onEdgesChangeRef = useRef(onEdgesChange)
   const onSelectionChangeRef = useRef(onSelectionChange)
+  const onChangeRef = useRef(onChange)
   const nodesPropsKeyRef = useRef<string | null>(null)
   const edgesPropsKeyRef = useRef<string | null>(null)
+  const workflowPropsKeyRef = useRef<string | null>(null)
 
   const [connection, setConnection] = useState<ConnectionState | null>(null)
   const [isPanning, setIsPanning] = useState(false)
   const [isSpacePressed, setIsSpacePressed] = useState(false)
   const isConnecting = connection !== null
 
+  // 受控模式由 `workflow` prop 是否存在决定（R4-2）。
+  const isControlled = workflow !== undefined
+
   useEffect(() => {
     onNodesChangeRef.current = onNodesChange
     onEdgesChangeRef.current = onEdgesChange
     onSelectionChangeRef.current = onSelectionChange
-  }, [onNodesChange, onEdgesChange, onSelectionChange])
+    onChangeRef.current = onChange
+  }, [onNodesChange, onEdgesChange, onSelectionChange, onChange])
+
+  useEffect(() => {
+    setControlled(isControlled)
+  }, [isControlled, setControlled])
+
+  // 注册画布容器，工具栏的"适应画布"需要它算视口（R4-9）。
+  useEffect(() => registerCanvasContainer(containerRef.current), [])
 
   // 非受控主语义 + 内容差异同步（R2-7）：只有 props 内容真的变了才同步，
   // 宿主每次渲染传出的新数组不会冲掉内部编辑状态。
   useEffect(() => {
+    if (isControlled) return
     const key = JSON.stringify(nodes)
     if (nodesPropsKeyRef.current === key) return
     nodesPropsKeyRef.current = key
     setNodes(nodes)
     resetHistory()
-  }, [nodes, setNodes, resetHistory])
+  }, [nodes, setNodes, resetHistory, isControlled])
 
   useEffect(() => {
+    if (isControlled) return
     const key = JSON.stringify(edges)
     if (edgesPropsKeyRef.current === key) return
     edgesPropsKeyRef.current = key
     setEdges(edges)
     resetHistory()
-  }, [edges, setEdges, resetHistory])
+  }, [edges, setEdges, resetHistory, isControlled])
+
+  // 受控模式：宿主改文档 → 画布回流（R4-2）。
+  useEffect(() => {
+    if (!workflow) return
+    const key = JSON.stringify(workflow)
+    if (workflowPropsKeyRef.current === key) return
+    workflowPropsKeyRef.current = key
+    applyExternalDocument(workflow)
+  }, [workflow, applyExternalDocument])
 
   // 内部文档变化 → 宿主回调；只在内容引用变化时触发，拖拽移动也会通知。
   useEffect(() => {
@@ -168,6 +208,17 @@ export const ReactFlow = ({
       previous = state
     })
   }, [])
+
+  // 受控模式：内部编辑写回宿主（R4-2、FR-X1）。
+  useEffect(() => {
+    if (!isControlled) return undefined
+    let previous = useFlowStore.getState().workflow
+    return useFlowStore.subscribe((state) => {
+      if (state.workflow === previous) return
+      previous = state.workflow
+      onChangeRef.current?.(state.workflow)
+    })
+  }, [isControlled])
 
   // 滚轮缩放，以指针位置为锚点（C-1）。
   useEffect(() => {
