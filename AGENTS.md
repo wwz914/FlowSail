@@ -6,11 +6,11 @@
 
 ```
 packages/system    @system   框架无关的数据层：Node/Edge 类型、变更合并工具。无运行时依赖。
-packages/react     react     React 画布实现：ReactFlow 组件、NodeRenderer、EdgeRenderer、zustand store。
+packages/react     react     React 画布实现：ReactFlow 组件、NodeRenderer/NodeCard、EdgeRenderer、zustand store、viewport/connection 纯函数。
 packages/example   example   Vite + React 演示应用（private，不发布）。
 ```
 
-根目录 `package.json` 名为 `my-flow`（private），只承载共享依赖与构建依赖，**本身不是一个包**。
+根目录 `package.json` 名为 `my-flow`（private），只承载共享依赖、根脚本与构建依赖，**本身不是一个包**。
 
 产品与规划文档：[`docs/PRD.md`](docs/PRD.md)（定位、对标、功能需求）、[`docs/ROADMAP.md`](docs/ROADMAP.md)（初期基础能力与阶段规划）。
 
@@ -23,48 +23,34 @@ packages/example   example   Vite + React 演示应用（private，不发布）�
    `import { ReactFlow } from 'reactflow'`，实际指向 `packages/react`。
    → 改 `packages/react` 的导出，改的是 example 里 `reactflow` 这个名字。
 2. **两个库包都直接暴露 TypeScript 源码**：`main` / `types` 指向 `src/index.ts`，
-   不是 `dist/`。所以 `packages/system` 没有构建产物，示例直接编译它的源码。
-3. **`@system` 靠根 `tsconfig.json` 的 `paths` 解析**（`@system` → `packages/system/src`）。
-   注意 `packages/example/tsconfig.app.json` **不继承**根 tsconfig，
-   因此在 example 的构建里 `import ... from '@system/types.ts'` 会报
-   `TS2307: Cannot find module '@system/types.ts'`。这是既有问题，见下。
-4. **只有 `packages/react` 有 rollup 构建脚本**（仓库根的 `rollup.config.js`，入口
-   `packages/react/src/index.ts`），但**根 package.json 里没有对应的 npm script**，
-   需要手动 `npx rollup -c`（当前会失败，见下）。`@system` 完全没有构建配置。
+   不是 `dist/`。`dist/` 只是 `pnpm build` 的发布产物，示例直接编译源码。
+3. **`@system` 通过 workspace 依赖解析**：`packages/react/package.json` 里声明
+   `"@system": "workspace:*"`，pnpm 会创建 `packages/react/node_modules/@system`。
+   库内统一写 `import ... from '@system'`；**不要写 `@system/types.ts`**——example 的
+   `tsconfig.app.json` 不继承根 tsconfig 的 `paths`，子路径形式会报 `TS2307`。
+   example 需要数据类型时从 `reactflow` 重导出的 `Node` / `Edge` 取。
+4. **构建分两条链路**：`packages/system` 与 `packages/react` 用 Vite library mode 产出 ESM，
+   再用 `tsc -p tsconfig.build.json` 产出 `.d.ts`；`packages/example` 仍是 `tsc -b && vite build`。
+   根 `pnpm build` 按依赖顺序执行三者。旧的根 `rollup.config.js` 已删除。
 5. **导入必须带扩展名**：`.ts` / `.tsx` 显式写出（`allowImportingTsExtensions` +
    `verbatimModuleSyntax` + `moduleResolution: nodenext`）。`packages/react/src` 内
-   一律 `from './store/index.ts'`、`from '../index.ts'` 这种写法。
+   一律 `from './store/index.ts'`、`from '../lib/viewport.ts'` 这种写法。
 
-## 已知既有问题（不要试图在无关任务里修）
+## 当前状态（根脚本）
 
-当前 `main` 分支上，以下命令的现状如下。表中失败的项不代表你的改动引入了问题：
-
-| 命令 | 现状 |
+| 命令 | 说明 |
 | --- | --- |
-| `pnpm test` | 根 / `system` / `react` 的 `test` 脚本都是 `echo "Error: no test specified" && exit 1`。**本仓库没有测试套件。** |
-| `pnpm --filter example build` | `tsc -b && vite build`，tsc 阶段失败（见下） |
-| `pnpm --filter example lint` | 已通过（`App.tsx` 的 `useState` 未使用已在 PR #2 修复） |
-| `pnpm --filter react build` | 无此 script |
-| `npx rollup -c` | 失败：`rollup-plugin-typescript2` 与 tsconfig 的 `module: NodeNext` 不兼容 |
+| `pnpm install` | 安装依赖（首次进入 worktree 必须执行） |
+| `pnpm dev` | 启动 example 开发服务器（http://localhost:5173） |
+| `pnpm build` | 构建 system → react → example |
+| `pnpm test` | Vitest（jsdom），覆盖 `@system` 纯函数、视口/连线计算与节点渲染 |
+| `pnpm lint` | ESLint（example 的 flat config） |
+| `pnpm typecheck` | `tsc -b packages/example/tsconfig.json`，覆盖全部库源码 |
 
-`pnpm --filter example build` 的既有 tsc 错误（`packages/example` 与 `packages/react` 共 8 处）：
-
-```
-../react/src/ReactFlow.tsx(6,33): TS2307 Cannot find module '@system/types.ts'
-../react/src/ReactFlow.tsx(19,3): TS6133 'onNodesChange' 已声明未使用
-../react/src/ReactFlow.tsx(20,3): TS6133 'onEdgesChange' 已声明未使用
-../react/src/components/NodeRenderer.tsx(2,27): TS2307 Cannot find module '@system/types.ts'
-../react/src/components/NodeRenderer.tsx(25,26): TS2345 '(nds: any) => any' 不能赋给 'Node[]'
-../react/src/components/NodeRenderer.tsx(25,27): TS7006 'nds' 隐式 any
-../react/src/components/NodeRenderer.tsx(25,44): TS7006 'n' 隐式 any
-../react/src/components/EdgeRenderer.tsx(2,33): TS2307 Cannot find module '@system/types.ts'
-```
-
-**判断标准**：改动前先跑一次同样的命令记下基线，改动后对比。**只有新增的错误才是你的问题。**
+`pnpm test` 只跑根脚本即可；`packages/system`、`packages/react` 各自的 `test` 脚本
+会复用根 `vitest.config.ts`，便于单包调试。
 
 ## 怎么验证你的改动
-
-仓库没有自动化测试，所以验证靠下面几项：
 
 ```sh
 # 1. 装依赖（首次进入 worktree 时必须做，worktree 是新目录，没有 node_modules）
@@ -73,13 +59,15 @@ pnpm install
 # "Ignored build scripts: @parcel/watcher, esbuild" 警告，dev server 仍可正常运行。
 
 # 2. 跑开发服务器看真实效果（UI 改动必做）
-pnpm --filter example dev          # http://localhost:5173
+pnpm dev                            # http://localhost:5173
 
-# 3. 类型检查（会有既有错误，见上表；对比基线即可）
-pnpm --filter example build
+# 3. 类型检查 / 构建
+pnpm typecheck
+pnpm build
 
-# 4. 代码风格
-pnpm --filter example lint
+# 4. 测试与代码风格
+pnpm test
+pnpm lint
 ```
 
 **UI 改动的验证要求**：改 `packages/react` 或 `packages/example` 的界面后，
@@ -98,18 +86,21 @@ pnpm --filter example lint
 
 ## 代码现状备忘
 
-- `packages/react/src/components/NodeRenderer.tsx` 在 `nodes.map()` 回调里调用
-  `useRef` / `useEffect`。这违反了 React Hooks 规则（hook 必须在组件顶层调用），
-  节点数量变化时可能触发 "Rendered more hooks than during the previous render"。
-  这是既有问题；只有当任务本身就涉及节点渲染时才动它。
-- `packages/react/src/store/index.ts` 中 `setNodes` 的类型声明是 `(nodes: Node[]) => void`，
-  但实现同时接受 updater 函数，`NodeRenderer` 正在用函数式写法调用它。
-  类型声明与实际用法不一致，是既有类型错误的来源。
-- `packages/react/src/ReactFlow.tsx` 通过 `useEffect` 把 `nodes` / `edges` props
-  同步进 zustand store；`NodeRenderer` 渲染时读的是 props，而拖拽时写的是 store。
-  两条数据路径并存，改动时留意。
-- `packages/react/src/index.ts` 只导出 `store/index.ts` 和 `ReactFlow.tsx`，
-  `NodeRenderer` / `EdgeRenderer` **没有**对外导出。
+- `NodeRenderer` 只做 `nodes.map()`，每个节点由 `NodeCard` 组件渲染；拖拽的 `useRef` /
+  `useState` 都在 `NodeCard` 顶层，节点数量变化不会再触发 Hooks 数量错误。
+- `store/index.ts` 的 `setNodes` / `setEdges` / `setViewport` 均接受新值或 updater 函数，
+  类型与实现一致；视口 `{ x, y, zoom }` 也存在 store 里。
+- `ReactFlow.tsx` 通过 `useEffect` 把 `nodes` / `edges` props 同步进 store；节点层与连线层
+  各自订阅 store，因此拖拽与连线会实时更新。宿主传入的 props 仍是文档的入口。
+- 视口数学与节点几何是纯函数，分别在 `lib/viewport.ts`（25%–200% 缩放、锚点缩放、
+  fit view）与 `lib/geometry.ts`（节点固定 100×40，输出/输入锚点在上/下边缘中点）。
+  连线校验（禁自连、禁重复、单入）在 `lib/connection.ts`。
+- 交互：滚轮以指针为锚点缩放；空格 + 左键或中键拖拽平移；从节点下方锚点拖到上方锚点
+  创建连线，非法目标标红并给出原因。左下角有缩放比例（点击重置 100%）与适应画布。
+- 尚未实现（M1 后续 / M2）：选择/多选/删除、撤销重做、节点类型注册表、配置面板、
+  文档序列化、运行调试。
+- `packages/react/src/index.ts` 导出 store、`ReactFlow` 与 `Node` / `Edge` 类型；
+  `NodeRenderer` / `EdgeRenderer` / 各 `lib` 内部模块**没有**对外导出。
 
 ## 交流约定
 
