@@ -3,11 +3,11 @@ import { ReactFlow } from 'reactflow';
 
 function App() {
   const nodes = [
-    { id: '1', position: { x: 100, y: 100 }, data: { label: '节点 1' } },
-    { id: '2', position: { x: 400, y: 100 }, data: { label: '节点 2' } },
+    { id: '1', position: { x: 100, y: 100 }, data: { label: 'Node 1' } },
+    { id: '2', position: { x: 400, y: 100 }, data: { label: 'Node 2' } },
   ];
   const edges = [
-    { id: 'e1-2', source: '1', target: '2', label: '连接线' },
+    { id: 'e1-2', source: '1', target: '2', label: 'Connector' },
   ];
   return (
     <>
