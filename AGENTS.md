@@ -117,9 +117,9 @@ pnpm lint
 - `ReactFlow` 的 `showNodePanel` / `showConfigPanel` 默认开启（画布上的浮动覆盖层）；
   宿主自建三栏布局时关掉这两个，改用导出的 `NodePanel` / `ConfigPanel`（`variant="inline"`）
   并用 `NodeTypeProvider` 让面板与画布共享同一份注册表。
-- 尚未实现（M2 及以后）：框选、复制粘贴、变量引用与变量选择器、输入/输出预览、
-  文档序列化与 schema 版本号、文档级校验、顶部工具栏、运行调试。下一轮的范围见
-  [docs/ROADMAP.md §8](docs/ROADMAP.md#8-第三轮v13范围提议) 与 §8.10。
+- 尚未实现（v1.4 及以后）：框选、复制粘贴、变量引用与变量选择器、输入/输出 schema 预览、
+  文档序列化与 schema 版本号与迁移、文档级校验、受控 `workflow` API、顶部工具栏、运行调试。
+  v1.4 的范围见 [docs/ROADMAP.md §9](docs/ROADMAP.md#9-v14-范围)，v1.3 的实施记录见 §8.10。
 - `packages/react/src/index.ts` 导出 store、`ReactFlow`、`NodePanel`、`ConfigPanel`、
   `NodeTypeProvider`、注册表与参数校验工具，以及 `Node` / `Edge` / `Workflow` /
   `Viewport` / change 类型；`NodeRenderer` / `EdgeRenderer` / 各 `lib` 内部模块**没有**对外导出。
