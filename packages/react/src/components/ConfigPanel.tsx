@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import type { Workflow } from '@system'
 import { useFlowStore } from '../store/index.ts'
 import { useNodeTypeRegistry } from '../lib/registryContext.tsx'
@@ -20,8 +20,18 @@ export interface ConfigPanelProps {
 const MERGE_WINDOW = 600
 
 /**
+ * 一次连续编辑的待提交状态。
+ * `scope` 区分是哪个控件在连续输入，避免不同控件的修改被并成一条记录。
+ */
+interface PendingEdit {
+  scope: string
+  /** 编辑前的整份文档快照，撤销时回到这里（R3-7）。 */
+  snapshot: Workflow
+}
+
+/**
  * 右侧配置面板（R3-5、R3-6、R3-7）。
- * 选中节点时展示名称、描述与参数表单；未选中时显示工作流级占位。
+ * 选中节点时展示名称、描述与参数表单；选中连线时展示分支标签；未选中时显示占位。
  * 面板只消费注册表给出的参数 schema，不认识具体节点类型。
  */
 export const ConfigPanel = ({ className, variant = 'overlay' }: ConfigPanelProps) => {
@@ -45,10 +55,9 @@ export const ConfigPanel = ({ className, variant = 'overlay' }: ConfigPanelProps
   const values = (selectedNode?.data ?? {}) as Record<string, unknown>
   const errors = validateParams(params, values)
 
-  // 参数写回文档（R3-6）：连续输入期间不入栈，停止输入后压一条快照（R3-7）。
-  const pendingRef = useRef<{ key: string; snapshot: Workflow } | null>(null)
+  // 连续输入期间只写文档不入栈，停止输入后才压一条快照（R3-7）。
+  const pendingRef = useRef<PendingEdit | null>(null)
   const mergeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const [, setTouched] = useState<Record<string, boolean>>({})
 
   useEffect(
     () => () => {
@@ -57,7 +66,24 @@ export const ConfigPanel = ({ className, variant = 'overlay' }: ConfigPanelProps
     [],
   )
 
-  const flushPending = () => {
+  /**
+   * 开始一次连续编辑：记下编辑前的快照。
+   * 同一个 `scope` 的后续修改沿用这份快照，因此连续输入只产生一条历史记录。
+   */
+  const beginEdit = (scope: string): Workflow | null => {
+    const store = useFlowStore.getState()
+    const pending = pendingRef.current
+
+    if (pending && pending.scope === scope) return pending.snapshot
+    if (pending) flushEdit()
+
+    const snapshot = store.workflow
+    pendingRef.current = { scope, snapshot }
+    return snapshot
+  }
+
+  /** 把待提交的编辑压入历史栈，并结束连续编辑状态。 */
+  const flushEdit = () => {
     const pending = pendingRef.current
     if (!pending) return
     pendingRef.current = null
@@ -68,39 +94,65 @@ export const ConfigPanel = ({ className, variant = 'overlay' }: ConfigPanelProps
     useFlowStore.getState().pushHistory(pending.snapshot)
   }
 
-  const writeParam = (schema: ParamSchema, raw: unknown) => {
-    const store = useFlowStore.getState()
-    const node = store.workflow.nodes.find((candidate) => candidate.id === selectedNode?.id)
-    if (!node) return
-
-    const value = coerceParamValue(schema, raw)
-    const nextData: Record<string, unknown> = { ...(node.data ?? {}) }
-    if (value === undefined) delete nextData[schema.key]
-    else nextData[schema.key] = value
-
-    // 首次修改时记下编辑前的快照（R3-7）。
-    if (!pendingRef.current) {
-      pendingRef.current = { key: schema.key, snapshot: store.workflow }
+  /** 结束当前连续编辑（切换控件、切换选中项或失焦时调用）。 */
+  const endEdit = () => {
+    if (!pendingRef.current) return
+    if (mergeTimerRef.current) {
+      clearTimeout(mergeTimerRef.current)
+      mergeTimerRef.current = null
     }
-    store.updateNodeData(node.id, nextData, false)
-    setTouched((current) => ({ ...current, [schema.key]: true }))
+    flushEdit()
+  }
+
+  /** 写文档并安排合并窗口；窗口结束后把这次编辑压成一条历史记录。 */
+  const write = (scope: string, apply: () => void) => {
+    beginEdit(scope)
+    apply()
 
     if (mergeTimerRef.current) clearTimeout(mergeTimerRef.current)
-    mergeTimerRef.current = setTimeout(flushPending, MERGE_WINDOW)
+    mergeTimerRef.current = setTimeout(flushEdit, MERGE_WINDOW)
+  }
+
+  const writeParam = (schema: ParamSchema, raw: unknown) => {
+    const nodeId = selectedNode?.id
+    if (!nodeId) return
+
+    write(`param:${nodeId}:${schema.key}`, () => {
+      const store = useFlowStore.getState()
+      const node = store.workflow.nodes.find((candidate) => candidate.id === nodeId)
+      if (!node) return
+
+      const value = coerceParamValue(schema, raw)
+      const nextData: Record<string, unknown> = { ...(node.data ?? {}) }
+      if (value === undefined) delete nextData[schema.key]
+      else nextData[schema.key] = value
+
+      store.updateNodeData(node.id, nextData, false)
+    })
   }
 
   const writeTitle = (value: string) => {
-    const store = useFlowStore.getState()
-    const node = store.workflow.nodes.find((candidate) => candidate.id === selectedNode?.id)
-    if (!node) return
-    store.updateNodeData(node.id, { label: value })
+    const nodeId = selectedNode?.id
+    if (!nodeId) return
+    write(`label:${nodeId}`, () => {
+      useFlowStore.getState().updateNodeData(nodeId, { label: value }, false)
+    })
   }
 
   const writeDescription = (value: string) => {
-    const store = useFlowStore.getState()
-    const node = store.workflow.nodes.find((candidate) => candidate.id === selectedNode?.id)
-    if (!node) return
-    store.updateNodeData(node.id, { description: value })
+    const nodeId = selectedNode?.id
+    if (!nodeId) return
+    write(`description:${nodeId}`, () => {
+      useFlowStore.getState().updateNodeData(nodeId, { description: value }, false)
+    })
+  }
+
+  const writeEdgeLabel = (value: string) => {
+    const edgeId = selectedEdge?.id
+    if (!edgeId) return
+    write(`edge-label:${edgeId}`, () => {
+      useFlowStore.getState().setEdgeLabel(edgeId, value, false)
+    })
   }
 
   const classNames = [
@@ -138,9 +190,8 @@ export const ConfigPanel = ({ className, variant = 'overlay' }: ConfigPanelProps
               type="text"
               value={selectedEdge.label ?? ''}
               placeholder={output?.label ?? '如：是 / 否'}
-              onChange={(event) =>
-                useFlowStore.getState().setEdgeLabel(selectedEdge.id, event.target.value)
-              }
+              onChange={(event) => writeEdgeLabel(event.target.value)}
+              onBlur={endEdit}
             />
           </label>
           {output ? (
@@ -189,6 +240,7 @@ export const ConfigPanel = ({ className, variant = 'overlay' }: ConfigPanelProps
             type="text"
             value={String(values.label ?? '')}
             onChange={(event) => writeTitle(event.target.value)}
+            onBlur={endEdit}
             placeholder={definition.label}
           />
         </label>
@@ -199,6 +251,7 @@ export const ConfigPanel = ({ className, variant = 'overlay' }: ConfigPanelProps
             className="flow-config-panel__textarea"
             value={String(values.description ?? '')}
             onChange={(event) => writeDescription(event.target.value)}
+            onBlur={endEdit}
             placeholder="这个节点做什么"
             rows={3}
           />
@@ -214,6 +267,7 @@ export const ConfigPanel = ({ className, variant = 'overlay' }: ConfigPanelProps
               value={values[schema.key]}
               error={errors[schema.key]}
               onChange={(raw) => writeParam(schema, raw)}
+              onBlur={endEdit}
             />
           ))
         )}
@@ -227,10 +281,12 @@ interface ParamFieldProps {
   value: unknown
   error?: string | undefined
   onChange: (raw: unknown) => void
+  /** 失焦时结束连续编辑，立即把这次修改压成一条历史记录（R3-7）。 */
+  onBlur: () => void
 }
 
 /** 单个参数控件（R3-5）：按 schema 类型渲染五类控件之一。 */
-const ParamField = ({ schema, value, error, onChange }: ParamFieldProps) => {
+const ParamField = ({ schema, value, error, onChange, onBlur }: ParamFieldProps) => {
   const id = `flow-param-${schema.key}`
 
   return (
@@ -258,6 +314,7 @@ const ParamField = ({ schema, value, error, onChange }: ParamFieldProps) => {
           className="flow-config-panel__select"
           value={value === undefined || value === null ? '' : String(value)}
           onChange={(event) => onChange(event.target.value)}
+          onBlur={onBlur}
         >
           <option value="">未选择</option>
           {(schema.options ?? []).map((option) => (
@@ -275,6 +332,7 @@ const ParamField = ({ schema, value, error, onChange }: ParamFieldProps) => {
           type="number"
           value={value === undefined || value === null ? '' : String(value)}
           onChange={(event) => onChange(event.target.value)}
+          onBlur={onBlur}
         />
       ) : null}
 
@@ -284,6 +342,7 @@ const ParamField = ({ schema, value, error, onChange }: ParamFieldProps) => {
           className="flow-config-panel__textarea flow-config-panel__textarea--code"
           value={value === undefined || value === null ? '' : String(value)}
           onChange={(event) => onChange(event.target.value)}
+          onBlur={onBlur}
           rows={4}
           spellCheck={false}
         />
@@ -295,6 +354,7 @@ const ParamField = ({ schema, value, error, onChange }: ParamFieldProps) => {
           className="flow-config-panel__textarea"
           value={value === undefined || value === null ? '' : String(value)}
           onChange={(event) => onChange(event.target.value)}
+          onBlur={onBlur}
           rows={3}
         />
       ) : null}

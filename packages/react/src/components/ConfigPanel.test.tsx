@@ -83,7 +83,7 @@ describe('条件节点的多出口与分支标签（R3-3、R3-4）', () => {
     expect(screen.getByText('否')).toBeTruthy()
   })
 
-  it('选中连线后可在面板里改分支标签，且进历史栈', () => {
+  it('选中连线后可在面板里改分支标签，改动进历史栈', async () => {
     render(<ReactFlow nodes={nodes} edges={edges} />)
 
     const edge = document.querySelector('[data-edge-id="e-cond-yes"]')
@@ -97,7 +97,30 @@ describe('条件节点的多出口与分支标签（R3-3、R3-4）', () => {
       (candidate) => candidate.id === 'e-cond-yes',
     )
     expect(stored?.label).toBe('通过')
-    expect(useFlowStore.getState().past).toHaveLength(1)
+
+    // 连续输入合并成一条历史记录（R3-7）。
+    await waitFor(() => expect(useFlowStore.getState().past).toHaveLength(1))
+  })
+
+  it('连续输入分支标签只产生一条历史记录', async () => {
+    render(<ReactFlow nodes={nodes} edges={edges} />)
+
+    const edge = document.querySelector('[data-edge-id="e-cond-yes"]')
+    if (!(edge instanceof Element)) throw new Error('edge not found')
+    fireEvent.pointerDown(edge, { button: 0 })
+
+    const input = screen.getByLabelText('分支标签') as HTMLInputElement
+    fireEvent.change(input, { target: { value: '通' } })
+    fireEvent.change(input, { target: { value: '通过' } })
+    fireEvent.change(input, { target: { value: '通过时' } })
+
+    await waitFor(() => expect(useFlowStore.getState().past).toHaveLength(1))
+
+    useFlowStore.getState().undo()
+    const undone = useFlowStore.getState().workflow.edges.find(
+      (candidate) => candidate.id === 'e-cond-yes',
+    )
+    expect(undone?.label).toBe('是')
   })
 })
 
@@ -179,6 +202,24 @@ describe('配置面板（R3-5、R3-6、R3-7）', () => {
     useFlowStore.getState().redo()
     const redone = useFlowStore.getState().workflow.nodes.find((node) => node.id === 'yes')
     expect(redone?.data?.prompt).toBe('abc')
+  })
+
+  it('连续改节点名称只产生一条历史记录', async () => {
+    render(<ReactFlow nodes={nodes} edges={[]} />)
+
+    clickNode('yes')
+    const title = screen.getByLabelText('名称') as HTMLInputElement
+    fireEvent.change(title, { target: { value: '我的' } })
+    fireEvent.change(title, { target: { value: '我的模型' } })
+
+    const stored = useFlowStore.getState().workflow.nodes.find((node) => node.id === 'yes')
+    expect(stored?.data?.label).toBe('我的模型')
+
+    await waitFor(() => expect(useFlowStore.getState().past).toHaveLength(1))
+
+    useFlowStore.getState().undo()
+    const undone = useFlowStore.getState().workflow.nodes.find((node) => node.id === 'yes')
+    expect(undone?.data?.label).toBe('LLM')
   })
 
   it('独立使用 ConfigPanel 时同样能读到选中节点', () => {

@@ -45,8 +45,8 @@ export interface FlowState {
    * 为 true 时把编辑前的快照压入历史栈，形成一条可撤销记录（R3-7）。
    */
   updateNodeData: (id: string, data: Record<string, unknown>, history?: boolean) => void
-  /** 修改连线标签（R3-4）；入历史栈。 */
-  setEdgeLabel: (id: string, label: string) => void
+  /** 修改连线标签（R3-4）；`history` 为 false 时只写文档不入栈。 */
+  setEdgeLabel: (id: string, label: string, history?: boolean) => void
   /** 把指定快照（默认当前文档）压入撤销栈；用于拖拽结束后一次性记录（R2-4）。 */
   pushHistory: (snapshot?: Workflow) => void
   undo: () => boolean
@@ -253,7 +253,7 @@ export const useFlowStore = create<FlowState>((set, get) => ({
       return commit(state, nextWorkflow)
     }),
 
-  setEdgeLabel: (id, label) =>
+  setEdgeLabel: (id, label, history = true) =>
     set((state) => {
       const target = state.workflow.edges.find((edge) => edge.id === id)
       if (!target) return {}
@@ -261,7 +261,11 @@ export const useFlowStore = create<FlowState>((set, get) => ({
       const nextEdges = state.workflow.edges.map((edge) =>
         edge.id === id ? { ...edge, label } : edge,
       )
-      return commit(state, { ...state.workflow, edges: nextEdges })
+      const nextWorkflow: Workflow = { ...state.workflow, edges: nextEdges }
+
+      // 与参数写回同一套合并机制（R3-7）。
+      if (!history) return { workflow: nextWorkflow }
+      return commit(state, nextWorkflow)
     }),
 
   pushHistory: (snapshot) =>
