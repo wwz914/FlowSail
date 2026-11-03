@@ -92,9 +92,10 @@ pnpm lint
   `setNodes` / `setEdges` / `setViewport` 只写文档、不入历史；`addNode` / `addEdge` /
   `deleteSelection` 入历史栈。历史是整份快照（容量 `HISTORY_LIMIT = 50`），拖拽开始时
   取快照、松手时 `pushHistory` 合并为一条；`undo` / `redo` 不还原视口。
-- `ReactFlow.tsx` 对 `nodes` / `edges` props 做**内容差异**同步（非受控 + 初始值语义，
-  R2-7）：宿主每次渲染传入内容相同的新数组不会冲掉内部编辑。内部文档变化通过
-  store 订阅回调 `onNodesChange` / `onEdgesChange` / `onSelectionChange`。
+- `ReactFlow.tsx` 对 `nodes` / `edges` props 做**内容差异**同步（非受控主语义，R2-7）：
+  props 是初始文档与显式内容变更来源，内部编辑不回写 props；宿主每次渲染传入
+  内容相同的新数组不会冲掉内部编辑。内部文档变化通过 store 订阅回调
+  `onNodesChange` / `onEdgesChange` / `onSelectionChange`。
 - 视口数学与节点几何是纯函数，分别在 `lib/viewport.ts`（25%–200% 缩放、锚点缩放、
   fit view）与 `lib/geometry.ts`（节点固定 160×48，输出/输入锚点在上/下边缘中点）。
   连线校验（禁自连、禁重复、单入）在 `lib/connection.ts`。

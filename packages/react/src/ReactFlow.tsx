@@ -52,7 +52,7 @@ function toFlowPoint(container: HTMLElement, clientX: number, clientY: number): 
 }
 
 export interface ReactFlowProps {
-  /** 初始文档（R2-7：v1 为非受控 + 初始值语义，宿主重渲染不会冲掉内部编辑）。 */
+  /** 初始文档（R2-7：v1 为非受控主语义，props 变化时按内容差异同步，宿主重渲染不会冲掉内部编辑）。 */
   nodes?: Node[]
   edges?: Edge[]
   onNodesChange?: (nodes: Node[]) => void
@@ -107,7 +107,7 @@ export const ReactFlow = ({
     onSelectionChangeRef.current = onSelectionChange
   }, [onNodesChange, onEdgesChange, onSelectionChange])
 
-  // 非受控 + 初始值语义（R2-7）：只有 props 内容真的变了才同步，
+  // 非受控主语义 + 内容差异同步（R2-7）：只有 props 内容真的变了才同步，
   // 宿主每次渲染传出的新数组不会冲掉内部编辑状态。
   useEffect(() => {
     const key = JSON.stringify(nodes)
