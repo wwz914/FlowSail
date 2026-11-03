@@ -2,21 +2,22 @@
 
 | 项目 | 内容 |
 | --- | --- |
-| 文档版本 | v0.2（四项开放问题已确认） |
+| 文档版本 | v0.3（四项开放问题已确认；新增下一轮待确定事项，见 §11） |
 | 产品形态 | 可嵌入的工作流画布编辑器内核（dev-kit）+ 参考应用 |
 | 对标产品 | [扣子（Coze）工作流编辑器](https://www.coze.cn/open/docs/guides/workflow) |
-| 代码基线 | `main` @ `5724165`（§1.3 等现状描述对应此基线；最新实现状态见 [README](../README.md)） |
+| 代码基线 | `main` @ `cb3afdd`（第一轮合并后；最新实现状态见 [README](../README.md)） |
 | 更新日期 | 2026-11-03 |
 | 相关文档 | [README](../README.md) · [ROADMAP](./ROADMAP.md) · [AGENTS.md](../AGENTS.md) |
 
 > 本文用于对齐"我们在做什么、和扣子差在哪、初期先做什么"。
 > 四项开放问题已于 2026-11-03 确认（见 §11）；其余内容为基于现有代码与对标产品的合理默认。
+> 下一轮范围与仍待确认的事项见 [ROADMAP §7](./ROADMAP.md#7-第二轮m1-收口范围提议) 与 §11「待确定事项」。
 
 ---
 
 ## 0. 摘要（TL;DR）
 
-FlowSail 目前只是一个**静态画布雏形**：能渲染节点和直线连线，节点可用鼠标拖动，仅此而已。
+FlowSail 目前是一个**能画、能连的最小画布**：可缩放平移、从锚点拖拽创建连线并校验、拖动节点；但还不能选择、删除、撤销，画布上也没有节点创建入口。
 
 对标扣子工作流编辑器，一个"能用的"AI 工作流编辑器至少需要四层能力：
 
@@ -54,24 +55,17 @@ FlowSail 目前只是一个**静态画布雏形**：能渲染节点和直线连�
 
 | 包 | 定位 | 现状 |
 | --- | --- | --- |
-| `packages/system`（包名 `@system`） | 框架无关数据层 | 仅 `Node`/`Edge` 两个接口 + `applyNodeChanges`/`applyEdgeChanges` 两个按 id 浅合并的纯函数 |
-| `packages/react`（包名 `react`，示例中以 `reactflow` 引入） | React 画布实现 | `ReactFlow` 容器把 props 同步进 zustand；`NodeRenderer` 用绝对定位 div + d3-drag；`EdgeRenderer` 用 SVG 直线连节点中心 |
-| `packages/example`（private） | Vite 演示应用 | 两个写死的节点 + 一条连线，无任何编辑器壳 |
+| `packages/system`（包名 `@system`） | 框架无关数据层 | `Node`/`Edge` 两个类型 + `applyNodeChanges`/`applyEdgeChanges` 两个按 id 浅合并的纯函数（变更类型尚未覆盖 add / remove） |
+| `packages/react`（包名 `react`，示例中以 `reactflow` 引入） | React 画布实现 | `ReactFlow` 负责视口与连线交互；`NodeCard` 承载节点拖拽；`EdgeRenderer` 渲染贝塞尔曲线；zustand store 持有 nodes / edges / viewport |
+| `packages/example`（private） | Vite 演示应用 | Start / LLM / End 三个节点，可缩放、平移、连线 |
 
-**已经具备**：节点/连线的静态渲染、节点拖拽移动、最小状态管理。
+**已经具备**：视口缩放平移与适应画布、锚点连线创建与校验、贝塞尔连线渲染、节点拖拽、分层渲染与点阵网格。
 
-**尚不具备**：视口缩放平移、锚点与连线创建、选择/多选、删除、撤销重做、节点配置面板、变量引用、运行调试、文档序列化、测试。
+**尚不具备**：选择/多选、删除、撤销重做、节点创建入口、节点类型注册表、节点配置面板与变量引用、文档导入导出、运行调试。
 
-**已知工程问题**（详见 [AGENTS.md](../AGENTS.md)）：
+**工程基线**：第一轮已修复原有类型错误与 Hooks 违规，落地 Vitest（30 个用例）、`pnpm build`/`typecheck`/`lint` 与 GitHub Actions CI。下一轮范围见 [ROADMAP §7](./ROADMAP.md#7-第二轮m1-收口范围提议)。
 
-- `pnpm --filter example build` 有 8 处既有 TypeScript 错误（`@system/types.ts` 在 example 的 tsconfig 下无法解析等）；
-- `NodeRenderer` 在 `nodes.map()` 回调里调用 `useRef`/`useEffect`，违反 Hooks 规则，节点数量变化时会崩；
-- `store.setNodes` 类型声明是 `(nodes: Node[]) => void`，实现却接受 updater 函数，类型与实现不一致；
-- 仓库没有测试套件，`pnpm test` 一律失败；
-- `npx rollup -c` 因 tsconfig `module: NodeNext` 与 `rollup-plugin-typescript2` 不兼容而失败；
-- 根 `package.json` 没有 `dev`/`build` 脚本，构建只能手动执行。
-
-**结论**：当前处于"能看见图"的阶段，距"能编排出可运行流程"还差交互闭环、节点体系、数据配置、运行调试四层能力。
+**结论**：已经能"看见图、画得出图"，但还不能"编"——缺少选择、删除、撤销与节点创建入口；距"能编排出可运行流程"仍差交互闭环、节点体系、数据配置、运行调试四层能力。
 
 ---
 
@@ -468,12 +462,12 @@ interface NodeTypeDefinition {
 
 | 风险 | 影响 | 应对 |
 | --- | --- | --- |
-| 无测试 + 既有 Hooks 违规 | 每次加交互都可能引入回归，尤其 `NodeRenderer` | 把"修 Hooks 违规 + 引入测试"列为 M1 前置任务 |
+| 无测试 + 既有 Hooks 违规 | 每次加交互都可能引入回归 | ✅ 第一轮已解决：Hooks 修复、Vitest 与 CI 落地；后续交互需同时补测试 |
 | 执行引擎缺失 | 调试体验只能是 Mock，真实价值后置 | `Runner` 接口先行，v1 用 Mock；不绑定具体后端 |
 | 节点类型膨胀 | 内核被业务语义污染，包体积失控 | 注册表 + 最小内置集；业务节点由宿主扩展 |
 | 文档与代码漂移 | 新人按 README 无法跑通 | README 中的命令必须实测；CI 增加文档链接检查（P2） |
 | `packages/react` 包名与 npm `react` 同名 | 依赖解析易混淆 | 发布前改名为 `@flowsail/react`（见 §11 决策）；重命名随 M4 D-1 一起执行 |
-| 构建链路缺失 | 无法产出可发布的产物 | M1 修复 tsc 错误与 rollup 构建链路，M4 补发布流程 |
+| 构建链路缺失 | 无法产出可发布的产物 | ✅ 第一轮已解决：Vite library mode + `tsc` 产出 `dist`；发布流程留到 M4 |
 
 **已确认决策（2026-11-03，wwz914）**：
 
@@ -485,6 +479,33 @@ interface NodeTypeDefinition {
 | 发布包名 | `@flowsail/core`（数据层）与 `@flowsail/react`（React 画布），替代当前 workspace 名 `@system` 与 `react` | 重命名随 M4 D-1 打包阶段执行；发布前需在 npm 创建/确认 `@flowsail` 组织 |
 
 说明：上表为产品/技术负责人的确认结论；当前代码仍使用 `@system` / `react` 作为 workspace 包名，重命名尚未执行。
+
+### 待确定事项（下一轮前需确认）
+
+2026-11-03 基于第一轮合并后的实现梳理。除 Q5、Q6 外均为一次确认即可，不改变 M1–M4 的阶段结构。
+
+| # | 事项 | 为什么需要定 | 建议默认 | 阻塞下一轮 |
+| --- | --- | --- | --- | --- |
+| Q1 | 下一轮范围：M1 收口，还是直接进 M2 | 决定未来 1–2 周的投入方向 | 收口 M1（[ROADMAP §7](./ROADMAP.md#7-第二轮m1-收口范围提议)） | 是 |
+| Q2 | 最小节点面板是否前移到本轮 | M1 的 DoD 要求"从空画布创建节点"，但节点面板原本排在 M2 的 N-9 | 接受前移：只做 3–6 个内置类型的最小面板，完整三栏布局仍留 M2 | 是 |
+| Q3 | 撤销范围是否包含视口变化 | 决定历史栈语义与快照体积；缩放平移很频繁，入栈会淹没真实编辑历史 | 不含视口，只覆盖节点与连线的变更 | 否 |
+| Q4 | 受控 API 何时定 | `nodes` / `edges` props 目前在 `useEffect` 里无条件同步进 store，宿主每次渲染传新数组会冲掉内部状态，与撤销、拖拽直接冲突 | 本轮只修同步边界并沿用现有 props；受控 `workflow` + `onChange` 随 M2 的 N-7 一起定 | 是（R2-7） |
+| Q5 | 许可证 | 定位是开源组件库，但仓库没有 `LICENSE` 文件，包内 `license` 仍是模板默认的 `ISC` | MIT（或 Apache-2.0，由负责人二选一） | 否（发布前） |
+| Q6 | `@flowsail` npm 组织 | 发布前该 scope 必须在 npm 上存在；属人工开户与权限操作，代理无法代办 | M4 发布前由负责人创建并确认代理账号权限 | 否（M4 前） |
+| Q7 | 节点卡片规格 | C-11 要改尺寸与信息层级，直接影响视觉与几何常量（当前固定 100×40） | 宽 160 × 高 48、图标 16px、类型徽标靠右、标题单行省略 | 是 |
+| Q8 | 试运行中是否禁止编辑 | FR-R2 原标注"待确认"，影响 M3 的交互与状态管理 | 运行中禁止编辑（比"允许编辑并重算"简单可靠） | 否（M3 前） |
+| Q9 | 扣子能力清单复核 | §4.1 标注"待复核"（含小地图是否具备），影响 P2 列表 | M2 前复核一次，不阻塞下一轮 | 否 |
+| Q10 | 变量引用语法与 `ParamSchema` 形态 | M2 的核心契约，影响文档 schema 的稳定性 | 维持 `{{nodeId.field}}` 草案，M2 设计时再定字段访问与类型校验规则 | 否（M2 前） |
+| Q11 | 版本与发布机制 | 开源库需要可追溯的发布记录；changeset 与手写 CHANGELOG 二选一 | 用 changeset（pnpm workspace 原生支持），版本从 `0.1.0` 起步 | 否（M4 前） |
+
+以下为已识别、但不需要负责人决策的技术默认（本轮按此执行，有异议可随时调整）：
+
+- 历史栈用整份文档快照（容量 50），不引入增量 patch 机制；300 节点内的快照开销可接受，性能不达标再换实现。
+- 平移、缩放、拖拽继续用原生 pointer events 自研，不引入 d3-zoom / d3-drag，保持体积目标（gzip < 60KB）。
+- 节点类型元数据先用 `packages/react` 内的常量表，M2 的注册表只接管数据来源，不改渲染结构。
+- 文案集中在常量文件，v1 不引入 i18n 运行时。
+- 本轮不新增性能基准脚本；「300 节点 / 500 连线 ≥ 50fps」的度量放在 M4 交付前补齐。
+- `peerDependencies` 声明 `react: >=18 <20`，CI 仍只测 React 19；React 18 的兼容冒烟留到 M4 发布前。
 
 ---
 
