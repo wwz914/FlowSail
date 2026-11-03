@@ -5,8 +5,8 @@
 ## 仓库结构
 
 ```
-packages/system    @system   框架无关的数据层：Node/Edge 类型、变更合并工具。无运行时依赖。
-packages/react     react     React 画布实现：ReactFlow 组件、NodeRenderer/NodeCard、EdgeRenderer、zustand store、viewport/connection 纯函数。
+packages/system    @system   框架无关的数据层：Node/Edge/Workflow 类型、变更合并工具。无运行时依赖。
+packages/react     react     React 画布实现：ReactFlow 组件、NodePanel、NodeRenderer/NodeCard、EdgeRenderer、zustand store、viewport/connection 纯函数。
 packages/example   example   Vite + React 演示应用（private，不发布）。
 ```
 
@@ -43,7 +43,7 @@ packages/example   example   Vite + React 演示应用（private，不发布）�
 | `pnpm install` | 安装依赖（首次进入 worktree 必须执行） |
 | `pnpm dev` | 启动 example 开发服务器（http://localhost:5173） |
 | `pnpm build` | 构建 system → react → example |
-| `pnpm test` | Vitest（jsdom），覆盖 `@system` 纯函数、视口/连线计算与节点渲染 |
+| `pnpm test` | Vitest（jsdom），覆盖 `@system` 纯函数、视口/连线计算、选择/删除/历史与节点渲染 |
 | `pnpm lint` | ESLint（example 的 flat config） |
 | `pnpm typecheck` | `tsc -b packages/example/tsconfig.json`，覆盖全部库源码 |
 
@@ -86,21 +86,29 @@ pnpm lint
 
 ## 代码现状备忘
 
-- `NodeRenderer` 只做 `nodes.map()`，每个节点由 `NodeCard` 组件渲染；拖拽的 `useRef` /
-  `useState` 都在 `NodeCard` 顶层，节点数量变化不会再触发 Hooks 数量错误。
-- `store/index.ts` 的 `setNodes` / `setEdges` / `setViewport` 均接受新值或 updater 函数，
-  类型与实现一致；视口 `{ x, y, zoom }` 也存在 store 里。
-- `ReactFlow.tsx` 通过 `useEffect` 把 `nodes` / `edges` props 同步进 store；节点层与连线层
-  各自订阅 store，因此拖拽与连线会实时更新。宿主传入的 props 仍是文档的入口。
+- `NodeRenderer` 只做 `nodes.map()`，每个节点由 `NodeCard` 组件渲染；拖拽、选择与
+  指针捕获的 `useRef` / `useState` 都在 `NodeCard` 顶层，节点数量变化不会触发 Hooks 错误。
+- `store/index.ts` 以单份 `workflow`（`nodes` / `edges` / `viewport`）为唯一事实源，
+  `setNodes` / `setEdges` / `setViewport` 只写文档、不入历史；`addNode` / `addEdge` /
+  `deleteSelection` 入历史栈。历史是整份快照（容量 `HISTORY_LIMIT = 50`），拖拽开始时
+  取快照、松手时 `pushHistory` 合并为一条；`undo` / `redo` 不还原视口。
+- `ReactFlow.tsx` 对 `nodes` / `edges` props 做**内容差异**同步（非受控 + 初始值语义，
+  R2-7）：宿主每次渲染传入内容相同的新数组不会冲掉内部编辑。内部文档变化通过
+  store 订阅回调 `onNodesChange` / `onEdgesChange` / `onSelectionChange`。
 - 视口数学与节点几何是纯函数，分别在 `lib/viewport.ts`（25%–200% 缩放、锚点缩放、
-  fit view）与 `lib/geometry.ts`（节点固定 100×40，输出/输入锚点在上/下边缘中点）。
+  fit view）与 `lib/geometry.ts`（节点固定 160×48，输出/输入锚点在上/下边缘中点）。
   连线校验（禁自连、禁重复、单入）在 `lib/connection.ts`。
+- 节点类型元数据（图标、类型名、默认标题、强调色）在 `lib/nodeTypes.tsx`；
+  M2 的注册表只接管数据来源，不改卡片渲染结构。
 - 交互：滚轮以指针为锚点缩放；空格 + 左键或中键拖拽平移；从节点下方锚点拖到上方锚点
-  创建连线，非法目标标红并给出原因。左下角有缩放比例（点击重置 100%）与适应画布。
-- 尚未实现（M1 后续 / M2）：选择/多选/删除、撤销重做、节点类型注册表、配置面板、
-  文档序列化、运行调试。
-- `packages/react/src/index.ts` 导出 store、`ReactFlow` 与 `Node` / `Edge` 类型；
-  `NodeRenderer` / `EdgeRenderer` / 各 `lib` 内部模块**没有**对外导出。
+  创建连线，非法目标标红并给出原因；单击/Shift 多选、Delete/Backspace 删除、
+  `Ctrl/Cmd+Z` / `Ctrl/Cmd+Shift+Z` 撤销重做、Esc 取消选择；左下角有缩放比例与适应画布；
+  左侧 `NodePanel` 支持点击或拖入创建节点（首版开始 / 大模型 / 结束 3 类）。
+- 尚未实现（M2 及以后）：框选、复制粘贴、节点类型注册表、配置面板与变量引用、
+  文档序列化/校验、运行调试。
+- `packages/react/src/index.ts` 导出 store、`ReactFlow` 与 `Node` / `Edge` / `Workflow` /
+  `Viewport` / change 类型；`NodePanel` / `NodeRenderer` / `EdgeRenderer` / 各 `lib`
+  内部模块**没有**对外导出。
 
 ## 交流约定
 
