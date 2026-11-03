@@ -1,3 +1,4 @@
+import type { Node } from '@system'
 import { getNodesBounds, type Point } from './geometry.ts'
 
 /** 视口变换：画布世界的平移 + 缩放。 */
@@ -59,7 +60,7 @@ export function flowToScreen(point: Point, container: ContainerRect, viewport: V
  * 计算能把全部节点框进容器的视口；空画布返回默认视口。
  */
 export function getFitViewport(
-  nodes: Parameters<typeof getNodesBounds>[0],
+  nodes: Node[],
   width: number,
   height: number,
   padding: number = FIT_VIEW_PADDING,
