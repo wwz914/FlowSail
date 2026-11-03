@@ -12,6 +12,8 @@ packages/example   example   Vite + React 演示应用（private，不发布）�
 
 根目录 `package.json` 名为 `my-flow`（private），只承载共享依赖与构建依赖，**本身不是一个包**。
 
+产品与规划文档：[`docs/PRD.md`](docs/PRD.md)（定位、对标、功能需求）、[`docs/ROADMAP.md`](docs/ROADMAP.md)（初期基础能力与阶段规划）。
+
 ## 先读这一段：命名与解析上的坑
 
 这几处看起来像 bug，其实是有意为之或历史遗留。**改动前先理解，不要顺手"修正"**：
@@ -28,32 +30,33 @@ packages/example   example   Vite + React 演示应用（private，不发布）�
    `TS2307: Cannot find module '@system/types.ts'`。这是既有问题，见下。
 4. **只有 `packages/react` 有 rollup 构建脚本**（仓库根的 `rollup.config.js`，入口
    `packages/react/src/index.ts`），但**根 package.json 里没有对应的 npm script**，
-   需要手动 `npx rollup -c`。`@system` 完全没有构建配置。
+   需要手动 `npx rollup -c`（当前会失败，见下）。`@system` 完全没有构建配置。
 5. **导入必须带扩展名**：`.ts` / `.tsx` 显式写出（`allowImportingTsExtensions` +
    `verbatimModuleSyntax` + `moduleResolution: nodenext`）。`packages/react/src` 内
    一律 `from './store/index.ts'`、`from '../index.ts'` 这种写法。
 
 ## 已知既有问题（不要试图在无关任务里修）
 
-当前 `main` 分支上，以下命令**本来就是失败的**。它们失败不代表你的改动引入了问题：
+当前 `main` 分支上，以下命令的现状如下。表中失败的项不代表你的改动引入了问题：
 
 | 命令 | 现状 |
 | --- | --- |
 | `pnpm test` | 根 / `system` / `react` 的 `test` 脚本都是 `echo "Error: no test specified" && exit 1`。**本仓库没有测试套件。** |
 | `pnpm --filter example build` | `tsc -b && vite build`，tsc 阶段失败（见下） |
-| `pnpm --filter example lint` | eslint 报 1 个错：`src/App.tsx` 的 `useState` 未使用 |
+| `pnpm --filter example lint` | 已通过（`App.tsx` 的 `useState` 未使用已在 PR #2 修复） |
 | `pnpm --filter react build` | 无此 script |
+| `npx rollup -c` | 失败：`rollup-plugin-typescript2` 与 tsconfig 的 `module: NodeNext` 不兼容 |
 
 `pnpm --filter example build` 的既有 tsc 错误（`packages/example` 与 `packages/react` 共 8 处）：
 
 ```
-src/App.tsx(1,1): TS6133 'useState' 已声明未使用
 ../react/src/ReactFlow.tsx(6,33): TS2307 Cannot find module '@system/types.ts'
 ../react/src/ReactFlow.tsx(19,3): TS6133 'onNodesChange' 已声明未使用
 ../react/src/ReactFlow.tsx(20,3): TS6133 'onEdgesChange' 已声明未使用
 ../react/src/components/NodeRenderer.tsx(2,27): TS2307 Cannot find module '@system/types.ts'
 ../react/src/components/NodeRenderer.tsx(25,26): TS2345 '(nds: any) => any' 不能赋给 'Node[]'
 ../react/src/components/NodeRenderer.tsx(25,27): TS7006 'nds' 隐式 any
+../react/src/components/NodeRenderer.tsx(25,44): TS7006 'n' 隐式 any
 ../react/src/components/EdgeRenderer.tsx(2,33): TS2307 Cannot find module '@system/types.ts'
 ```
 
