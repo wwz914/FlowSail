@@ -1,5 +1,5 @@
-import type { Edge, Node, Viewport, Workflow } from '@system'
-import { createWorkflow } from '@system'
+import type { Edge, Node, Viewport, Workflow } from '@flowsail/core'
+import { createWorkflow } from '@flowsail/core'
 import { create } from 'zustand'
 import { DEFAULT_VIEWPORT } from '../lib/viewport.ts'
 

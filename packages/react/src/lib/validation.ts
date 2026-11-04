@@ -1,4 +1,4 @@
-import type { Edge, Node } from '@system'
+import type { Edge, Node } from '@flowsail/core'
 import type { NodeTypeRegistry, ParamSchema } from './registry.ts'
 import { resolveNodeType } from './registry.ts'
 import { checkReferences } from './variables.ts'

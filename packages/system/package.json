@@ -1,21 +1,51 @@
 {
-  "name": "@system",
-  "version": "1.0.0",
-  "description": "",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "name": "@flowsail/core",
+  "version": "0.1.0",
+  "description": "FlowSail 的框架无关数据层：工作流文档模型、类型定义与变更合并纯函数",
+  "license": "MIT",
   "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "keywords": [
+    "workflow",
+    "editor",
+    "flow",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wwz914/FlowSail.git",
+    "directory": "packages/system"
+  },
+  "homepage": "https://github.com/wwz914/FlowSail#readme",
+  "bugs": {
+    "url": "https://github.com/wwz914/FlowSail/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json",
     "test": "vitest run --config ../../vitest.config.ts packages/system"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "packageManager": "pnpm@10.23.0",
   "devDependencies": {
     "typescript": "^5.9.3",
     "vite": "^7.2.4",
     "vitest": "^5.1.0"
-  }
+  },
+  "packageManager": "pnpm@10.23.0"
 }

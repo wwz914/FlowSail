@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Edge, Node } from '@system'
+import type { Edge, Node } from '@flowsail/core'
 import {
   PASTE_OFFSET,
   collectClipboard,

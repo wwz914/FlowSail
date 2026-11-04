@@ -1,4 +1,4 @@
-import type { Node, Workflow } from '@system'
+import type { Node, Workflow } from '@flowsail/core'
 import type { NodeTypeRegistry } from './registry.ts'
 
 /**

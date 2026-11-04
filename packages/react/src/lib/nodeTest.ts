@@ -1,4 +1,4 @@
-import type { Node } from '@system'
+import type { Node } from '@flowsail/core'
 import { resolveNodeType } from './registry.ts'
 import { buildMockFields, resolveRuntimeParams } from './execution.ts'
 import { parseReferences } from './variables.ts'

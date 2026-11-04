@@ -1,4 +1,4 @@
-import type { Node } from '@system'
+import type { Node } from '@flowsail/core'
 import type { HandleDefinition } from './registry.ts'
 
 /** 画布上的一个点，单位为 px。 */

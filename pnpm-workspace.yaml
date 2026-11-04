@@ -1,2 +1,12 @@
 packages:
   - 'packages/*'
+
+# 允许依赖的安装脚本（Vite 的 esbuild、sass 的 @parcel/watcher），
+# 避免 pnpm 拦截 ignored builds。pnpm 10 用 onlyBuiltDependencies，
+# pnpm 11 起用 allowBuilds；两者并存以兼容。
+onlyBuiltDependencies:
+  - esbuild
+  - '@parcel/watcher'
+allowBuilds:
+  esbuild: true
+  '@parcel/watcher': true

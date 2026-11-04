@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Node } from '@system'
+import type { Node } from '@flowsail/core'
 import { useNodeTypeRegistry } from '../lib/registryContext.tsx'
 import { resolveNodeType } from '../lib/registry.ts'
 import { collectReferencedFields, runNodeTest } from '../lib/nodeTest.ts'

@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Node } from '@system'
+import type { Node } from '@flowsail/core'
 import type { NodeTypeRegistry } from './registry.ts'
 import type {
   NodeRunState,

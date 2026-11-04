@@ -5,51 +5,59 @@
 ## 仓库结构
 
 ```
-packages/system    @system   框架无关的数据层：Node/Edge/Workflow 类型、变更合并工具、文档模型与 schema 迁移。无运行时依赖。
-packages/react     react     React 画布实现：ReactFlow 组件、NodePanel、ConfigPanel、Toolbar、ValidationPanel、VariablePicker、SchemaPreview、RunPanel、NodeTestPanel、NodeRenderer/NodeCard、EdgeRenderer、节点类型注册表、变量引用与文档校验、Runner 接口与运行期状态、zustand store、viewport/connection 纯函数。
-packages/example   example   Vite + React 演示应用（private，不发布）。
+packages/system    @flowsail/core   框架无关的数据层：Node/Edge/Workflow 类型、变更合并工具、文档模型与 schema 迁移。无运行时依赖。
+packages/react     @flowsail/react  React 画布实现：ReactFlow 组件、NodePanel、ConfigPanel、Toolbar、ValidationPanel、VariablePicker、SchemaPreview、RunPanel、NodeTestPanel、NodeRenderer/NodeCard、EdgeRenderer、节点类型注册表、变量引用与文档校验、Runner 接口与运行期状态、zustand store、viewport/connection 纯函数。
+packages/example   example          Vite + React 演示应用（private，不发布，部署到 GitHub Pages）。
 ```
 
-根目录 `package.json` 名为 `my-flow`（private），只承载共享依赖、根脚本与构建依赖，**本身不是一个包**。
+根目录 `package.json` 名为 `flowsail`（private），只承载共享依赖、根脚本与构建依赖，**本身不是一个包**。
 
-产品与规划文档：[`docs/PRD.md`](docs/PRD.md)（定位、对标、功能需求）、[`docs/ROADMAP.md`](docs/ROADMAP.md)（初期基础能力与阶段规划）。
+产品与规划文档：[`docs/PRD.md`](docs/PRD.md)（定位、对标、功能需求）、[`docs/ROADMAP.md`](docs/ROADMAP.md)（阶段规划与实施记录）、[`docs/RELEASING.md`](docs/RELEASING.md)（发布、secret、回滚与 Pages 部署）。
 
-## 先读这一段：命名与解析上的坑
+## 先读这一段：命名与构建约定
 
-这几处看起来像 bug，其实是有意为之或历史遗留。**改动前先理解，不要顺手"修正"**：
+v1.7（R7-1）已经完成包改名与发布入口切换，下面这几条是**当前**的事实，不要按旧名理解：
 
-1. **`packages/react` 的包名是 `react`**，与 npm 上的 `react` 同名。它在 example 里通过
-   `"reactflow": "workspace:../react"` 引入，因此 example 中写的是
-   `import { ReactFlow } from 'reactflow'`，实际指向 `packages/react`。
-   → 改 `packages/react` 的导出，改的是 example 里 `reactflow` 这个名字。
-2. **两个库包都直接暴露 TypeScript 源码**：`main` / `types` 指向 `src/index.ts`，
-   不是 `dist/`。`dist/` 只是 `pnpm build` 的发布产物，示例直接编译源码。
-3. **`@system` 通过 workspace 依赖解析**：`packages/react/package.json` 里声明
-   `"@system": "workspace:*"`，pnpm 会创建 `packages/react/node_modules/@system`。
-   库内统一写 `import ... from '@system'`；**不要写 `@system/types.ts`**——example 的
-   `tsconfig.app.json` 不继承根 tsconfig 的 `paths`，子路径形式会报 `TS2307`。
-   example 需要数据类型时从 `reactflow` 重导出的 `Node` / `Edge` 取。
-4. **构建分两条链路**：`packages/system` 与 `packages/react` 用 Vite library mode 产出 ESM，
-   再用 `tsc -p tsconfig.build.json` 产出 `.d.ts`；`packages/example` 仍是 `tsc -b && vite build`。
-   根 `pnpm build` 按依赖顺序执行三者。旧的根 `rollup.config.js` 已删除。
+1. **包名是 `@flowsail/core`（`packages/system`）与 `@flowsail/react`（`packages/react`）**。
+   example 直接依赖 `"@flowsail/react": "workspace:*"` 并 `import { ReactFlow } from '@flowsail/react'`；
+   旧的 `reactflow` workspace 别名已删除。
+2. **两个库包的入口都指向 `dist`**：`main` / `module` / `types` / `exports` 全部指向构建产物，
+   `files` 只含 `dist` 与 `LICENSE`。因此 example 的 `tsc -b` 与 Vite 消费的是**构建后的产物**，
+   不是 TS 源码。根脚本已把顺序固定：`pnpm dev` / `pnpm typecheck` / `pnpm build` 都会先构建两个库包。
+3. **库内统一 `import ... from '@flowsail/core'`**：`packages/react/package.json` 声明
+   `"@flowsail/core": "workspace:*"`，pnpm 会创建 `packages/react/node_modules/@flowsail/core`。
+   **不要写 `@flowsail/core/types.ts` 子路径**；example 需要数据类型时从 `@flowsail/react` 重导出的
+   `Node` / `Edge` / `Workflow` 取。
+4. **测试直接跑源码**：`vitest.config.ts` 把 `@flowsail/core` alias 到 `packages/system/src/index.ts`，
+   避免测试读到过期的 `dist`。构建时 `packages/react/vite.config.ts` 把 `react` / `react-dom` /
+   `zustand` / `@flowsail/core` 设为 external。
 5. **导入必须带扩展名**：`.ts` / `.tsx` 显式写出（`allowImportingTsExtensions` +
    `verbatimModuleSyntax` + `moduleResolution: nodenext`）。`packages/react/src` 内
    一律 `from './store/index.ts'`、`from '../lib/viewport.ts'` 这种写法。
-
-> **v1.7 会改掉第 1 ~ 3 条**：R7-1 将把包名改为 `@flowsail/core` / `@flowsail/react`，
-> 入口改指 `dist`，并去掉示例的 workspace 别名。改完之后本节需要同步重写；
-> 在 v1.7 实施前，仍按上面的现状理解。范围见 [ROADMAP §12](docs/ROADMAP.md#12-v17-范围m4-交付主线打包发布文档在线示例)。
+6. **CSS 是独立产物**：库源码里的 `style.scss` 由 Vite 抽成 `dist/style.css`，JS 不注入样式。
+   宿主（含 example）必须显式 `import '@flowsail/react/style.css'`；`sideEffects` 只声明 CSS。
+7. **peer 与依赖**：`react` / `react-dom` 是 `@flowsail/react` 的 peer（`>=18 <20`），
+   `zustand` 与 `@flowsail/core` 是运行时依赖。`workspace:*` 在 `pnpm pack` / 发布时由工具链
+   写成实际版本，不要手工改。
+8. **pnpm 构建脚本**：`pnpm-workspace.yaml` 用 `onlyBuiltDependencies` / `allowBuilds` 允许
+   `esbuild` 与 `@parcel/watcher`。新增依赖需要安装脚本时同步补充，否则 pnpm 会拦截。
 
 ## 当前状态（根脚本）
 
 | 命令 | 说明 |
 | --- | --- |
 | `pnpm install` | 安装依赖（首次进入 worktree 必须执行） |
-| `pnpm dev` | 启动 example 开发服务器（http://localhost:5173） |
-| `pnpm build` | 构建 system → react → example |
-| `pnpm test` | Vitest（jsdom），覆盖 `@system` 纯函数与文档模型、视口/连线计算、选择/删除/历史、节点渲染、节点类型注册表与参数表单、变量引用、文档级校验、导入导出与受控模式 |
-| `pnpm lint` | ESLint（example 的 flat config） |
-| `pnpm typecheck` | `tsc -b packages/example/tsconfig.json`，覆盖全部库源码 |
+| `pnpm dev` | 构建两个库包后启动 example 开发服务器（http://localhost:5173） |
+| `pnpm build` | 构建 `@flowsail/core` → `@flowsail/react` → example |
+| `pnpm build:libs` | 只构建两个库包（修改库源码后刷新 example 前执行） |
+| `pnpm test` | Vitest（jsdom），295 个用例，覆盖数据层、文档模型、视口/连线、选择/历史、渲染、注册表、变量引用、校验、导入导出、Runner 与运行期 |
+| `pnpm test:coverage` | 同上并跑覆盖率门禁（统计 `packages/system/src` 与 `packages/react/src/lib`，要求 ≥ 70%） |
+| `pnpm lint` | 仓库级 ESLint（flat config，覆盖 system / react / example / 脚本） |
+| `pnpm typecheck` | 先构建库声明，再 `tsc -b packages/example/tsconfig.json` |
+| `pnpm check:size` | 发布产物 gzip 门禁：`@flowsail/react`（JS + CSS）< 60KB |
+| `pnpm check:links` | README / docs / AGENTS 的 Markdown 链接与锚点检查 |
+| `pnpm check:pack` | `pnpm pack` → 干净目录安装 → 类型检查 / Vite 构建 / jsdom 渲染冒烟 |
+| `pnpm changeset` | 新增 changeset；发布流程见 [docs/RELEASING.md](docs/RELEASING.md) |
 
 `pnpm test` 只跑根脚本即可；`packages/system`、`packages/react` 各自的 `test` 脚本
 会复用根 `vitest.config.ts`，便于单包调试。
@@ -59,10 +67,8 @@ packages/example   example   Vite + React 演示应用（private，不发布）�
 ```sh
 # 1. 装依赖（首次进入 worktree 时必须做，worktree 是新目录，没有 node_modules）
 pnpm install
-# pnpm 会依据 packageManager 字段自动切到 10.23.0；安装后可能有
-# "Ignored build scripts: @parcel/watcher, esbuild" 警告，dev server 仍可正常运行。
 
-# 2. 跑开发服务器看真实效果（UI 改动必做）
+# 2. 跑开发服务器看真实效果（UI 改动必做；会先构建两个库包）
 pnpm dev                            # http://localhost:5173
 
 # 3. 类型检查 / 构建
@@ -72,15 +78,29 @@ pnpm build
 # 4. 测试与代码风格
 pnpm test
 pnpm lint
+
+# 5. 发布前门禁（改了产物、文档或发布配置时）
+pnpm test:coverage
+pnpm check:size
+pnpm check:links
+pnpm check:pack
 ```
 
 **UI 改动的验证要求**：改 `packages/react` 或 `packages/example` 的界面后，
 必须在 PR 里给出 **Before / After 两张截图**，同一视口、同一场景、同一主题。
-截图用 dev server 实际截取，不要用设计稿冒充旧实现。
+截图用 dev server 实际截取，不要用设计稿冒充旧实现。v1.7 不改界面，因此没有对比图。
+
+## 发布与在线示例
+
+- 发布流程、所需 secret、版本步骤与回滚：[docs/RELEASING.md](docs/RELEASING.md)
+- 首次 npm 发布由负责人执行或明确授权（Q29）；CI 只校验，不自动发布。
+- 在线示例：<https://wwz914.github.io/FlowSail/>，`main` 推送自动部署；
+  首次需要仓库管理员在 `Settings → Pages` 选择 GitHub Actions。
+- 每个改动公开包行为的 PR 都要带 changeset；`changeset version` 产出 CHANGELOG 后再触发 Release 工作流。
 
 ## 提交时的注意事项
 
-- `.gitignore` 已忽略 `node_modules/`、`dist/`、`*.tsbuildinfo`、`.vite/`、`*.log`。
+- `.gitignore` 已忽略 `node_modules/`、`dist/`、`*.tsbuildinfo`、`.vite/`、`*.log`、`coverage/`。
   新增构建产物或临时文件时，请同步补充到 `.gitignore`。
   提交时仍建议**用具体路径**（`git add packages/react/src/...`），
   避免误把无关文件带进提交。
@@ -98,7 +118,7 @@ pnpm lint
   （容量 `HISTORY_LIMIT = 50`），拖拽开始时取快照、松手时 `pushHistory` 合并为一条；
   `undo` / `redo` 不还原视口。**`pushHistory(snapshot)` 压入的是"编辑前"的快照**——
   想让撤销回到某个状态，就传那个状态的文档，别传当前文档。
-- 文档模型在 `packages/system/src/document.ts`（`@system` 直接导出）：
+- 文档模型在 `packages/system/src/document.ts`（`@flowsail/core` 直接导出）：
   `createWorkflow` / `normalizeWorkflow` / `migrateWorkflow` / `validateWorkflowDocument` /
   `serializeWorkflow` / `parseWorkflowDocument`。`CURRENT_WORKFLOW_VERSION = 1`；
   `migrate` 按版本逐级升级，版本过新或非整数时拒绝导入并给出可读原因；
@@ -171,10 +191,10 @@ pnpm lint
 - 性能基准：`node scripts/benchmark.mjs [url]`（需先 `pnpm dev`）构造 300 节点 / 500 连线，
   度量拖拽与缩放帧率并与 ≥ 50fps 目标对照。示例应用只在开发环境暴露
   `window.__flowBenchStore` 供脚本使用。
-- **v1.7（2026-11-04 已确认，待实施）**：M4 交付主线——包改名与可发布产物、
-  changeset 发布流程、README 安装 / 嵌入路径、GitHub Pages 在线示例、发布前质量门禁；
-  D-5（主题与可访问性）留给 v1.8。见 [docs/ROADMAP.md §12](docs/ROADMAP.md#12-v17-范围m4-交付主线打包发布文档在线示例)。
-  尚未实现：主题与可访问性、自动布局、小地图、异常策略、资源与性能观测、
+- **v1.7（2026-11-04 实施）**：M4 交付主线——包改名与可发布产物、changeset 发布流程、
+  README 安装 / 嵌入路径、GitHub Pages 在线示例、发布前质量门禁；实现记录见
+  [docs/ROADMAP.md §12.10](docs/ROADMAP.md#1210-实施结果2026-11-04)。仍不在范围：
+  主题与可访问性（D-5，v1.8）、自动布局、小地图、异常策略、资源与性能观测、
   循环与并行分支的执行语义。
   v1.6 的范围与实施记录见 [docs/ROADMAP.md §11](docs/ROADMAP.md#11-v16-范围m3-及以前的遗留收口--编辑器手感)
   与 §11.10，v1.5 见 [§10](docs/ROADMAP.md#10-v15-范围) 与 §10.10，

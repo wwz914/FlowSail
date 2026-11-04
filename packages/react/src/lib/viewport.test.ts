@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Node } from '@system'
+import type { Node } from '@flowsail/core'
 import {
   DEFAULT_VIEWPORT,
   MAX_ZOOM,

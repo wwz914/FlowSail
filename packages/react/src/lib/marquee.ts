@@ -1,4 +1,4 @@
-import type { Node } from '@system'
+import type { Node } from '@flowsail/core'
 import { NODE_HEIGHT, NODE_WIDTH, type Bounds, type Point } from './geometry.ts'
 
 /**

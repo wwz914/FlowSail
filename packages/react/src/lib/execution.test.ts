@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { Edge, Node, Workflow } from '@system'
-import { createWorkflow } from '@system'
+import type { Edge, Node, Workflow } from '@flowsail/core'
+import { createWorkflow } from '@flowsail/core'
 import { BUILTIN_REGISTRY } from './registryContext.tsx'
 import {
   buildMockFields,

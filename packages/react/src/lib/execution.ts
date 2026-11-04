@@ -1,4 +1,4 @@
-import type { Edge, Node, Workflow } from '@system'
+import type { Edge, Node, Workflow } from '@flowsail/core'
 import type { NodeTypeRegistry } from './registry.ts'
 import { resolveNodeType } from './registry.ts'
 import { parseReferences } from './variables.ts'

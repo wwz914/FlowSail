@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import type { Edge, Node } from '@system'
+import type { Edge, Node } from '@flowsail/core'
 import { ReactFlow } from '../ReactFlow.tsx'
 import { RunPanel } from './RunPanel.tsx'
 import { ConfigPanel } from './ConfigPanel.tsx'

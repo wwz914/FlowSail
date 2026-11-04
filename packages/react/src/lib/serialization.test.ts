@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createWorkflow } from '@system'
+import { createWorkflow } from '@flowsail/core'
 import { BUILTIN_REGISTRY } from './registryContext.tsx'
 import {
   exportWorkflow,

@@ -184,7 +184,7 @@ export type {
   Viewport,
   Workflow,
   WorkflowMeta,
-} from '@system';
+} from '@flowsail/core';
 export {
   CURRENT_WORKFLOW_VERSION,
   createDocumentId,
@@ -194,5 +194,5 @@ export {
   parseWorkflowDocument,
   serializeWorkflow,
   validateWorkflowDocument,
-} from '@system';
-export type { ImportResult, MigrateResult } from '@system';
+} from '@flowsail/core';
+export type { ImportResult, MigrateResult } from '@flowsail/core';

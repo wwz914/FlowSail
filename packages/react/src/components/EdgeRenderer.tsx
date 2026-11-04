@@ -1,6 +1,6 @@
 import { useId } from 'react'
 import type { PointerEvent as ReactPointerEvent } from 'react'
-import type { Edge } from '@system'
+import type { Edge } from '@flowsail/core'
 import { useFlowStore } from '../store/index.ts'
 import {
   findInputHandle,

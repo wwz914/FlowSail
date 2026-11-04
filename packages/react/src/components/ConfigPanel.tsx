@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
-import type { Workflow } from '@system'
+import type { Workflow } from '@flowsail/core'
 import { useFlowStore } from '../store/index.ts'
 import { useNodeTypeRegistry } from '../lib/registryContext.tsx'
 import { resolveNodeType } from '../lib/registry.ts'
@@ -52,12 +52,16 @@ export const ConfigPanel = ({ className, variant = 'overlay' }: ConfigPanelProps
     [edges],
   )
 
-  const definition = selectedNode
-    ? resolveNodeType(registry, selectedNode.type)
-    : null
-  const params = definition?.params ?? []
+  const definition = useMemo(
+    () => (selectedNode ? resolveNodeType(registry, selectedNode.type) : null),
+    [registry, selectedNode],
+  )
+  const params = useMemo(() => definition?.params ?? [], [definition])
 
-  const values = (selectedNode?.data ?? {}) as Record<string, unknown>
+  const values = useMemo(
+    () => (selectedNode?.data ?? {}) as Record<string, unknown>,
+    [selectedNode],
+  )
   const errors = validateParams(params, values)
 
   // 变量引用校验（R4-5）：引用失效时在控件下标红并给出可读原因。

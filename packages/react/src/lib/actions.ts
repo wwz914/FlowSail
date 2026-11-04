@@ -1,4 +1,4 @@
-import type { Workflow } from '@system'
+import type { Workflow } from '@flowsail/core'
 import { useFlowStore } from '../store/index.ts'
 import { getFitViewport } from './viewport.ts'
 

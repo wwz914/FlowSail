@@ -2,181 +2,270 @@
 
 > 一个迷你工作流开发套件（mini workflow dev-kit）：可嵌入 React 应用的 AI 工作流画布编辑器内核。
 
-[产品 PRD](docs/PRD.md) · [初期路线图](docs/ROADMAP.md) · [开发约定](AGENTS.md)
+[产品 PRD](docs/PRD.md) · [初期路线图](docs/ROADMAP.md) · [发布与部署](docs/RELEASING.md) · [开发约定](AGENTS.md)
 
-**当前状态：v1.0、v1.1、v1.3、v1.4、v1.5 与 v1.6 全部合并（v1.6 于 2026-11-04 合并，PR #24）。** 画布可缩放/平移、从锚点连线、选择/删除、撤销重做，并可从左侧面板创建节点；节点类型注册表、6 类内置节点、条件分支与参数配置面板已落地；工作流文档成为一等公民——带 `id`/`name`/`version`/`meta`，可导出 JSON、导入还原、跨 schema 版本迁移。参数可以引用上游节点的输出（`{{nodeId.field}}`），失效引用会被标红并汇总到文档级校验面板。**流程现在能跑起来了**——`Runner` 接口由宿主注入（内置 Mock Runner），工具栏可试运行与取消，节点呈现 `idle`/`running`/`success`/`error`/`skipped` 五态，底部运行记录面板逐节点列出状态、耗时与输入输出，点击记录行可定位到对应节点。**v1.6 已把 M1 ~ M3 至今欠下的部分全部补齐**：空白处拖拽框选、`Ctrl/Cmd+C/V` 复制粘贴（`Alt` 连同内部连线）、双击节点标题就地重命名、拖拽按 8px 网格吸附（`Alt` 临时关闭）、运行结果回填到配置面板的「最近一次运行」、失败节点在画布上直接给出错误码与可展开堆栈，以及会话变量入口与 `scripts/benchmark.mjs` 性能基准（300 节点 / 500 连线实测拖拽 57.5fps、缩放 58fps）。下一版 v1.7 已确认为 **M4 交付主线**——包改名与可发布产物、发布流程、文档、在线示例（Q27 ~ Q29 已按建议确认），待实施；主题与可访问性留给 v1.8。公开 API 仍不稳定，尚未提供可安装的发布产物。
+**当前状态：v1.7（M4 交付主线，包版本 `0.1.0`）。** M1 ~ M3 的编辑器能力在 v1.6 已全部落地；v1.7 把仓库里的编辑器变成**能安装、能发布、能上手**的交付物：包改名为 `@flowsail/core` / `@flowsail/react`，入口指向构建产物 `dist`，补上 `exports` / `types` / `files` / `sideEffects` 与 MIT 许可证，引入 changesets 发布流程、README 安装与嵌入路径、GitHub Pages 在线示例，以及 lint / 覆盖率 / 体积 / React 18/19 / pack 安装冒烟等发布前门禁。
+
+- **在线示例**：<https://wwz914.github.io/FlowSail/>（`main` 自动部署；首次需仓库管理员在 `Settings → Pages` 启用 GitHub Actions，见 [docs/RELEASING.md](docs/RELEASING.md#12-github-pagesq30)）
+- **npm 首发**：`0.1.0` 的发布链路已就绪，真实发布由维护者执行或明确授权后执行（[Q29](docs/ROADMAP.md#129-与待确定事项的关系)）。
+- **公开 API 仍不稳定**：`1.0.0` 之前可能按 minor 版本调整；稳定版计划另议（Q31）。
+
+主题与可访问性（D-5）留在 v1.8；自动布局、小地图、循环 / 并行执行语义等 P2 能力尚未实现。
 
 ---
 
-## 它是什么
+## 安装
 
-FlowSail 想做一个**轻量、可嵌入、与执行后端解耦**的工作流编辑器，对标[扣子（Coze）工作流编辑器](https://www.coze.cn/open/docs/guides/workflow)：
+前置要求：React 18 或 19（`>=18 <20`），Node.js ≥ 20.19（构建工具链要求），包管理器 pnpm / npm / yarn 均可。
 
-- 数据层框架无关：`@system` 只包含类型与纯函数；
-- 视图层是标准 React 组件，支持受控用法，样式不全局污染；
-- 工作流文档是纯 JSON，可被任意宿主后端消费或执行；
-- 节点类型可注册扩展，执行器（Runner）由宿主注入。
+```sh
+pnpm add @flowsail/react @flowsail/core react react-dom
+```
 
-它**不是**：模型托管平台、插件市场、后端服务，也不是扣子的像素级复刻。
+- `@flowsail/core`：框架无关的数据层（`Node` / `Edge` / `Workflow` 类型、文档模型、schema 迁移、变更合并纯函数）。
+- `@flowsail/react`：React 画布编辑器与面板；`react` / `react-dom` 是 peer dependency。
+
+样式是独立文件，需要显式引入一次：
+
+```ts
+import '@flowsail/react/style.css'
+```
+
+## 嵌入一个受控画布
+
+`workflow` + `onChange` 是推荐的受控用法：文档由宿主持有，画布的内部编辑写回 `onChange`。
+下面是最小可运行示例（`src/App.tsx`）：
+
+```tsx
+import { useState } from 'react'
+import {
+  ConfigPanel,
+  NodePanel,
+  ReactFlow,
+  Toolbar,
+  createWorkflow,
+  type Edge,
+  type Node,
+  type Workflow,
+} from '@flowsail/react'
+import '@flowsail/react/style.css'
+
+const initialWorkflow: Workflow = {
+  ...createWorkflow({ id: 'hello', name: 'Hello Flow' }),
+  nodes: [
+    { id: 'start', type: 'start', position: { x: 80, y: 40 }, data: { label: '开始' } },
+    {
+      id: 'llm',
+      type: 'llm',
+      position: { x: 80, y: 200 },
+      data: { label: '大模型', prompt: '总结这封邮件：{{start.query}}' },
+    },
+  ] satisfies Node[],
+  edges: [
+    { id: 'e1', source: 'start', target: 'llm', sourceHandle: 'out', targetHandle: 'in' },
+  ] satisfies Edge[],
+}
+
+export default function App() {
+  const [workflow, setWorkflow] = useState<Workflow>(initialWorkflow)
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <Toolbar title="FlowSail" />
+      <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
+        <NodePanel variant="inline" />
+        <ReactFlow
+          workflow={workflow}
+          onChange={setWorkflow}
+          showNodePanel={false}
+          showConfigPanel={false}
+          showRunPanel={false}
+        />
+        <ConfigPanel variant="inline" />
+      </div>
+    </div>
+  )
+}
+```
+
+打开后即可：从左侧节点面板创建节点、从下方锚点拖线上方锚点连线、右侧改参数、顶部工具栏撤销 / 重做 / 适应画布 / 导出 / 导入。
+
+> 不使用受控模式时，可以只传 `nodes` / `edges` 作为初始文档；内部编辑不写回 props，
+> 变更通过 `onNodesChange` / `onEdgesChange` / `onSelectionChange` 通知宿主。
+> 两种用法通过是否传 `workflow` 区分，行为互不干扰。
+
+## 自定义节点
+
+节点类型由注册表描述，新增一种类型不需要改内核。`NodeTypeProvider` 让面板与画布共享注册表，
+`ReactFlow` 的 `nodeTypes` prop 也可以直接注入（同名类型覆盖内置定义）：
+
+```tsx
+import { NodeTypeProvider, ReactFlow, type NodeTypeDefinition } from '@flowsail/react'
+
+const httpNode: NodeTypeDefinition = {
+  type: 'http',
+  label: 'HTTP',
+  color: '#0b7285',
+  icon: <span aria-hidden>H</span>,
+  defaultData: { label: 'HTTP' },
+  inputs: [{ id: 'in', label: '输入', offset: 0.5 }],
+  outputs: [{ id: 'out', label: '输出', offset: 0.5 }],
+  params: [
+    { key: 'url', label: 'URL', type: 'string', required: true, default: 'https://example.com' },
+  ],
+  outputFields: [{ name: 'status', type: 'number', description: 'HTTP 状态码' }],
+}
+
+export function Root() {
+  return (
+    <NodeTypeProvider nodeTypes={[httpNode]}>
+      <ReactFlow nodeTypes={[httpNode]} />
+    </NodeTypeProvider>
+  )
+}
+```
+
+- `params` 只驱动配置面板表单（`string` / `number` / `boolean` / `select` / `json`）。
+- `outputFields` 是变量引用 `{{nodeId.field}}` 的**唯一作用域来源**；变量选择器、引用校验与
+  文档级校验都读它，不要另建一套变量模型。
+- 未注册的节点类型会回落为通用卡片，不报错。
+
+## 注入 Runner 与试运行
+
+编辑器只负责编排、呈现与定位，执行由宿主注入的 Runner 决定。默认是内置 Mock Runner；
+宿主可以用 `setRunner` 全局替换，或通过 `Runner` 接口接入真实后端 / 沙箱：
+
+```tsx
+import { setRunner, type Runner } from '@flowsail/react'
+
+const runner: Runner = {
+  async run(workflow, hooks) {
+    hooks.onRunStart?.(workflow)
+
+    // 逐个节点执行：调用 onNodeStart / onNodeEnd / onNodeSkip，
+    // 并从 RunContext.variables 读取宿主传入的流程级输入。
+    const result = {
+      ok: true,
+      cancelled: false,
+      errors: {},
+      outputs: {},
+      duration: 0,
+    }
+    hooks.onRunEnd?.(result)
+    return result
+  },
+}
+
+setRunner(runner)
+```
+
+节点运行态有 `idle` / `running` / `success` / `error` / `skipped` 五态；运行态与运行记录是
+**视图态**，不写回 `Workflow` 文档、不进历史栈（ROADMAP Q20）。完整契约见导出的
+`Runner` / `RunnerHooks` / `RunResult` / `NodeRunInput` 类型。
+
+## 包与产物
+
+| 包 | 版本 | 入口 | 说明 |
+| --- | --- | --- | --- |
+| `@flowsail/core` | `0.1.0` | `dist/index.js` + `dist/index.d.ts` | 无运行时依赖 |
+| `@flowsail/react` | `0.1.0` | `dist/index.js` + `dist/style.css` | peer：React 18/19；依赖 `@flowsail/core` 与 `zustand` |
+| `packages/example` | private | `src/main.tsx` | Vite + React 演示应用，不发布 |
+
+两个库包都用 Vite library mode 产出 ESM，用 `tsc -p tsconfig.build.json` 产出 `.d.ts`；
+发布 tarball 只含 `dist` 与 `LICENSE`，业务工程不会拿到 TS 源码。
 
 ## 现在能做什么
 
 | 能力 | 状态 |
 | --- | --- |
-| 节点 / 连线渲染（贝塞尔曲线 + 箭头） | ✅ 可用 |
-| 鼠标拖拽移动节点 | ✅ 可用 |
-| 画布缩放（25%–200%）/ 空格或中键平移 / 适应画布 | ✅ 可用 |
-| 锚点与拖拽连线（自连、重复、单入校验） | ✅ 可用 |
-| 节点卡片（图标 + 标题 + 类型徽标，常态/悬停/选中） | ✅ 可用（6 类内置类型 + 宿主自定义类型） |
-| 选择 / 多选 / 删除（节点与连线） | ✅ 可用 |
-| 撤销 / 重做（快照历史，拖拽合并） | ✅ 可用 |
-| 节点创建入口（左侧面板点击或拖入画布） | ✅ 可用 |
-| 节点类型注册表（`nodeTypes` prop 注入自定义类型） | ✅ 可用 |
-| 6 类内置节点（开始 / 结束 / 大模型 / 插件 / 条件 / 代码） | ✅ 可用 |
-| 条件分支（多出口 + 可编辑的分支标签） | ✅ 可用 |
-| 配置面板与参数表单（string / number / boolean / select / json） | ✅ 可用 |
-| 工作流文档模型（`id` / `name` / `version` / `meta`）与 schema 版本迁移 | ✅ 可用 |
-| 变量引用（`{{nodeId.field}}`）：解析、标红、节点卡片标记 | ✅ 可用 |
-| 变量选择器（只列拓扑上游节点的输出字段，按节点分组） | ✅ 可用 |
-| 输入 / 输出 schema 预览（类型 + 描述） | ✅ 可用 |
-| 文档级校验（孤立节点、悬空连线、必填缺失、引用失效） | ✅ 可用 |
-| 文档导入 / 导出（JSON，带 schema 版本号，导入可撤销一次） | ✅ 可用 |
-| 受控 `workflow` + `onChange` API（宿主持有文档） | ✅ 可用 |
-| 顶部工具栏（撤销 / 重做 / 适应画布 / 导出 / 导入） | ✅ 可用 |
-| `Runner` 接口（宿主可注入自定义执行器） | ✅ 可用（内置 Mock Runner，按拓扑顺序执行） |
-| 试运行与取消（运行中禁止编辑） | ✅ 可用 |
-| 节点运行态（`idle` / `running` / `success` / `error` / `skipped`） | ✅ 可用 |
-| 运行记录面板（状态、耗时、输入 / 输出，可复制、可定位） | ✅ 可用 |
-| 单节点测试（面板内手填输入执行当前节点） | ✅ 可用 |
-| 框选多选（空白处拖拽，相交即命中，`Shift` 追加） | ✅ 可用 |
-| 复制 / 粘贴（`Ctrl/Cmd+C/V`，`Alt` 连同内部连线） | ✅ 可用 |
-| 画布内节点重命名（双击标题，`Enter` / 失焦提交、`Esc` 取消） | ✅ 可用 |
-| 网格吸附（默认 8px，按住 `Alt` 临时关闭） | ✅ 可用 |
-| 运行结果回填（配置面板的「最近一次运行」）与画布侧错误详情 | ✅ 可用 |
-| 会话变量入口（试运行前注入流程级输入） | ✅ 可用 |
-| 性能基准脚本 `scripts/benchmark.mjs`（300 节点 / 500 连线） | ✅ 可用（实测拖拽 57.5fps、缩放 58fps） |
-| 自动化测试（Vitest） | ✅ 覆盖数据层、文档模型与迁移、视口/连线计算、选择/删除/历史、节点渲染、注册表与参数表单、变量引用、文档级校验、导入导出与受控模式、Runner 契约与运行期行为 |
+| 节点 / 连线渲染（贝塞尔曲线 + 箭头）、拖拽移动 | ✅ |
+| 画布缩放（25%–200%）/ 空格或中键平移 / 适应画布 | ✅ |
+| 锚点拖拽连线、自连 / 重复 / 单入校验 | ✅ |
+| 选择 / 多选 / 删除（节点与连线）、框选、复制粘贴 | ✅ |
+| 撤销 / 重做（快照历史，拖拽与连续输入合并） | ✅ |
+| 节点创建面板、节点类型注册表、6 类内置节点 | ✅ |
+| 条件分支（具名多出口 + 可编辑分支标签） | ✅ |
+| 配置面板与参数表单（string / number / boolean / select / json） | ✅ |
+| 工作流文档模型（`id` / `name` / `version` / `meta`）与 schema 迁移 | ✅ |
+| 变量引用 `{{nodeId.field}}`、变量选择器、引用校验 | ✅ |
+| 文档级校验（孤立节点、悬空连线、必填缺失、引用失效、类型未注册） | ✅ |
+| 文档导入 / 导出（JSON，导入可撤销一次） | ✅ |
+| 受控 `workflow` + `onChange` API | ✅ |
+| 顶部工具栏（撤销 / 重做 / 适应画布 / 导出 / 导入） | ✅ |
+| `Runner` 接口、试运行 / 取消、运行记录、节点运行态、单节点测试 | ✅ |
+| 画布内重命名、8px 网格吸附、运行结果回填、错误详情 | ✅ |
+| 自动化测试（Vitest，295 个用例）与覆盖率 / 体积 / pack 冒烟门禁 | ✅ |
 
-完整的能力拆解与优先级见 [PRD](docs/PRD.md) 与 [ROADMAP](docs/ROADMAP.md)。
+完整能力拆解与优先级见 [PRD](docs/PRD.md) 与 [ROADMAP](docs/ROADMAP.md)。
 
-## 快速开始
-
-前置要求：Node.js ≥ 20.19（Vite 7 要求）、pnpm 10（仓库 `packageManager` 固定为 `pnpm@10.23.0`，可用 `corepack enable` 启用）。
+## 仓库内开发
 
 ```sh
-# 1. 安装依赖（首次必须，worktree 是新目录时尤其注意）
+corepack enable
 pnpm install
 
-# 2. 启动示例应用
-pnpm dev
-# → http://localhost:5173
+pnpm dev          # 先构建两个库包，再启动示例 http://localhost:5173
+pnpm build        # core → react → example（产物在各自 dist/）
+pnpm test         # Vitest（jsdom），295 个用例
+pnpm test:coverage # 覆盖率门禁（≥ 70%）
+pnpm lint         # ESLint，覆盖 system / react / example / 脚本
+pnpm typecheck    # 先构建库声明，再检查 example 从 dist 解析类型
 ```
 
-打开后是三栏布局：左侧节点面板、中间画布（底部带可折叠的校验面板）、右侧配置面板，顶部是工具栏，画布上是一条带条件分支的演示流程（开始 → 大模型 → 条件 →（是）大模型 /（否）结束）。可以：
+发布前门禁与发布步骤：
 
-- 滚轮缩放（以指针为锚点），左下角查看比例、点击比例重置为 100%；
-- 按住空格 + 左键或中键拖动画布，左下角「适应」一键框住全部节点；
-- 拖动节点（多选时整体移动），连线实时跟随；
-- 从节点下方圆点拖到另一个节点上方圆点创建连线（非法连接会标红并提示原因）；
-- 单击节点/连线选中，Shift 追加选择，Delete / Backspace 删除，`Ctrl/Cmd+Z` 撤销、`Ctrl/Cmd+Shift+Z` 重做；
-- 左侧「节点」面板点击创建节点，或把面板项拖到画布按落点创建（删空画布后也能继续创建）；
-- 选中节点后在右侧面板改名称、描述与参数（改完立即生效，`Ctrl/Cmd+Z` 可撤销）；
-- 选中连线后可编辑分支标签；条件节点的两个出口分别连出「是 / 否」两条分支；
-- 在文本类参数下点「插入变量」，选一个上游节点暴露的字段，参数值里会写入 `{{节点id.字段}}` 字面量；引用失效时控件下方标红，底部校验面板同步报出「引用失效」；
-- 顶部工具栏可撤销 / 重做 / 适应画布 / 导出 JSON / 导入 JSON（导入后可撤销一次）。
+```sh
+pnpm check:size   # @flowsail/react gzip（JS + CSS）< 60KB
+pnpm check:links  # README / docs / AGENTS 的链接与锚点
+pnpm check:pack   # 打包 tarball，在干净目录安装、类型检查、构建并渲染
+```
 
-示例源码在 `packages/example/src/App.tsx`：用 `NodeTypeProvider` + `Toolbar` + `NodePanel` + `ReactFlow` + `ConfigPanel` + `ValidationPanel` 拼出布局，以**受控模式**（`workflow` + `onChange`）演示宿主如何持有文档，并注册了一个自定义的「通知」节点类型演示 `nodeTypes` prop。
+`pnpm dev` 使用构建后的 `dist`（与真实宿主一致）；修改 `packages/system` 或
+`packages/react` 的源码后，重新执行 `pnpm build:libs` 再刷新页面即可。
 
-## 仓库结构
+### 仓库结构
 
 ```
 packages/
-  system/     @system   框架无关的数据层：Node / Edge / Workflow 类型、变更合并纯函数、文档模型与 schema 迁移
-  react/      react     React 画布实现：ReactFlow 容器、NodePanel、ConfigPanel、Toolbar、ValidationPanel、VariablePicker、SchemaPreview、NodeCard、EdgeRenderer、节点类型注册表、变量引用与文档校验、zustand store
-  example/    example   Vite + React 演示应用（private，不发布）
+  system/     @flowsail/core    数据层：类型、文档模型、schema 迁移、变更合并纯函数
+  react/      @flowsail/react   React 画布：ReactFlow、面板、注册表、变量引用、校验、Runner、store
+  example/    example（private） Vite + React 演示应用，部署到 GitHub Pages
 docs/
-  PRD.md                产品需求文档：定位、对标、功能需求、数据模型
-  ROADMAP.md            初期基础能力建设清单与阶段规划
+  PRD.md                        产品需求文档
+  ROADMAP.md                    阶段规划与实施记录
+  RELEASING.md                  发布、secret、回滚与 Pages 部署
 ```
 
-根目录 `package.json` 名为 `my-flow`（private），只承载共享依赖、根脚本与构建依赖，**本身不是一个包**。
+根 `package.json` 名为 `flowsail`（private），只承载共享依赖、根脚本与构建依赖，不是一个发布包。
 
-## 三个包
-
-| 包 | 包名 | 入口 | 说明 |
-| --- | --- | --- | --- |
-| `packages/system` | `@system` | `src/index.ts`（TS 源码） | 无运行时依赖 |
-| `packages/react` | `react`（示例中通过 `reactflow` 别名引入） | `src/index.ts`（TS 源码） | 依赖 React、zustand |
-| `packages/example` | `example`（private） | `src/main.tsx` | 仅用于本地演示 |
-
-### 三个容易踩的坑
-
-1. **`packages/react` 的包名是 `react`**，与 npm 上的 react 同名。示例通过 `"reactflow": "workspace:../react"` 引入，因此示例里写 `import { ReactFlow } from 'reactflow'`，实际指向 `packages/react`。改 `packages/react` 的导出，改的就是示例里的 `reactflow`。
-2. **两个库包直接暴露 TypeScript 源码**，`main` / `types` 指向 `src/index.ts` 而非 `dist/`；`dist/` 是 `pnpm build` 的发布产物，示例不消费它。
-3. **`@system` 通过 workspace 依赖解析**（`packages/react/node_modules/@system`），库内统一写 `import ... from '@system'`，不要写 `@system/types.ts` 子路径；示例需要类型时从 `reactflow` 重导出的 `Node` / `Edge` 取。
-
-> v1.7 的 R7-1 将把包名与发布入口改为 `@flowsail/core` / `@flowsail/react`（`main` / `types` 指向 `dist`），届时本节与上面的「三个包」表一起更新；当前仍是开发期状态。
-
-## 开发与验证
+### 验证改动的顺序
 
 ```sh
-pnpm install       # 安装依赖
-pnpm dev           # 开发服务器 http://localhost:5173
-pnpm lint          # ESLint
-pnpm test          # Vitest（jsdom）
-pnpm typecheck     # tsc -b，覆盖全部库源码
-pnpm build         # 构建 system → react → example
+pnpm lint && pnpm test:coverage && pnpm typecheck && pnpm build
+pnpm check:size && pnpm check:links && pnpm check:pack
 ```
 
-两个库包用 Vite library mode 产出 ESM、用 `tsc -p tsconfig.build.json` 产出 `.d.ts`；旧的手动 `npx rollup -c` 链路已移除。
+**UI 改动的验证要求**：改 `packages/react` 或 `packages/example` 的界面后，PR 里必须给出
+**Before / After 两张截图**，同一视口、同一场景、同一主题，用 dev server 实际截取。
 
-**判断标准**：改动前先跑一次同样的命令记下基线，改动后对比，**只有新增的错误才是你的问题**。
+## 发布与在线示例
 
-## 文档
+- 发布流程、secret、版本步骤与回滚：[docs/RELEASING.md](docs/RELEASING.md)
+- 变更记录：每个包的 `CHANGELOG.md`（changesets 生成）
+- 在线示例：<https://wwz914.github.io/FlowSail/>（GitHub Pages，`main` 自动部署）
 
-| 文档 | 内容 |
-| --- | --- |
-| [docs/PRD.md](docs/PRD.md) | 产品定位、目标用户、扣子对标、功能需求（含优先级与验收标准）、数据模型草案、非功能需求、风险 |
-| [docs/ROADMAP.md](docs/ROADMAP.md) | 现状盘点、M1–M4 阶段任务、依赖关系、优先级总表、明确暂不做的范围 |
-| [AGENTS.md](AGENTS.md) | 面向协作代理与贡献者的仓库约定、命名陷阱、当前状态 |
+仓库以版本对齐节奏，不保留 v1.2：v1.0 → v1.1 → v1.3 → v1.4 → v1.5 → v1.6 → **v1.7** → v1.8。
 
 ## 路线图概览
 
-| 阶段 | 版本 | 主题 | 目标 |
+| 阶段 | 版本 | 主题 | 状态 |
 | --- | --- | --- | --- |
-| **M1** | v1.0 ~ v1.1 | 工程地基 + 可用画布 | 修类型/Hooks/测试/构建，做出能缩放、连线、选择、删除、撤销的画布 |
-| **M2** | v1.3 ~ v1.4 | 节点体系与配置 | 节点注册表、6 类基础节点、配置面板、变量引用、文档模型（✅ 已完成） |
-| **M3** | v1.5 | 运行与调试 | Runner 接口、试运行、运行记录、节点状态（✅ 已完成） |
-| **遗留收口** | v1.6 | M1~M3 未做部分 + 编辑器手感 | 框选、复制粘贴、重命名、网格吸附、运行结果回填、画布侧错误详情（✅ 已完成） |
-| **M4** | v1.7（已确认，待实施） | 交付与生态 | 构建产物、在线示例、发布流程、文档；主题与可访问性留 v1.8 |
-
-M1 已完成：工程地基（G-1 ~ G-6）与画布交互 C-1 ~ C-3、C-5 ~ C-11（C-11 先落地 3 类内置
-节点的卡片视觉）；C-4 的锚点与命中机制已落地，6 类节点的锚点定义随 M2 节点体系补齐。
-M2 已完成：v1.3 落地节点体系与配置面板，v1.4 落地文档模型、变量引用、文档级校验与工具栏。
-M3 已完成：v1.5 落地 `Runner` 接口与内置 Mock Runner、试运行与取消、节点运行态、运行记录面板与单节点测试。
-把 M1 ~ M3 的编号任务逐条与代码核对后，当时仍有六项未做（框选、复制粘贴、节点重命名、网格吸附、
-运行期输入输出快照回填、画布侧错误详情），连同会话变量与性能基准一并纳入 v1.6 并已全部实现（v1.6 于 2026-11-04 合并，PR #24）。
-v1.1 的实施记录见 [ROADMAP §7.9](docs/ROADMAP.md#79-实施结果2026-11-03)，v1.3 的范围与实施记录见
-[ROADMAP §8](docs/ROADMAP.md#8-v13-范围) 与 [§8.10](docs/ROADMAP.md#810-实施结果2026-11-03)，v1.4 的范围与实施记录见
-[ROADMAP §9](docs/ROADMAP.md#9-v14-范围) 与 [§9.10](docs/ROADMAP.md#910-实施结果2026-11-03)，v1.5 的范围与实施记录见
-[ROADMAP §10](docs/ROADMAP.md#10-v15-范围) 与 [§10.10](docs/ROADMAP.md#1010-实施结果2026-11-04)，v1.6 的范围见
-[ROADMAP §11](docs/ROADMAP.md#11-v16-范围m3-及以前的遗留收口--编辑器手感) 与 [§11.10](docs/ROADMAP.md#1110-实施结果2026-11-04)，M4 及之后的阶段见 [ROADMAP](docs/ROADMAP.md)。
-
-### 版本定位
-
-| 版本 | 状态 | 主题 |
-| --- | --- | --- |
-| v1.0 | ✅ 已合并 | 工程地基 + 能画的画布 |
-| v1.1 | ✅ 已合并 | M1 收口：选择、删除、撤销重做、节点创建 |
-| v1.3 | ✅ 已合并 | 节点体系 + 配置面板 |
-| v1.4 | ✅ 已合并（PR #20） | 文档模型 + 变量引用 + 文档级校验 |
-| v1.5 | ✅ 已合并（PR #22） | 运行与调试：Runner、试运行、运行记录、节点运行态 |
-| **v1.6** | ✅ 已合并（PR #24） | **M1~M3 遗留收口 + 编辑器手感：框选、复制粘贴、重命名、网格吸附** |
-| **v1.7** | **已确认（待实施）** | **M4 交付主线：包改名与产物、发布流程、文档、在线示例** |
-
-> v1.6 已合并后，M1 ~ M3 的编号任务全部落地；v1.7 已确认为 M4 的交付主线（Q27 ~ Q29 按建议），见 [ROADMAP §12](docs/ROADMAP.md#12-v17-范围m4-交付主线打包发布文档在线示例)。
-
-> v1.x 是开发版本定位，不是已发布的 npm 版本；正式发布随 v1.7 的打包与发布流程执行。仓库以版本对齐节奏，不再交待"轮次"：v1.2 不出现在版本序列中，后续版本按 v1.8 顺延。
+| M1 | v1.0 ~ v1.1 | 工程地基 + 可用画布 | ✅ 已合并 |
+| M2 | v1.3 ~ v1.4 | 节点体系、配置面板、文档模型、变量引用、校验 | ✅ 已合并 |
+| M3 | v1.5 | Runner、试运行、运行记录、节点运行态 | ✅ 已合并 |
+| 遗留收口 | v1.6 | 框选、复制粘贴、重命名、网格吸附、运行结果回填 | ✅ 已合并 |
+| M4 | **v1.7** | **交付主线：打包、发布、文档、在线示例、质量门禁** | ✅ 本版 |
+| D-5 | v1.8 | 主题与可访问性、P1 交互补全 | 规划中 |
 
 ## 参与开发
 
@@ -189,4 +278,4 @@ v1.1 的实施记录见 [ROADMAP §7.9](docs/ROADMAP.md#79-实施结果2026-11-0
 
 ## 许可证
 
-仓库根 `package.json` 标注为 ISC，但尚未添加独立的 `LICENSE` 文件（待补充）。许可证已确认取 MIT（Q28），随 v1.7 实施补 `LICENSE` 文件。
+[MIT](LICENSE) © 2026 FlowSail contributors。两个发布包内各带一份 `LICENSE`。

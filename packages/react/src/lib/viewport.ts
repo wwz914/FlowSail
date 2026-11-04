@@ -1,4 +1,4 @@
-import type { Node, Viewport } from '@system'
+import type { Node, Viewport } from '@flowsail/core'
 import { getNodesBounds, type Point } from './geometry.ts'
 
 export type { Viewport }
