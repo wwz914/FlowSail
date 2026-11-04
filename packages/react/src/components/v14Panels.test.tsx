@@ -9,6 +9,7 @@ import { ValidationPanel } from './ValidationPanel.tsx'
 import { SchemaPreview } from './SchemaPreview.tsx'
 import { VariablePicker } from './VariablePicker.tsx'
 import { useFlowStore } from '../store/index.ts'
+import { useRunStore } from '../lib/runStore.ts'
 import { DEFAULT_VIEWPORT } from '../lib/viewport.ts'
 
 const startNode: Node = {
@@ -231,6 +232,38 @@ describe('输入 / 输出预览（R4-8、FR-P4）', () => {
 
     clickNode('llm')
     expect(screen.getByText('输入 / 输出')).toBeTruthy()
+  })
+
+  it('运行结束后展示最近一次运行的实际输入与输出（R6-5）', () => {
+    useRunStore.getState().resetRun()
+    useRunStore.setState({
+      records: {
+        llm: {
+          nodeId: 'llm',
+          label: '大模型',
+          type: 'llm',
+          typeLabel: '大模型',
+          state: 'success',
+          duration: 12,
+          input: { text: '用户问的问题' },
+          output: { text: '模型答的' },
+        },
+      },
+      nodeStates: { llm: 'success' },
+      order: ['llm'],
+    })
+
+    render(<SchemaPreview node={llmNode} />)
+
+    expect(screen.getByText('最近一次运行')).toBeTruthy()
+    expect(screen.getByText('用户问的问题')).toBeTruthy()
+    expect(screen.getByText('模型答的')).toBeTruthy()
+  })
+
+  it('没运行过时只有静态字段，没有运行快照（R6-5）', () => {
+    useRunStore.getState().resetRun()
+    render(<SchemaPreview node={llmNode} />)
+    expect(screen.queryByText('最近一次运行')).toBeNull()
   })
 })
 

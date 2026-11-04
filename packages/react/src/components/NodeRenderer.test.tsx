@@ -62,7 +62,7 @@ describe('NodeRenderer', () => {
     expect(screen.queryByText('Start')).toBeNull()
   })
 
-  it('拖拽位移按当前缩放换算为画布坐标', () => {
+  it('拖拽位移按当前缩放换算为画布坐标，并吸附到网格（R6-4）', () => {
     useFlowStore.setState({
       workflow: {
         nodes: [nodes[0]!],
@@ -78,6 +78,33 @@ describe('NodeRenderer', () => {
     fireEvent.pointerMove(node, { pointerId: 1, clientX: 140, clientY: 120 })
     fireEvent.pointerUp(node, { pointerId: 1, clientX: 140, clientY: 120 })
 
+    // 位移按缩放换算得 (30, 30)，再吸附到 8px 网格得 (32, 32)（R6-4）。
+    expect(useFlowStore.getState().workflow.nodes[0]?.position).toEqual({ x: 32, y: 32 })
+  })
+
+  it('按住 Alt 时临时关闭网格吸附（R6-4、Q23）', () => {
+    useFlowStore.setState({
+      workflow: {
+        nodes: [nodes[0]!],
+        edges: [],
+        viewport: { ...DEFAULT_VIEWPORT, zoom: 2 },
+      },
+    })
+
+    const { container } = render(<NodeRenderer connection={null} onConnectStart={vi.fn()} />)
+    const node = container.querySelector('[data-node-id="start"]') as HTMLElement
+
+    fireEvent.pointerDown(node, {
+      button: 0,
+      pointerId: 1,
+      clientX: 100,
+      clientY: 100,
+      altKey: true,
+    })
+    fireEvent.pointerMove(node, { pointerId: 1, clientX: 140, clientY: 120 })
+    fireEvent.pointerUp(node, { pointerId: 1, clientX: 140, clientY: 120 })
+
+    // 不吸附时保留原始位移。
     expect(useFlowStore.getState().workflow.nodes[0]?.position).toEqual({ x: 30, y: 30 })
   })
 
@@ -122,8 +149,9 @@ describe('NodeRenderer', () => {
     fireEvent.pointerMove(start, { pointerId: 3, clientX: 120, clientY: 120 })
     fireEvent.pointerUp(start, { pointerId: 3, clientX: 120, clientY: 120 })
 
-    expect(useFlowStore.getState().workflow.nodes[0]?.position).toEqual({ x: 30, y: 40 })
-    expect(useFlowStore.getState().workflow.nodes[1]?.position).toEqual({ x: 30, y: 220 })
+    // 位移 (20, 20)，吸附到 8px 网格后为 (32, 40) 与 (32, 224)（R6-4）。
+    expect(useFlowStore.getState().workflow.nodes[0]?.position).toEqual({ x: 32, y: 40 })
+    expect(useFlowStore.getState().workflow.nodes[1]?.position).toEqual({ x: 32, y: 224 })
     expect(useFlowStore.getState().past).toHaveLength(1)
 
     useFlowStore.getState().undo()

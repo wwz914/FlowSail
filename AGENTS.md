@@ -156,19 +156,30 @@ pnpm lint
   （`useRunStore`，**画布与记录面板读同一份数据**，因此状态不会漂移）。
   **运行态与运行记录是视图态，不写回 `Workflow` 文档、不进历史栈**（ROADMAP Q20）。
   节点运行态五态为 `idle` / `running` / `success` / `error` / `skipped`。
-- 尚未实现（v1.6 及以后）：框选、复制粘贴、节点重命名、网格吸附、会话变量、性能基准脚本、
-  自动布局、小地图、主题与可访问性、发布流程与包改名、异常策略、资源与性能观测、
-  循环与并行分支的执行语义。
-  v1.6 的范围见 [docs/ROADMAP.md §11](docs/ROADMAP.md#11-v16-范围m3-及以前的遗留收口--编辑器手感)
-  （收口 M1 ~ M3 至今未做的部分：框选 / 复制粘贴 / 重命名 / 网格吸附 / 运行结果回填 / 画布侧错误详情），
-  v1.5 的范围与实施记录见 [docs/ROADMAP.md §10](docs/ROADMAP.md#10-v15-范围) 与 §10.10，
-  v1.4 的范围与实施记录见 [§9](docs/ROADMAP.md#9-v14-范围) 与 §9.10，v1.3 的实施记录见 §8.10。
+- **交互增强（v1.6，M1 ~ M3 遗留收口）**：框选在 `lib/marquee.ts`（`getMarqueeHits`，
+  相交即命中；选框画在 `.flow-viewport` 里随视口变换）；复制粘贴在 `lib/clipboard.ts`
+  （`collectClipboard` / `pasteClipboard`，新 id 边生成边登记，避免同批冲突；普通粘贴只复制
+  节点，按住 `Alt` 才连同内部连线）；就地重命名走 `store.renameNode`（提交时才入历史）；
+  网格吸附 `snapPosition`（默认 8px，按住 `Alt` 关闭）。**运行态仍是视图态**：运行结果回填
+  到 `SchemaPreview` 的「最近一次运行」、画布侧错误详情都只读 `useRunStore`，不写回文档。
+  会话变量在 `lib/sessionVariables.ts` + `components/SessionVariablePanel.tsx`，
+  经 `RunContext.variables` 注入，不属文档。
+- 性能基准：`node scripts/benchmark.mjs [url]`（需先 `pnpm dev`）构造 300 节点 / 500 连线，
+  度量拖拽与缩放帧率并与 ≥ 50fps 目标对照。示例应用只在开发环境暴露
+  `window.__flowBenchStore` 供脚本使用。
+- 尚未实现（v1.7 及以后）：自动布局、小地图、主题与可访问性、发布流程与包改名、
+  异常策略、资源与性能观测、循环与并行分支的执行语义。
+  v1.6 的范围与实施记录见 [docs/ROADMAP.md §11](docs/ROADMAP.md#11-v16-范围m3-及以前的遗留收口--编辑器手感)
+  与 §11.10，v1.5 见 [§10](docs/ROADMAP.md#10-v15-范围) 与 §10.10，
+  v1.4 见 [§9](docs/ROADMAP.md#9-v14-范围) 与 §9.10，v1.3 的实施记录见 §8.10。
 - `packages/react/src/index.ts` 导出 store、`ReactFlow`、`NodePanel`、`ConfigPanel`、
   `Toolbar`、`ValidationPanel`、`VariablePicker`、`SchemaPreview`、`RunPanel`、
-  `NodeTestPanel`、`NodeTypeProvider`、注册表与参数校验工具、变量引用与文档校验工具、
-  导入导出工具、`Runner` / `NodeExecutor` 接口与运行期工具（`startRun` / `cancelRun` /
-  `setRunner` / `useRunStore` 等），以及 `Node` / `Edge` / `Workflow` / `WorkflowMeta` /
-  `Viewport` / change 类型与文档模型函数；
+  `NodeTestPanel`、`SessionVariablePanel`、`NodeTypeProvider`、注册表与参数校验工具、
+  变量引用与文档校验工具、框选（`getMarqueeHits` / `snapPosition`）、复制粘贴
+  （`collectClipboard` / `pasteClipboard`）、会话变量（`validateSessionVariables` /
+  `buildRunVariables`）、导入导出工具、`Runner` / `NodeExecutor` 接口与运行期工具
+  （`startRun` / `cancelRun` / `setRunner` / `useRunStore` 等），以及 `Node` / `Edge` /
+  `Workflow` / `WorkflowMeta` / `Viewport` / change 类型与文档模型函数；
   `NodeRenderer` / `EdgeRenderer` / 各 `lib` 内部模块**没有**对外导出。
 
 ## 交流约定
