@@ -875,3 +875,441 @@
   color: #7b8794;
   font-size: 12px;
 }
+
+// ---------------------------------------------------------------------------
+// v1.5：运行与调试（R5-5 ~ R5-9）
+// ---------------------------------------------------------------------------
+
+// 节点运行态（R5-5、FR-N7）：idle / running / success / error / skipped。
+// 画布颜色与运行记录面板的状态来自同一份数据，因此不会漂移。
+.flow-node.is-run-running {
+  border-color: #1e88e5;
+  background: #eef6ff;
+  box-shadow: 0 0 0 3px rgb(30 136 229 / 22%);
+}
+
+.flow-node.is-run-success {
+  border-color: #2f9e44;
+  background: #f1fbf3;
+}
+
+.flow-node.is-run-error {
+  border-color: #e03131;
+  background: #fff5f5;
+  box-shadow: 0 0 0 3px rgb(224 49 49 / 20%);
+}
+
+.flow-node.is-run-skipped {
+  border-color: #adb5bd;
+  background: #f8f9fa;
+  opacity: 0.75;
+}
+
+.flow-node__run-badge {
+  position: absolute;
+  top: -9px;
+  right: -6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  line-height: 1.5;
+  white-space: nowrap;
+  color: #fff;
+  background: #7b8794;
+
+  &.is-running {
+    background: #1e88e5;
+  }
+
+  &.is-success {
+    background: #2f9e44;
+  }
+
+  &.is-error {
+    background: #e03131;
+  }
+
+  &.is-skipped {
+    background: #868e96;
+  }
+}
+
+// 运行记录面板（R5-6、R5-7）。
+.flow-run-panel {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 4;
+  max-height: 40%;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e4e7eb;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgb(15 23 42 / 10%);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 12px;
+  color: #3e4c59;
+  overflow: hidden;
+}
+
+.flow-run-panel--inline {
+  position: static;
+  max-height: none;
+  border: none;
+  border-top: 1px solid #e4e7eb;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.flow-run-panel__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-bottom: 1px solid #eef1f4;
+  background: #fafbfc;
+}
+
+.flow-run-panel__toggle {
+  border: none;
+  background: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.flow-run-panel__summary {
+  margin-left: auto;
+  color: #7b8794;
+
+  &.is-success {
+    color: #2f9e44;
+  }
+
+  &.is-error {
+    color: #e03131;
+  }
+
+  &.is-running {
+    color: #1e88e5;
+  }
+
+  &.is-cancelled {
+    color: #c2255c;
+  }
+}
+
+.flow-run-panel__body {
+  padding: 6px 10px 10px;
+  overflow: auto;
+}
+
+.flow-run-panel__empty {
+  margin: 4px 0;
+  color: #9aa5b1;
+}
+
+.flow-run-panel__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.flow-run-panel__record {
+  border: 1px solid #eef1f4;
+  border-radius: 6px;
+  padding: 4px 6px;
+  background: #fff;
+
+  &.is-failed {
+    border-color: #ffc9c9;
+    background: #fff8f8;
+  }
+}
+
+.flow-run-panel__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: none;
+  background: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover .flow-run-panel__label {
+    text-decoration: underline;
+  }
+}
+
+.flow-run-panel__state {
+  flex: none;
+  min-width: 44px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  text-align: center;
+  color: #fff;
+  background: #868e96;
+
+  .is-running & {
+    background: #1e88e5;
+  }
+
+  .is-success & {
+    background: #2f9e44;
+  }
+
+  .is-error & {
+    background: #e03131;
+  }
+
+  .is-skipped & {
+    background: #adb5bd;
+  }
+}
+
+.flow-run-panel__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.flow-run-panel__type {
+  flex: none;
+  color: #9aa5b1;
+}
+
+.flow-run-panel__duration {
+  flex: none;
+  color: #7b8794;
+  font-variant-numeric: tabular-nums;
+}
+
+.flow-run-panel__error {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  background: #fff5f5;
+  color: #c92a2a;
+}
+
+.flow-run-panel__error-code {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.flow-run-panel__stack-toggle {
+  align-self: flex-start;
+  border: none;
+  background: none;
+  padding: 0;
+  color: #c92a2a;
+  font: inherit;
+  font-size: 11px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.flow-run-panel__stack,
+.flow-run-panel__json {
+  margin: 0;
+  padding: 4px 6px;
+  border-radius: 4px;
+  background: #f1f3f5;
+  color: #3e4c59;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.flow-run-panel__detail {
+  margin-top: 4px;
+
+  summary {
+    color: #7b8794;
+    font-size: 11px;
+    cursor: pointer;
+  }
+}
+
+.flow-run-panel__copy {
+  margin-top: 4px;
+  border: 1px solid #d9dee3;
+  border-radius: 4px;
+  background: #fff;
+  padding: 1px 6px;
+  color: #7b8794;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #1e88e5;
+    color: #1565c0;
+  }
+}
+
+.flow-run-panel__error-summary {
+  margin: 8px 0 0;
+  color: #c92a2a;
+}
+
+// 单节点测试（R5-8、FR-P5）。
+.flow-node-test {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #eef1f4;
+}
+
+.flow-node-test__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.flow-node-test__title {
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.flow-node-test__button {
+  margin-left: auto;
+  padding: 3px 10px;
+  border: 1px solid #d9dee3;
+  border-radius: 6px;
+  background: #fff;
+  color: #3e4c59;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    border-color: #1e88e5;
+    color: #1565c0;
+  }
+
+  &:disabled {
+    color: #9aa5b1;
+    cursor: not-allowed;
+  }
+}
+
+.flow-node-test__hint {
+  margin: 6px 0 0;
+  color: #9aa5b1;
+  font-size: 11px;
+}
+
+.flow-node-test__inputs {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.flow-node-test__field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.flow-node-test__label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #52606d;
+}
+
+.flow-node-test__type {
+  color: #9aa5b1;
+  font-size: 10px;
+}
+
+.flow-node-test__input {
+  padding: 4px 6px;
+  border: 1px solid #d9dee3;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12px;
+}
+
+.flow-node-test__result {
+  margin-top: 8px;
+  padding: 6px;
+  border-radius: 6px;
+  font-size: 11px;
+
+  &.is-success {
+    background: #f1fbf3;
+    color: #2b8a3e;
+  }
+
+  &.is-error {
+    background: #fff5f5;
+    color: #c92a2a;
+  }
+}
+
+.flow-node-test__result-status {
+  font-weight: 600;
+}
+
+.flow-node-test__result-error {
+  display: block;
+  margin-top: 4px;
+}
+
+.flow-node-test__json {
+  margin: 4px 0 0;
+  padding: 4px 6px;
+  border-radius: 4px;
+  background: rgb(255 255 255 / 70%);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+// 工具栏的试运行按钮（R5-9）。
+.flow-toolbar__button--primary {
+  border-color: #1e88e5;
+  background: #1e88e5;
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    background: #1565c0;
+    border-color: #1565c0;
+    color: #fff;
+  }
+}
+
+.flow-toolbar__button--danger {
+  border-color: #e03131;
+  color: #e03131;
+
+  &:hover:not(:disabled) {
+    border-color: #c92a2a;
+    color: #c92a2a;
+  }
+}

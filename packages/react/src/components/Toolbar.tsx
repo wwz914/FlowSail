@@ -3,6 +3,8 @@ import { useFlowStore } from '../store/index.ts'
 import { useNodeTypeRegistry } from '../lib/registryContext.tsx'
 import { canRedo, canUndo, fitViewToNodes, redoStep, replaceDocument, undoStep } from '../lib/actions.ts'
 import { downloadWorkflow, importWorkflow, readFileText } from '../lib/serialization.ts'
+import { cancelRun, canStartRun, startRun } from '../lib/runController.ts'
+import { useRunStore } from '../lib/runStore.ts'
 
 export interface ToolbarProps {
   /** 工具栏标题。 */
@@ -13,8 +15,8 @@ export interface ToolbarProps {
 /**
  * 顶部工具栏（R4-9、FR-U2）。
  *
- * 提供撤销 / 重做 / 适应画布 / 导出 / 导入。
- * 试运行按钮随 M3 落地，本版不提供（ROADMAP §9.4）。
+ * 提供撤销 / 重做 / 适应画布 / 导出 / 导入，
+ * 以及 v1.5 起的试运行 / 取消运行（R5-9）。
  */
 export const Toolbar = ({ title = 'FlowSail', className }: ToolbarProps) => {
   const registry = useNodeTypeRegistry()
@@ -22,11 +24,35 @@ export const Toolbar = ({ title = 'FlowSail', className }: ToolbarProps) => {
   const pastCount = useFlowStore((state) => state.past.length)
   const futureCount = useFlowStore((state) => state.future.length)
   const nodeCount = useFlowStore((state) => state.workflow.nodes.length)
+  const runStatus = useRunStore((state) => state.status)
 
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [message, setMessage] = useState<string | null>(null)
 
   const classNames = ['flow-toolbar', className].filter(Boolean).join(' ')
+
+  const isRunning = runStatus === 'running'
+  const runDisabled = !canStartRun()
+
+  const handleRun = async () => {
+    setMessage(null)
+    const result = await startRun()
+    if (result.cancelled) {
+      setMessage('已取消运行')
+      return
+    }
+    if (!result.ok) {
+      const first = Object.values(result.errors)[0]
+      setMessage(first ? `运行失败：${first.message}` : '运行失败')
+      return
+    }
+    setMessage(`运行完成（${result.duration}ms）`)
+  }
+
+  const handleCancel = () => {
+    if (!cancelRun()) return
+    setMessage('已取消运行')
+  }
 
   const handleExport = () => {
     const outcome = downloadWorkflow(workflow)
@@ -72,7 +98,7 @@ export const Toolbar = ({ title = 'FlowSail', className }: ToolbarProps) => {
           type="button"
           className="flow-toolbar__button"
           onClick={undoStep}
-          disabled={pastCount === 0 || !canUndo()}
+          disabled={pastCount === 0 || !canUndo() || isRunning}
           title="撤销（Ctrl/Cmd+Z）"
         >
           撤销
@@ -81,7 +107,7 @@ export const Toolbar = ({ title = 'FlowSail', className }: ToolbarProps) => {
           type="button"
           className="flow-toolbar__button"
           onClick={redoStep}
-          disabled={futureCount === 0 || !canRedo()}
+          disabled={futureCount === 0 || !canRedo() || isRunning}
           title="重做（Ctrl/Cmd+Shift+Z）"
         >
           重做
@@ -98,10 +124,39 @@ export const Toolbar = ({ title = 'FlowSail', className }: ToolbarProps) => {
       </div>
 
       <div className="flow-toolbar__group">
+        {isRunning ? (
+          <button
+            type="button"
+            className="flow-toolbar__button flow-toolbar__button--danger"
+            onClick={handleCancel}
+            title="取消运行"
+          >
+            取消运行
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="flow-toolbar__button flow-toolbar__button--primary"
+            onClick={handleRun}
+            disabled={runDisabled}
+            title="试运行：从开始节点跑到结束节点"
+          >
+            试运行
+          </button>
+        )}
+      </div>
+
+      <div className="flow-toolbar__group">
         <button type="button" className="flow-toolbar__button" onClick={handleExport}>
           导出
         </button>
-        <button type="button" className="flow-toolbar__button" onClick={handleImportClick}>
+        <button
+          type="button"
+          className="flow-toolbar__button"
+          onClick={handleImportClick}
+          disabled={isRunning}
+          title={isRunning ? '运行中不能导入文档' : '导入 JSON 文档'}
+        >
           导入
         </button>
         <input

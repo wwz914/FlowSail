@@ -6,7 +6,7 @@
 
 ```
 packages/system    @system   框架无关的数据层：Node/Edge/Workflow 类型、变更合并工具、文档模型与 schema 迁移。无运行时依赖。
-packages/react     react     React 画布实现：ReactFlow 组件、NodePanel、ConfigPanel、Toolbar、ValidationPanel、VariablePicker、SchemaPreview、NodeRenderer/NodeCard、EdgeRenderer、节点类型注册表、变量引用与文档校验、zustand store、viewport/connection 纯函数。
+packages/react     react     React 画布实现：ReactFlow 组件、NodePanel、ConfigPanel、Toolbar、ValidationPanel、VariablePicker、SchemaPreview、RunPanel、NodeTestPanel、NodeRenderer/NodeCard、EdgeRenderer、节点类型注册表、变量引用与文档校验、Runner 接口与运行期状态、zustand store、viewport/connection 纯函数。
 packages/example   example   Vite + React 演示应用（private，不发布）。
 ```
 
@@ -136,9 +136,10 @@ pnpm lint
   `downloadWorkflow` / `readFileText`。导入校验结构与节点类型是否注册，不通过时给可读错误
   并拒绝导入。**导入成功后可撤销一次**——`replaceDocument`（`lib/actions.ts`）压入的是
   **导入前**的快照。
-- **工具栏（R4-9）**：`components/Toolbar.tsx` 提供撤销 / 重做 / 适应画布 / 导出 / 导入；
-  按钮态随可用性禁用。`lib/actions.ts` 用模块级引用登记画布容器（`registerCanvasContainer`），
-  让"适应画布"能拿到容器尺寸——**不要把 DOM 引用塞进 store 状态**。
+- **工具栏（R4-9、R5-9）**：`components/Toolbar.tsx` 提供撤销 / 重做 / 适应画布 /
+  试运行 / 取消运行 / 导出 / 导入；按钮态随可用性禁用。`lib/actions.ts` 用模块级引用登记
+  画布容器（`registerCanvasContainer`），让"适应画布"能拿到容器尺寸——**不要把 DOM 引用塞进
+  store 状态**。
 - 交互：滚轮以指针为锚点缩放；空格 + 左键或中键拖拽平移；从节点下方锚点拖到上方锚点
   创建连线，非法目标标红并给出原因；单击/Shift 多选、Delete/Backspace 删除、
   `Ctrl/Cmd+Z` / `Ctrl/Cmd+Shift+Z` 撤销重做、Esc 取消选择；左下角有缩放比例与适应画布；
@@ -146,14 +147,25 @@ pnpm lint
 - `ReactFlow` 的 `showNodePanel` / `showConfigPanel` 默认开启（画布上的浮动覆盖层）；
   宿主自建三栏布局时关掉这两个，改用导出的 `NodePanel` / `ConfigPanel`（`variant="inline"`）
   并用 `NodeTypeProvider` 让面板与画布共享同一份注册表。
+- **运行调试（v1.5，M3 已收口）**：`Runner` 接口在 `lib/runner.ts`
+  （`run(workflow, hooks, signal, context)`；`hooks` 含 `onRunStart` / `onRunEnd` /
+  `onNodeStart` / `onNodeEnd` / `onNodeSkip`）。`lib/execution.ts` 提供内置 Mock Runner
+  （`createMockRunner`，按拓扑顺序执行、单节点延迟可配）与运行期变量替换
+  （`resolveRuntimeValue` / `resolveRuntimeParams`）；`lib/runController.ts` 是试运行控制器
+  （`startRun` / `cancelRun` / `isRunLocked`）；`lib/runStore.ts` 存运行态与运行记录
+  （`useRunStore`，**画布与记录面板读同一份数据**，因此状态不会漂移）。
+  **运行态与运行记录是视图态，不写回 `Workflow` 文档、不进历史栈**（ROADMAP Q20）。
+  节点运行态五态为 `idle` / `running` / `success` / `error` / `skipped`。
 - 尚未实现（v1.6 及以后）：框选、复制粘贴、节点重命名、网格吸附、自动布局、小地图、
-  主题与可访问性、发布流程与包改名。**运行调试（试运行 / 运行记录 / 运行态 / Runner 接口）
-  属 M3，在 v1.5 规划中**——范围见 [docs/ROADMAP.md §10](docs/ROADMAP.md#10-v15-范围)，
+  主题与可访问性、发布流程与包改名、异常策略、资源与性能观测、循环与并行分支的执行语义。
+  v1.5 的范围与实施记录见 [docs/ROADMAP.md §10](docs/ROADMAP.md#10-v15-范围) 与 §10.10，
   v1.4 的范围与实施记录见 [§9](docs/ROADMAP.md#9-v14-范围) 与 §9.10，v1.3 的实施记录见 §8.10。
 - `packages/react/src/index.ts` 导出 store、`ReactFlow`、`NodePanel`、`ConfigPanel`、
-  `Toolbar`、`ValidationPanel`、`VariablePicker`、`SchemaPreview`、`NodeTypeProvider`、
-  注册表与参数校验工具、变量引用与文档校验工具、导入导出工具，以及 `Node` / `Edge` /
-  `Workflow` / `WorkflowMeta` / `Viewport` / change 类型与文档模型函数；
+  `Toolbar`、`ValidationPanel`、`VariablePicker`、`SchemaPreview`、`RunPanel`、
+  `NodeTestPanel`、`NodeTypeProvider`、注册表与参数校验工具、变量引用与文档校验工具、
+  导入导出工具、`Runner` / `NodeExecutor` 接口与运行期工具（`startRun` / `cancelRun` /
+  `setRunner` / `useRunStore` 等），以及 `Node` / `Edge` / `Workflow` / `WorkflowMeta` /
+  `Viewport` / change 类型与文档模型函数；
   `NodeRenderer` / `EdgeRenderer` / 各 `lib` 内部模块**没有**对外导出。
 
 ## 交流约定

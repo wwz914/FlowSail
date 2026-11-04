@@ -11,6 +11,54 @@ export { ValidationPanel } from './components/ValidationPanel.tsx';
 export type { ValidationPanelProps } from './components/ValidationPanel.tsx';
 export { Toolbar } from './components/Toolbar.tsx';
 export type { ToolbarProps } from './components/Toolbar.tsx';
+export { RunPanel } from './components/RunPanel.tsx';
+export type { RunPanelProps } from './components/RunPanel.tsx';
+export { NodeTestPanel } from './components/NodeTestPanel.tsx';
+export type { NodeTestPanelProps } from './components/NodeTestPanel.tsx';
+export {
+  buildMockFields,
+  findStartNode,
+  reachableNodeIds,
+  resolveRuntimeParams,
+  resolveRuntimeValue,
+  shouldFollowBranch,
+  topologicalSort,
+} from './lib/execution.ts';
+export type { MockRunnerOptions, RuntimeResolveResult } from './lib/execution.ts';
+export {
+  cancelRun,
+  canStartRun,
+  canTestNode,
+  hasActiveRun,
+  isRunLocked,
+  isRunning,
+  startRun,
+} from './lib/runController.ts';
+export {
+  getDefaultNodeDelay,
+  getNodeRunState,
+  getRunner,
+  setDefaultNodeDelay,
+  setRunner,
+  useRunStore,
+} from './lib/runStore.ts';
+export type { NodeRunRecord, RunState, RunStatus, RunStore } from './lib/runStore.ts';
+export { createMockNodeExecutor, runNodeTest } from './lib/nodeTest.ts';
+export type { NodeTestResult } from './lib/nodeTest.ts';
+export type {
+  NodeExecutor,
+  NodeRunInput,
+  NodeRunOutput,
+  NodeRunState,
+  NodeTestInput,
+  NodeTestOutput,
+  RunContext,
+  RunError,
+  RunErrorCode,
+  RunResult,
+  Runner,
+  RunnerHooks,
+} from './lib/runner.ts';
 export {
   BUILTIN_NODE_TYPE_DEFINITIONS,
 } from './lib/builtinTypes.tsx';

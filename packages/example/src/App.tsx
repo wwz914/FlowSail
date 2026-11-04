@@ -1,13 +1,15 @@
 import './App.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ConfigPanel,
   NodePanel,
   NodeTypeProvider,
   ReactFlow,
+  RunPanel,
   Toolbar,
   ValidationPanel,
   createWorkflow,
+  setDefaultNodeDelay,
   type Edge,
   type Node,
   type NodeTypeDefinition,
@@ -48,8 +50,10 @@ const customNodeTypes: NodeTypeDefinition[] = [
 /**
  * 演示流程：开始 → 大模型 → 条件 →（是）大模型 /（否）结束。
  *
- * v1.4 的演示链路（R4-9）：
- * 引用上游变量（`{{start.query}}`）→ 校验通过 → 导出 JSON → 清空 → 导入还原。
+ * v1.5 的演示链路（R5-9）：
+ * 试运行 → 大模型节点拿到开始节点的实际输出（`{{start.query}}` 被替换成运行期真实值）
+ * → 条件节点走「否」分支，未走到的分支节点标记为 `skipped`
+ * → 运行记录面板逐节点列出状态与耗时 → 改坏参数重跑，失败节点在画布与记录面板同时标红。
  */
 const initialNodes: Node[] = [
   { id: 'start', type: 'start', position: { x: 320, y: 40 }, data: { label: 'Start' } },
@@ -69,7 +73,7 @@ const initialNodes: Node[] = [
     id: 'condition',
     type: 'condition',
     position: { x: 320, y: 340 },
-    data: { label: 'Condition', expression: 'summary.length > 40' },
+    data: { label: 'Condition', expression: 'text.length > 40' },
   },
   {
     id: 'llm-yes',
@@ -124,6 +128,12 @@ function App() {
   // 受控模式（R4-2）：宿主持有文档，内部编辑通过 onChange 写回。
   const [document, setDocument] = useState<Workflow>(() => createInitialDocument());
 
+  // 单节点执行延迟（R5-2）：留一点延迟才看得清节点依次进入「运行中」。
+  useEffect(() => {
+    setDefaultNodeDelay(220);
+    return () => setDefaultNodeDelay(0);
+  }, []);
+
   return (
     <NodeTypeProvider nodeTypes={customNodeTypes}>
       <div className="app-shell">
@@ -139,8 +149,10 @@ function App() {
               nodeTypes={customNodeTypes}
               showNodePanel={false}
               showConfigPanel={false}
+              showRunPanel={false}
             />
             <ValidationPanel variant="inline" />
+            <RunPanel variant="inline" />
           </main>
           <aside className="app-inspector">
             <ConfigPanel variant="inline" />
