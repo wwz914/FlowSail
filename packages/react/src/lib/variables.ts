@@ -1,4 +1,4 @@
-import type { Edge, Node } from '@system'
+import type { Edge, Node } from '@flowsail/core'
 import type { FieldSchema, FieldType, NodeTypeRegistry, ParamSchema } from './registry.ts'
 import { resolveNodeType } from './registry.ts'
 
@@ -7,7 +7,7 @@ import { resolveNodeType } from './registry.ts'
  * 引用写作 `{{nodeId.field}}`；`nodeId` 是文档里的节点 id，
  * `field` 是该节点类型声明的输出字段名。
  */
-export const REFERENCE_PATTERN = /\{\{\s*([A-Za-z0-9_\-]+)\.([A-Za-z0-9_\-]+)\s*\}\}/g
+export const REFERENCE_PATTERN = /\{\{\s*([A-Za-z0-9_-]+)\.([A-Za-z0-9_-]+)\s*\}\}/g
 
 /** 单个引用的解析结果。 */
 export interface ParsedReference {

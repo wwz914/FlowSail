@@ -86,6 +86,7 @@ const skippedCount = recordStates.filter((state) => state.trim() === '跳过').l
 // 未走到的「是」分支节点被跳过。
 check('运行记录列出全部节点', recordStates.length === 5, recordStates.join(','))
 check('执行到的节点都是成功', successCount === 4, `成功 ${successCount} 个`)
+check('未走到的分支节点被跳过', skippedCount === 1, `跳过 ${skippedCount} 个`)
 check(
   '运行记录的状态与画布一致',
   recordStates.every((state) => ['成功', '跳过'].includes(state.trim())),

@@ -2,7 +2,7 @@
 
 > 配套文档：[产品 PRD](./PRD.md) · [README](../README.md) · [AGENTS.md](../AGENTS.md)
 > 适用基线：`main` @ `eddd20b`（v1.6 合并后，2026-11-04）
-> 本文回答三个问题：**对标扣子工作流编辑器，初期该先建哪些基础能力、按什么顺序**；**v1.1（M1 收口）具体做什么**（§7，已确认并合并，PR #15）；**v1.3 具体做什么**（§8，已确认并合并，PR #17）；**v1.4 具体做什么**（§9，已确认并合并，PR #20）；**v1.5 具体做什么**（§10，已确认并合并，PR #22）；**v1.6 具体做什么**（§11，已确认并合并，PR #24——收口 M1 ~ M3 至今未做的部分）；以及 **v1.7 具体做什么**（§12，已确认待实施——M4 交付主线：打包、发布、文档、在线示例）。
+> 本文回答三个问题：**对标扣子工作流编辑器，初期该先建哪些基础能力、按什么顺序**；**v1.1（M1 收口）具体做什么**（§7，已确认并合并，PR #15）；**v1.3 具体做什么**（§8，已确认并合并，PR #17）；**v1.4 具体做什么**（§9，已确认并合并，PR #20）；**v1.5 具体做什么**（§10，已确认并合并，PR #22）；**v1.6 具体做什么**（§11，已确认并合并，PR #24——收口 M1 ~ M3 至今未做的部分）；以及 **v1.7 具体做什么**（§12，已实现、待首发——M4 交付主线：打包、发布、文档、在线示例）。
 >
 > **版本定位**：仓库以**版本**对齐节奏，不再交待"轮次"。版本序列为 **v1.0 → v1.1 → v1.3 → v1.4 → v1.5 → v1.6 → v1.7**；v1.2 不出现在序列中（没有对应内容，不再预留），后续版本按 v1.8 顺延。版本表见 [§8.1](#81-版本定位)。
 
@@ -24,9 +24,9 @@ v1.0（2026-11-03 合并，PR #13）已完成第 1 项（工程地基）和第 2
 
 v1.6（2026-11-04 合并，PR #24，按 §11）**回头结清 M1 ~ M3 的欠账**：把三张里程碑表逐条与代码核对后，收进 **框选、复制粘贴、节点重命名、网格吸附、运行结果回填、画布侧错误详情**，外加会话变量与性能基准。做完之后，M1 ~ M3 的编号任务才算真正全部落地。
 
-**当前进度**：v1.6 已于 2026-11-04 合并（PR #24），M1 ~ M3 的编号任务全部落地；下一版 v1.7 已确认（[§12](#12-v17-范围m4-交付主线打包发布文档在线示例)，交付主线，待实施），主题是 **M4 交付主线**——包改名与可发布产物、发布流程、文档、在线示例。M4 的 D-5（主题与可访问性）拆到 v1.8。
+**当前进度**：v1.6 已于 2026-11-04 合并（PR #24），M1 ~ M3 的编号任务全部落地；v1.7（[§12](#12-v17-范围m4-交付主线打包发布文档在线示例)，M4 交付主线）已实现、待合并与首发——包改名与可发布产物、发布流程、文档、在线示例、质量门禁全部落地（实施记录见 §12.10）。M4 的 D-5（主题与可访问性）拆到 v1.8。
 
-v1.7（2026-11-04 规划并确认，按 §12）**转向交付**：v1.6 之后产品能力已经够用，但仓库至今没有一个可安装的 npm 包、没有一个在线示例、没有 `LICENSE`、没有发布流程；v1.7 不新增编辑器能力，只把已有的"能画、能配、能跑、好使"交付给宿主与新用户。
+v1.7（2026-11-04 规划、确认并实施，按 §12）**转向交付**：v1.6 之后产品能力已经够用，但仓库至今没有一个可安装的 npm 包、没有一个在线示例、没有 `LICENSE`、没有发布流程；v1.7 不新增编辑器能力，只把已有的"能画、能配、能跑、好使"交付给宿主与新用户。
 
 ---
 
@@ -306,9 +306,9 @@ R2-1 最先做（否则 R2-4 要重写两次）。R2-2 → R2-3 → R2-4 依次�
 | v1.4 | ✅ 已合并（PR #20） | 文档模型 + 变量引用 + 文档级校验 | §9 |
 | v1.5 | ✅ 已合并（PR #22） | 运行与调试：Runner、试运行、运行记录、节点运行态 | §10 |
 | **v1.6** | ✅ 已合并（PR #24） | **M1~M3 遗留收口 + 编辑器手感：框选、复制粘贴、重命名、网格吸附** | **§11** |
-| **v1.7** | **已确认（待实施）** | **M4 交付主线：包改名与产物、发布流程、文档、在线示例** | **§12** |
+| **v1.7** | **✅ 已实现（待合并与首发）** | **M4 交付主线：包改名与产物、发布流程、文档、在线示例、质量门禁** | **§12** |
 
-> **说明**：仓库至今未发布任何 npm 版本（包名仍是 `@system` / `react`，重命名随 v1.7 的 R7-1 执行），README 里标注的 v1.x 是**开发版本定位**，不是发行版号。仓库以**版本**对齐节奏，不再交待"轮次"：**v1.2 不出现在版本序列中**（没有对应内容，不再预留），后续版本按 v1.8 顺延。v1.6 合并后 M1 ~ M3 的编号任务全部落地；**v1.7 已确认**为 M4 的交付主线（构建产物、部署、发布流程、文档），D-5（主题与可访问性）留给 v1.8；Q27 ~ Q29 已按建议确认（见 [§12.9](#129-与待确定事项的关系)）。
+> **说明**：仓库至今未发布任何 npm 版本（v1.7 已完成包改名与发布链路，`0.1.0` 首发仍待负责人执行），README 里标注的 v1.x 是**开发版本定位**，不是发行版号。仓库以**版本**对齐节奏，不再交待"轮次"：**v1.2 不出现在版本序列中**（没有对应内容，不再预留），后续版本按 v1.8 顺延。v1.6 合并后 M1 ~ M3 的编号任务全部落地；**v1.7 已确认**为 M4 的交付主线（构建产物、部署、发布流程、文档），D-5（主题与可访问性）留给 v1.8；Q27 ~ Q29 已按建议确认（见 [§12.9](#129-与待确定事项的关系)）。
 
 ### 8.2 为什么 v1.3 做"节点体系 + 配置面板"
 
@@ -949,7 +949,7 @@ Q5（许可证）、Q6（npm 组织）、Q11（版本与发布机制）仍归属
 
 ## 12. v1.7 范围（M4 交付主线：打包、发布、文档、在线示例）
 
-> 状态：**已确认，待实施**（2026-11-04 负责人确认 Q27 ~ Q29 按建议；实施结果回填本节）。
+> 状态：**已实现、待合并与首发**（2026-11-04 负责人确认 Q27 ~ Q29 按建议；R7-1 ~ R7-6 已全部实施，见 §12.10）。
 > 目标：把"能跑、好使"的编辑器推进到"**能装、能发、能上手**"——外部工程 `pnpm add` 后能嵌入画布，新用户按 README 10 分钟跑通示例。
 
 ### 12.1 版本定位与主题
@@ -958,7 +958,7 @@ Q5（许可证）、Q6（npm 组织）、Q11（版本与发布机制）仍归属
 
 | 版本 | 状态 | 主题 | 范围 |
 | --- | --- | --- | --- |
-| **v1.7** | **已确认（待实施）** | **M4 交付主线：包改名与产物、发布流程、文档、在线示例** | **§12** |
+| **v1.7** | **✅ 已实现（待合并与首发）** | **M4 交付主线：包改名与产物、发布流程、文档、在线示例、质量门禁** | **§12** |
 
 一句话主题：**把仓库里的编辑器变成别人装得上、跑得起来的产品**——本版不新增编辑器能力，只把 M1 ~ M3 已有的能力交付出去。
 
@@ -974,6 +974,8 @@ v1.6 之后，M1 ~ M3 的编号任务全部落地，M4 是 [§2](#2-阶段规划
 
 #### 12.2.1 当前缺口（代码级证据）
 
+> 下表记录 **v1.7 实施前**的现状，作为本版验收对照；逐项结果见 §12.10。
+
 | 缺口 | 现状 | 证据 |
 | --- | --- | --- |
 | 包名 | 数据层叫 `@system`，视图层叫 `react`（与 npm 上的 `react` 同名），示例靠 `reactflow` 别名解析 | `packages/system/package.json`、`packages/react/package.json`、`packages/example/package.json`；AGENTS.md「命名与解析上的坑」 |
@@ -987,7 +989,7 @@ v1.6 之后，M1 ~ M3 的编号任务全部落地，M4 是 [§2](#2-阶段规划
 
 > 这张表是**本版要还的账**。它与 [§11.2](#112-为什么要做这件事m3-及以前的未做部分) 的性质相同：不是新功能，而是"做过的能力没有被交付出去"。
 >
-> **体积基线**：v1.6 的库产物 gzip 为 `@system` 1.94KB、`react` 的 JS 33.17KB + CSS 4.40KB（本机 2026-11-04 构建），合计约 39.5KB，低于 PRD §9 的 60KB 预算。R7-5 只需把这条预算固化成 CI 检查，不必先做体积瘦身；覆盖率基线则尚未测量。
+> **体积基线**：v1.6 的库产物 gzip 为 `@system` 1.94KB、`react` 的 JS 33.17KB + CSS 4.40KB（本机 2026-11-04 构建），合计约 39.5KB，低于 PRD §9 的 60KB 预算。v1.7 把这条预算固化成 CI 检查，未做体积瘦身；覆盖率基线在实施前测得（统计口径见 §12.10），已满足 70% 门禁。
 
 #### 12.2.2 为什么不是先做 P2 / 编辑器增强
 
@@ -997,12 +999,12 @@ PRD §4.3 把自动布局、小地图标为 P2；循环 / 并行、异常策略�
 
 | 编号 | 任务 | 对应阶段 | 验收标准 |
 | --- | --- | --- | --- |
-| R7-1 | 包改名与可发布产物 | M4 D-1 | `@system` → `@flowsail/core`、`react` → `@flowsail/react`；两个包的 `main` / `module` / `types` / `exports` 指向 `dist`，`files` 只含 `dist`，`sideEffects` 声明 CSS；`react` / `react-dom` 改为 `peerDependencies`（`>=18 <20`），`@flowsail/core` 作为 `@flowsail/react` 的依赖（workspace 协议，发布时由 changeset 改写）；`LICENSE` 落地（Q28）；`pnpm pack` 产物可被独立工程安装 |
-| R7-2 | 发布流程与版本 | M4 D-4、Q11 | 引入 changesets（初始 `0.1.0`），`changeset version` 能产出 CHANGELOG 并同步两个包的版本与内部依赖；提供发布工作流（手动触发，可选 provenance），文档写明所需 secret、发布前检查与回滚方式；**首次真实发布由负责人执行或明确授权**（Q29） |
-| R7-3 | 文档与快速上手 | M4 D-2 | README 重写为"安装 → 嵌入 → 自定义节点 → 注入 Runner → 受控用法"的路径，附最小可运行代码；保留仓库内开发说明；"10 分钟跑通"的每一步在干净环境实测；修正过期的数字与描述 |
-| R7-4 | 在线示例部署 | M4 D-3 | 示例可按子路径构建（`base` 可配），GitHub Pages 工作流在 `main` 上自动部署；README 给出可访问 URL；示例站点可完成"建节点 → 连线 → 配参数 → 试运行"主链路 |
-| R7-5 | 发布前质量门禁 | M4 D-1 / PRD §2.1、§9 | lint 覆盖 `packages/system` 与 `packages/react`；覆盖率基线测量并设 ≥ 70% 门禁（统计口径为 `packages/system/src` 与 `packages/react/src/lib`，不足先补测）；`@flowsail/react` 产物 gzip（JS + CSS）< 60KB 并纳入 CI；React 18 冒烟（构建 + 基础渲染）通过；`pnpm pack` 安装冒烟进 CI；文档链接 / 锚点检查进 CI |
-| R7-6 | 示例与文档同步 | — | README、PRD、ROADMAP、AGENTS 与改名后的包名、发布流程、部署地址、门禁数字对齐；版本定位更新；`packages/example` 的 import 与别名更新 |
+| R7-1 | 包改名与可发布产物 | M4 D-1 | ✅ `@system` → `@flowsail/core`、`react` → `@flowsail/react`；两个包的 `main` / `module` / `types` / `exports` 指向 `dist`，`files` 只含 `dist` 与 `LICENSE`，`sideEffects` 声明 CSS；`react` / `react-dom` 改为 `peerDependencies`（`>=18 <20`），`@flowsail/core` 作为 `@flowsail/react` 的依赖（workspace 协议，`pnpm pack` 时写成实际版本）；MIT `LICENSE` 落地（Q28）；tarball 可被独立工程安装 |
+| R7-2 | 发布流程与版本 | M4 D-4、Q11 | ✅ 引入 changesets（初始 `0.1.0`），`changeset version` 产出两个包的 CHANGELOG 并同步版本与内部依赖；`Release` 工作流手动触发、可选 provenance，[docs/RELEASING.md](../docs/RELEASING.md) 写明 secret、发布前检查与回滚；**首次真实发布由负责人执行或明确授权**（Q29） |
+| R7-3 | 文档与快速上手 | M4 D-2 | ✅ README 重写为"安装 → 嵌入 → 自定义节点 → 注入 Runner → 受控用法"的路径，附最小可运行代码；保留仓库内开发说明；安装 / 类型检查 / 构建 / 渲染在干净目录实测（`pnpm check:pack`）；数字与描述已同步 |
+| R7-4 | 在线示例部署 | M4 D-3 | ✅ 示例通过 `VITE_BASE` 按子路径构建，`Deploy example to GitHub Pages` 工作流在 `main` 上自动部署；README 给出 URL；示例主链路在本地以 Pages 子路径构建并通过 Playwright 验证（Pages 首次启用仍需管理员，Q30） |
+| R7-5 | 发布前质量门禁 | M4 D-1 / PRD §2.1、§9 | ✅ lint 覆盖三个包与脚本；覆盖率 ≥ 70%（统计 `packages/system/src` 与 `packages/react/src/lib`）；体积 gzip（JS + CSS）< 60KB 进 CI；React 18 / 19 的 pack 安装、构建、jsdom 渲染冒烟进 CI；文档链接 / 锚点检查进 CI |
+| R7-6 | 示例与文档同步 | — | ✅ README、PRD、ROADMAP、AGENTS 与改名后的包名、发布流程、部署地址、门禁数字对齐；版本定位更新；example 改用 `@flowsail/react` 并删除 `reactflow` 别名 |
 
 ### 12.4 明确不做
 
@@ -1080,6 +1082,110 @@ v1.7 需要确认：
 >
 > **Q31 的理由**：仓库从未发布过版本，`0.1.0` 是 changeset 的常规起点，也能诚实地表达"公开 API 仍可能变动"（PRD §5 原则 4 要求破坏性变更走大版本）。
 
-> **确认记录（2026-11-04，wwz914 在 PR #26 评论）**：Q27 取交付主线（§12.3），Q28 取 MIT，Q29 按建议（负责人创建 `@flowsail` 组织并提供发布凭据；首版由负责人发布，或在确认后授权代理发布），Q30 / Q31 按建议默认。v1.7 至此解除开工阻塞，进入**待实施**状态；实际实施不在本规划 PR 内。
+> **确认记录（2026-11-04，wwz914 在 PR #26 评论）**：Q27 取交付主线（§12.3），Q28 取 MIT，Q29 按建议（负责人创建 `@flowsail` 组织并提供发布凭据；首版由负责人发布，或在确认后授权代理发布），Q30 / Q31 按建议默认。v1.7 随后完成实施（§12.10）；npm 首发与 Pages 首次启用仍待负责人执行。
 
 v1.8 候选（不在本版范围，仅记录顺序）：主题与可访问性（D-5）、`Ctrl/Cmd+A` 全选、选中浮动工具条、反向拖拽断开连线；再往后是自动布局、小地图、节点分组与运行语义。
+
+### 12.10 实施结果（2026-11-04）
+
+> 状态：R7-1 ~ R7-6 已全部实现，PR 待 review / merge；`0.1.0` 的 npm 首发与 GitHub Pages 首次启用
+> 仍需负责人执行（Q29 / Q30），因此本版不宣称"已发布"。
+
+**R7-1 包改名与可发布产物**
+
+- `@system` → `@flowsail/core`、`react` → `@flowsail/react`；`packages/react` 内全部导入、
+  根 `tsconfig.json` 的 `paths`、Vite external 与 example 的依赖 / import 同步改名，
+  `reactflow` workspace 别名删除。
+- 两个包的 `main` / `module` / `types` / `exports` 指向 `dist`；`files` 只含 `dist` 与 `LICENSE`；
+  `sideEffects` 为 `false`（core）与 `["**/*.css"]`（react）；`react` / `react-dom` 改为
+  `peerDependencies: >=18 <20`；`zustand` 与 `@flowsail/core` 声明为运行时依赖。
+- MIT `LICENSE` 落到根目录与两个包目录；包内 `license` 改为 `MIT`，并补 `repository` /
+  `homepage` / `bugs` / `publishConfig.access=public`。
+- 构建顺序固定为 core → react → example；`pnpm dev` / `pnpm typecheck` / `pnpm build` 都先构建
+  库产物，example 真实消费 `dist`（含 `@flowsail/react/style.css`）。测试通过
+  `vitest.config.ts` 的 alias 直接跑源码，避免读到过期产物。
+- `pnpm pack` 产物：`flowsail-core-0.1.0.tgz`（约 8KB）、`flowsail-react-0.1.0.tgz`（约 139KB）；
+  tarball 内只有 `package/dist`、`package/LICENSE`、`package/package.json`，`workspace:*`
+  在 React 包依赖里被写成 `@flowsail/core: 0.1.0`。干净目录安装、类型检查、Vite 构建与
+  jsdom 渲染均通过（`pnpm check:pack`）。
+
+**R7-2 发布流程与版本**
+
+- 引入 `@changesets/cli` 3.0.3，配置 `.changeset/config.json`（public、`baseBranch: main`、
+  `ignore: example`）；初始 changeset 已消费，两个包版本 `0.1.0`，各带 `CHANGELOG.md`。
+- `Release` 工作流（`.github/workflows/release.yml`）：手动触发，`provenance` 与 `dry_run`
+  输入；发布前跑 lint / test / typecheck / build / 体积门禁 / pack smoke，然后
+  `pnpm changeset publish` 并推送 tag。
+- [docs/RELEASING.md](../docs/RELEASING.md) 写明 `NPM_TOKEN`、`@flowsail` scope、版本步骤、
+  dry-run、provenance、72 小时撤包 / deprecate 回滚与 Pages 启用方式。
+- **未执行**：首次真实发布需要 npm 组织与凭据（Q29），由负责人执行或明确授权后执行。
+
+**R7-3 文档与快速上手**
+
+- README 重写为"安装 → 受控嵌入 → 自定义节点 → 注入 Runner → 包与产物 → 仓库内开发"路径，
+  附最小可运行代码、peer / 样式 / 受控 vs 非受控说明、发布与在线示例入口。
+- 清理旧口径：包名、`reactflow` 别名、"尚未提供可安装产物"、测试 / 覆盖率 / 体积数字与
+  版本定位均已同步。
+- 安装路径在仓库外的干净目录实测：tarball 安装 → `tsc --noEmit` → `vite build` →
+  jsdom 客户端渲染（节点真的出现）；React 18 与 19 各跑一遍。
+
+**R7-4 在线示例部署**
+
+- `packages/example/vite.config.ts` 增加 `base: process.env.VITE_BASE ?? '/'`；
+  `.github/workflows/deploy-pages.yml` 在 `main` 推送或手动触发时以 `/FlowSail/` 构建并部署，
+  未启用 Pages 时给出明确报错。
+- README 地址：<https://wwz914.github.io/FlowSail/>。本地以 `VITE_BASE=/FlowSail/` 构建，
+  用 Playwright 在预览服务器上完成"建节点 → 连线 → 配参数 → 试运行"主链路。
+- **未执行**：仓库管理员需在 `Settings → Pages → Build and deployment` 选择 GitHub Actions
+  （Q30）；在此之前线上地址不可访问。
+
+**R7-5 发布前质量门禁**
+
+- lint 改为仓库级 flat config（`eslint.config.js`），覆盖 `packages/system`、`packages/react`、
+  example 与 `scripts/`；顺手修掉 4 个既有 lint 问题（ref 同步、无用转义、`let` → `const`、
+  未使用变量）并对 `Node.data` 的 `any`、框选 ref 的渲染期同步做了带理由的豁免。
+- 覆盖率基线（改动前，统计 `packages/system/src` + `packages/react/src/lib`）：
+  statements 86.91% / branches 77.49% / functions 88.09% / lines 88.71%；
+  门禁取 70%，无需补测。
+- 体积：`@flowsail/react` gzip JS 32.21KB + CSS 4.24KB = 36.45KB（`@flowsail/core` 1.89KB），
+  低于 60KB 预算；`scripts/check-size.mjs` 进 CI。
+- React 18 / 19 冒烟：CI matrix 用 `scripts/smoke-pack.mjs --react 18|19`，覆盖 tarball 安装、
+  类型检查、构建与基础渲染。
+- `scripts/check-links.mjs` 检查 README / docs / AGENTS 的相对链接与标题锚点。
+- CI 增加 `test:coverage`、`check:size`、`check:links`、Pages 子路径构建与
+  `package-smoke` matrix。
+
+**R7-6 示例与文档同步**
+
+- README、PRD、ROADMAP、AGENTS 的包名、脚本表、版本定位、发布方式与门禁数字已对齐；
+  example 的 import 改为 `@flowsail/react`，并显式引入 `@flowsail/react/style.css`。
+
+**实现过程中修掉的问题**
+
+1. **example 消费 `dist` 后 `pnpm dev` 会拿到旧产物**：根脚本改为先 `build:libs`，
+   `typecheck` 也先构建声明，保证干净 checkout 可直接运行。
+2. **测试读到过期 `dist`**：`vitest.config.ts` 把 `@flowsail/core` alias 到 `packages/system/src`。
+3. **tarball 的 `workspace:*` 让独立安装去 registry 找包**：`pnpm pack` 自身会写成实际版本；
+   冒烟脚本用 `pnpm-workspace.yaml` 的 `overrides` 指回本地 tarball，模拟"已发布"前的环境。
+4. **pnpm 10/11 拦截安装脚本**：`pnpm-workspace.yaml` 同时声明 `onlyBuiltDependencies` 与
+   `allowBuilds`，放行 `esbuild` 与 `@parcel/watcher`；冒烟临时工程同样声明。
+5. **SSR 不能验证画布渲染**：画布在 `useEffect` 里同步 props 进 store，服务端渲染不会执行
+   effect；冒烟改为 jsdom + `createRoot`，断言节点 DOM 真的出现。
+
+**验证记录**
+
+```sh
+pnpm lint                  # 0 error / 0 warning
+pnpm test:coverage         # 295 tests；覆盖率 ≥ 70%
+pnpm typecheck             # 通过（example 从 dist 解析类型）
+pnpm build                 # core → react → example 全部通过
+pnpm check:size            # @flowsail/react 36.45KB < 60KB
+pnpm check:links           # 8 个 Markdown 文件链接 / 锚点通过
+pnpm check:pack            # React 19 通过；React 18 见 CI matrix
+VITE_BASE=/FlowSail/ pnpm build
+VITE_BASE=/FlowSail/ pnpm --filter example preview -- --port 4173
+node scripts/verify-v17.mjs http://localhost:4173/FlowSail/   # 8/8 主链路
+node scripts/verify-v15.mjs http://localhost:4173/FlowSail/   # 20/20 运行与错误恢复
+```
+
+本版不改变界面，不需要 Before / After 截图；example 仅新增样式文件引入，画布视觉保持一致。

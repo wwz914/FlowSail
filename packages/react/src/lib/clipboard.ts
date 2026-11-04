@@ -1,4 +1,4 @@
-import type { Edge, Node } from '@system'
+import type { Edge, Node } from '@flowsail/core'
 
 /**
  * 复制 / 粘贴（R6-2、FR-N5、FR-U3、X-2）。

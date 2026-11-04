@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from 'react'
-import type { Node, Workflow } from '@system'
+import type { Node, Workflow } from '@flowsail/core'
 import { useNodeTypeRegistry } from '../lib/registryContext.tsx'
 import { resolveNodeType } from '../lib/registry.ts'
 import { hasReference } from '../lib/variables.ts'

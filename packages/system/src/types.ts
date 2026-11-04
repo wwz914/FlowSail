@@ -15,6 +15,8 @@ export interface Viewport {
 export interface Node {
   id: string;
   type?: string;
+  /** 宿主自定义的节点数据；v1 保持宽松，允许任意节点扩展字段。 */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: any;
   position: Position;
   selected?: boolean;

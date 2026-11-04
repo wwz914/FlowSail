@@ -1,4 +1,4 @@
-import type { Node } from '@system'
+import type { Node } from '@flowsail/core'
 import { useFlowStore } from '../store/index.ts'
 import { resolveNodeType } from './registry.ts'
 import { createMockRunner } from './execution.ts'

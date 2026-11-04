@@ -45,8 +45,8 @@
     "emitDeclarationOnly": true,
     "baseUrl": ".", // 基础路径（必填，用于解析相对路径）
     "paths": {
-      "@system": ["packages/system/src"], // 映射别名到 system 包的 src 目录
-      "@system/*": ["packages/system/src/*"] // 支持子路径导入（如 @system/types）
+      "@flowsail/core": ["packages/system/src"], // 映射别名到 core 包的 src 目录
+      "@flowsail/core/*": ["packages/system/src/*"] // 支持子路径导入（如 @flowsail/core/types）
     },
     "typeRoots": ["node_modules/@types", "packages/*/node_modules/@types"]
   }

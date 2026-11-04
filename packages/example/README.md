@@ -1,73 +1,38 @@
-# React + TypeScript + Vite
+# FlowSail 示例应用
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+`packages/example` 是 FlowSail 的参考应用（private，不发布）：用 `@flowsail/react` 的
+`NodeTypeProvider` + `Toolbar` + `NodePanel` + `ReactFlow` + `ConfigPanel` + `ValidationPanel`
++ `RunPanel` 拼出三栏布局，以受控模式（`workflow` + `onChange`）演示宿主如何持有文档，
+并注册一个自定义「通知」节点演示 `nodeTypes` 注入。
 
-Currently, two official plugins are available:
+## 本地运行
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+在仓库根目录执行：
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```sh
+pnpm install
+pnpm dev        # 先构建 @flowsail/core / @flowsail/react，再启动 http://localhost:5173
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+`pnpm dev` 消费的是两个库包的 `dist` 产物（与真实宿主一致）。修改库源码后执行
+`pnpm build:libs` 再刷新页面。
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 构建与部署
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```sh
+pnpm build                              # 根路径构建，输出 packages/example/dist
+VITE_BASE=/FlowSail/ pnpm build         # GitHub Pages 子路径构建
+pnpm --filter example preview           # 预览构建产物
+VITE_BASE=/FlowSail/ pnpm --filter example preview -- --port 4173
+```
+
+`.github/workflows/deploy-pages.yml` 在 `main` 推送时自动以 `/FlowSail/` 构建并部署；
+线上地址 <https://wwz914.github.io/FlowSail/>。首次启用见
+[docs/RELEASING.md](../../docs/RELEASING.md#12-github-pagesq30)。
+
+## 端到端验证
+
+```sh
+node scripts/verify-v17.mjs http://localhost:4173/FlowSail/   # 建节点 → 连线 → 配参数 → 试运行
+node scripts/verify-v15.mjs http://localhost:4173/FlowSail/   # 试运行 / 分支跳过 / 失败恢复
 ```

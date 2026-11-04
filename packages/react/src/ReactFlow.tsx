@@ -4,7 +4,7 @@ import type {
   PointerEvent as ReactPointerEvent,
   ReactNode,
 } from 'react'
-import type { Edge, Node, Workflow } from '@system'
+import type { Edge, Node, Workflow } from '@flowsail/core'
 import './style.scss'
 import { useFlowStore, getSelection, getSelectionKey, type SelectionState } from './store/index.ts'
 import { NodeRenderer } from './components/NodeRenderer.tsx'
@@ -432,6 +432,8 @@ export const ReactFlow = ({
   // 监听只在"开始框选"时挂一次：终点用 ref 记录，避免每次移动都重挂监听
   // （重挂之间的事件会丢，快速拖拽时选框会落后于指针）。
   const marqueeRef = useRef<MarqueeState | null>(null)
+  // 刻意在渲染期同步 ref：事件监听只挂一次，渲染后必须读到最新选框状态。
+  // eslint-disable-next-line react-hooks/refs
   marqueeRef.current = marquee
   const isMarqueeActive = marquee !== null
 

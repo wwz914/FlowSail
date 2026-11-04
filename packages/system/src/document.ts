@@ -139,7 +139,7 @@ export function migrateWorkflow(input: unknown): MigrateResult {
   }
 
   // 逐级升级：当前只有第 1 版，占位以便将来追加第 2 版的迁移逻辑。
-  let document = normalizeWorkflow(raw)
+  const document = normalizeWorkflow(raw)
 
   return { ok: true, document }
 }
@@ -148,7 +148,7 @@ export function migrateWorkflow(input: unknown): MigrateResult {
  * 校验导入的文档并给出可读错误列表（R4-3、FR-D3）。
  *
  * 检查项：必填字段、节点与连线的结构、连线是否指向存在的节点。
- * 节点类型是否注册由调用方补充（注册表属于 `@system` 之外的知识）。
+ * 节点类型是否注册由调用方补充（注册表属于 `@flowsail/core` 之外的知识）。
  */
 export function validateWorkflowDocument(input: unknown): ImportResult {
   const errors: string[] = []

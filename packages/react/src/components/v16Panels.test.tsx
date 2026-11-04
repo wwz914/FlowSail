@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
-import type { Node } from '@system'
+import type { Node } from '@flowsail/core'
 import { NodeRenderer } from './NodeRenderer.tsx'
 import { useFlowStore } from '../store/index.ts'
 import { DEFAULT_VIEWPORT } from '../lib/viewport.ts'

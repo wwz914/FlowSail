@@ -1,10 +1,10 @@
-import type { Node, Workflow } from '@system'
+import type { Node, Workflow } from '@flowsail/core'
 import {
   CURRENT_WORKFLOW_VERSION,
   parseWorkflowDocument,
   serializeWorkflow,
   validateWorkflowDocument,
-} from '@system'
+} from '@flowsail/core'
 import type { NodeTypeRegistry } from './registry.ts'
 
 /** 导入结果（R4-3、FR-D3）。 */

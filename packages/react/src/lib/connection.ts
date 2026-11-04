@@ -1,4 +1,4 @@
-import type { Edge, Node } from '@system'
+import type { Edge, Node } from '@flowsail/core'
 import {
   findInputHandle,
   getTargetHandlePosition,

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import type { Node } from '@system'
+import type { Node } from '@flowsail/core'
 import { useNodeTypeRegistry } from '../lib/registryContext.tsx'
 import { resolveNodeType } from '../lib/registry.ts'
 import { useRunStore, type NodeRunRecord } from '../lib/runStore.ts'

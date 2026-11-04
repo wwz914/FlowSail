@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import type { Node } from '@system'
+import type { Node } from '@flowsail/core'
 import { BUILTIN_REGISTRY } from './registryContext.tsx'
 import { getNodeRunState, useRunStore } from './runStore.ts'
 import { cancelRun, canStartRun, isRunLocked, startRun } from './runController.ts'

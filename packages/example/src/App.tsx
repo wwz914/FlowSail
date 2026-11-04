@@ -15,7 +15,7 @@ import {
   type Node,
   type NodeTypeDefinition,
   type Workflow,
-} from 'reactflow';
+} from '@flowsail/react';
 
 /** 宿主自定义的节点类型：证明 `nodeTypes` 注入即可渲染自定义节点（R3-1）。 */
 const customNodeTypes: NodeTypeDefinition[] = [

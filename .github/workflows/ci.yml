@@ -26,11 +26,46 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-      - name: Test
-        run: pnpm test
+      - name: Test with coverage gate
+        run: pnpm test:coverage
 
       - name: Typecheck
         run: pnpm typecheck
 
       - name: Build
         run: pnpm build
+
+      - name: Bundle size gate
+        run: pnpm check:size
+
+      - name: Docs links and anchors
+        run: pnpm check:links
+
+      # R7-4：确认示例能按 GitHub Pages 子路径构建。
+      - name: Build example with Pages base
+        run: VITE_BASE=/FlowSail/ pnpm --filter example build
+
+  package-smoke:
+    name: Package smoke (React ${{ matrix.react }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        react: ['18', '19']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.23.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Pack and install smoke
+        run: node scripts/smoke-pack.mjs --react ${{ matrix.react }}
