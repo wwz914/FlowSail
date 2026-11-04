@@ -1088,7 +1088,7 @@ v1.8 候选（不在本版范围，仅记录顺序）：主题与可访问性（
 
 ### 12.10 实施结果（2026-11-04）
 
-> 状态：R7-1 ~ R7-6 已全部实现，PR 待 review / merge；`0.1.0` 的 npm 首发与 GitHub Pages 首次启用
+> 状态：R7-1 ~ R7-6 已全部实现，PR [#28](https://github.com/wwz914/FlowSail/pull/28) 待 review / merge；`0.1.0` 的 npm 首发与 GitHub Pages 首次启用
 > 仍需负责人执行（Q29 / Q30），因此本版不宣称"已发布"。
 
 **R7-1 包改名与可发布产物**
