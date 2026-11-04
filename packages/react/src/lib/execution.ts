@@ -62,11 +62,6 @@ export function topologicalSort(nodes: Node[], edges: Edge[]): Node[] {
   return ordered
 }
 
-/** 节点的显示名。 */
-function nodeLabelOf(node: Node): string {
-  return String(node.data?.label ?? node.id)
-}
-
 /**
  * 找出流程的入口节点（R5-2）。
  *
@@ -378,14 +373,29 @@ export function createMockRunner(options: MockRunnerOptions = {}): Runner {
       // 键为节点 id，值是导致它被跳过的原因。
       const skipped = new Map<string, string>()
 
-      /** 某个节点的上游里是否有没能产出结果的（R5-5）。 */
+      /**
+       * 走到的连线（R5-5）。
+       *
+       * 条件节点跑完后，没走的那条分支的连线不算走到；
+       * 节点在**至少有一条走到的入边**时才执行——汇合节点因此不会因为
+       * 一条分支没走到就被误跳过。
+       */
+      const liveEdges = new Set<string>()
+
+      /**
+       * 某个节点的上游是否全部没能产出结果（R5-5）。
+       *
+       * 汇合节点可能接在多条分支上：只要还有一条分支走到了，它就该执行；
+       * 只有全部上游都没产出结果时才跳过。
+       */
       const hasUnreachableUpstream = (nodeId: string): boolean => {
-        for (const edge of workflow.edges) {
-          if (edge.target !== nodeId) continue
-          if (errors[edge.source] !== undefined) return true
-          if (skipped.has(edge.source)) return true
-        }
-        return false
+        const incoming = workflow.edges.filter((edge) => edge.target === nodeId)
+        if (incoming.length === 0) return false
+
+        return incoming.every(
+          (edge) =>
+            errors[edge.source] !== undefined || skipped.has(edge.source),
+        )
       }
 
       for (const node of ordered) {
@@ -396,19 +406,25 @@ export function createMockRunner(options: MockRunnerOptions = {}): Runner {
           continue
         }
 
-        // 上游没能产出结果时该节点不执行（R5-5：标成 skipped 而不是失败）。
-        // 上游失败会一路传递下来，因此这里看的是直接上游的状态。
+        // 上游全部没能产出结果时该节点不执行（R5-5：标成 skipped 而不是失败）。
         if (hasUnreachableUpstream(node.id)) {
           skipped.set(node.id, '上游节点没有产出结果')
           hooks.onNodeSkip?.(node)
           continue
         }
 
-        // 走的是条件分支的另一条路（R5-5）。
-        const skippedBy = skipped.get(node.id)
-        if (skippedBy !== undefined) {
-          hooks.onNodeSkip?.(node)
-          continue
+        // 走到的入边：一条都没走到就说明没走这条分支（R5-5）。
+        const incomingEdges = workflow.edges.filter((edge) => edge.target === node.id)
+        if (incomingEdges.length > 0) {
+          const hasLiveIncoming = incomingEdges.some(
+            (edge) =>
+              !errors[edge.source] && !skipped.has(edge.source) && liveEdges.has(edge.id),
+          )
+          if (!hasLiveIncoming) {
+            skipped.set(node.id, '没有走到的上游分支')
+            hooks.onNodeSkip?.(node)
+            continue
+          }
         }
 
         const definition = registry ? resolveNodeType(registry, node.type) : undefined
@@ -455,6 +471,11 @@ export function createMockRunner(options: MockRunnerOptions = {}): Runner {
         outputs[node.id] = output
         hooks.onNodeEnd?.(node, output)
 
+        // 走到的连线：源节点产出了结果，这条连线就"走到了"（R5-5）。
+        for (const edge of workflow.edges) {
+          if (edge.source === node.id) liveEdges.add(edge.id)
+        }
+
         // 条件节点跑完后决定走哪条分支（R5-2、R5-5）。
         if (node.type === 'condition') {
           const result = fields.result
@@ -463,13 +484,10 @@ export function createMockRunner(options: MockRunnerOptions = {}): Runner {
             if (edge.source !== node.id) continue
             if (shouldFollowBranch(edge.sourceHandle, result)) continue
 
-            // 这条分支没走：把它的下游节点标记为跳过。
-            for (const downstream of reachableNodeIds(edge.target, workflow.edges)) {
-              if (downstream === node.id) continue
-              if (skipped.has(downstream)) continue
-              if (outputs[downstream]) continue
-              skipped.set(downstream, `条件节点「${nodeLabelOf(node)}」没有走这条分支`)
-            }
+            // 这条分支没走：这条连线不算走到（R5-5）。
+            // 下游节点在轮到它时按"有没有走到的入边"判断是否跳过，
+            // 因此汇合节点不会被误跳过。
+            liveEdges.delete(edge.id)
           }
         }
       }

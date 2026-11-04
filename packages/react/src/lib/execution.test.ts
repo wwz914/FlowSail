@@ -406,6 +406,39 @@ describe('Mock Runner（R5-2、FR-R1）', () => {
     expect(skipped).toContain('end')
   })
 
+  it('汇合节点接在两条分支上时，走到的分支仍会执行它', async () => {
+    // 结束节点同时接在「是」和「否」两条分支上：即使「是」分支没走，
+    // 结束节点仍应执行（它还有一条活的入边）。
+    const mergeEnd: Node = {
+      id: 'end',
+      type: 'end',
+      position: { x: 0, y: 400 },
+      data: { label: 'End' },
+    }
+    const mergeEdges: Edge[] = [
+      ...edges,
+      { id: 'e5', source: 'llm-yes', target: 'end', sourceHandle: 'out', targetHandle: 'in' },
+    ]
+    const runner = createMockRunner()
+    const ran: string[] = []
+    const skipped: string[] = []
+
+    await runner.run(
+      createDocument([startNode, llmNode, conditionNode, llmYesNode, mergeEnd], mergeEdges),
+      {
+        onNodeStart: (node) => ran.push(node.id),
+        onNodeSkip: (node) => skipped.push(node.id),
+      },
+      new AbortController().signal,
+      { registry: BUILTIN_REGISTRY },
+    )
+
+    // 「是」分支没走 → llm-yes 被跳过；但结束节点还有「否」分支这条活路，
+    // 因此仍会执行。
+    expect(skipped).toContain('llm-yes')
+    expect(ran).toContain('end')
+  })
+
   it('找不到开始节点时给出可读错误', async () => {    const runner = createMockRunner()
     const a: Node = { id: 'a', type: 'llm', position: { x: 0, y: 0 }, data: {} }
     const b: Node = { id: 'b', type: 'llm', position: { x: 0, y: 100 }, data: {} }
