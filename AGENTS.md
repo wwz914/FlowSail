@@ -36,6 +36,10 @@ packages/example   example   Vite + React 演示应用（private，不发布）�
    `verbatimModuleSyntax` + `moduleResolution: nodenext`）。`packages/react/src` 内
    一律 `from './store/index.ts'`、`from '../lib/viewport.ts'` 这种写法。
 
+> **v1.7 会改掉第 1 ~ 3 条**：R7-1 计划把包名改为 `@flowsail/core` / `@flowsail/react`，
+> 入口改指 `dist`，并去掉示例的 workspace 别名。改完之后本节需要同步重写；
+> 在 v1.7 实施前，仍按上面的现状理解。范围见 [ROADMAP §12](docs/ROADMAP.md#12-v17-范围m4-交付主线打包发布文档在线示例)。
+
 ## 当前状态（根脚本）
 
 | 命令 | 说明 |
@@ -167,8 +171,11 @@ pnpm lint
 - 性能基准：`node scripts/benchmark.mjs [url]`（需先 `pnpm dev`）构造 300 节点 / 500 连线，
   度量拖拽与缩放帧率并与 ≥ 50fps 目标对照。示例应用只在开发环境暴露
   `window.__flowBenchStore` 供脚本使用。
-- 尚未实现（v1.7 及以后）：自动布局、小地图、主题与可访问性、发布流程与包改名、
-  异常策略、资源与性能观测、循环与并行分支的执行语义。
+- **v1.7 规划（2026-11-04，待确认范围）**：M4 交付主线——包改名与可发布产物、
+  changeset 发布流程、README 安装 / 嵌入路径、GitHub Pages 在线示例、发布前质量门禁；
+  D-5（主题与可访问性）留给 v1.8。见 [docs/ROADMAP.md §12](docs/ROADMAP.md#12-v17-范围m4-交付主线打包发布文档在线示例)。
+  尚未实现：主题与可访问性、自动布局、小地图、异常策略、资源与性能观测、
+  循环与并行分支的执行语义。
   v1.6 的范围与实施记录见 [docs/ROADMAP.md §11](docs/ROADMAP.md#11-v16-范围m3-及以前的遗留收口--编辑器手感)
   与 §11.10，v1.5 见 [§10](docs/ROADMAP.md#10-v15-范围) 与 §10.10，
   v1.4 见 [§9](docs/ROADMAP.md#9-v14-范围) 与 §9.10，v1.3 的实施记录见 §8.10。
