@@ -6,6 +6,8 @@ import { resolveNodeType } from '../lib/registry.ts'
 import { coerceParamValue, validateParams } from '../lib/params.ts'
 import { findOutputHandle } from '../lib/geometry.ts'
 import { checkReferences, insertReference } from '../lib/variables.ts'
+import { isRunLocked } from '../lib/runController.ts'
+import { NodeTestPanel } from './NodeTestPanel.tsx'
 import { VariablePicker } from './VariablePicker.tsx'
 import { SchemaPreview } from './SchemaPreview.tsx'
 import type { ParamSchema } from '../lib/registry.ts'
@@ -132,6 +134,9 @@ export const ConfigPanel = ({ className, variant = 'overlay' }: ConfigPanelProps
 
   /** 写文档并安排合并窗口；窗口结束后把这次编辑压成一条历史记录。 */
   const write = (scope: string, apply: () => void) => {
+    // 运行中禁止编辑（R5-4、PRD Q8）：运行态与实际文档不能脱节。
+    if (isRunLocked()) return
+
     beginEdit(scope)
     apply()
 
@@ -301,6 +306,8 @@ export const ConfigPanel = ({ className, variant = 'overlay' }: ConfigPanelProps
         )}
 
         <SchemaPreview node={selectedNode} />
+
+        <NodeTestPanel node={selectedNode} />
       </div>
     </aside>
   )

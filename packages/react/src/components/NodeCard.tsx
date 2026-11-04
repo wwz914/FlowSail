@@ -4,6 +4,8 @@ import type { Node, Workflow } from '@system'
 import { useNodeTypeRegistry } from '../lib/registryContext.tsx'
 import { resolveNodeType } from '../lib/registry.ts'
 import { hasReference } from '../lib/variables.ts'
+import { getNodeRunState, useRunStore } from '../lib/runStore.ts'
+import { isRunLocked } from '../lib/runController.ts'
 import { useFlowStore } from '../store/index.ts'
 
 export interface NodeCardProps {
@@ -40,6 +42,15 @@ interface DragState {
 /** 拖动阈值（PRD 7.3）：小于 3px 视为点击，不进入拖拽态。 */
 const DRAG_THRESHOLD = 3
 
+/** 运行态的显示名（R5-5）。 */
+const RUN_STATE_LABELS = {
+  idle: '未运行',
+  running: '运行中',
+  success: '成功',
+  error: '失败',
+  skipped: '跳过',
+} as const
+
 /**
  * 单个节点卡片。拖拽逻辑封在组件顶层，避免在 `nodes.map()` 里调用 Hooks（G-3）。
  * 选择在 pointerdown 时发生（R2-2），位移在 pointermove 时更新，松手才写入历史（R2-4）。
@@ -58,9 +69,15 @@ export const NodeCard = ({
   const [isDragging, setIsDragging] = useState(false)
   const isSelected = Boolean(node.selected)
 
+  // 节点运行态（R5-5）：与运行记录面板读同一份数据，状态始终一致。
+  const runState = useRunStore((state) => getNodeRunState(state, node.id))
+
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.button !== 0) return
     event.stopPropagation()
+
+    // 运行中禁止编辑（R5-4、PRD Q8）：运行态与实际文档不能脱节。
+    if (isRunLocked()) return
 
     const store = useFlowStore.getState()
     if (event.shiftKey) {
@@ -141,6 +158,7 @@ export const NodeCard = ({
     isSelected ? 'is-selected' : '',
     isDragging ? 'is-dragging' : '',
     isConnectionSource ? 'is-connection-source' : '',
+    runState !== 'idle' ? `is-run-${runState}` : '',
   ]
     .filter(Boolean)
     .join(' ')
@@ -186,6 +204,12 @@ export const NodeCard = ({
           aria-label="该节点的参数引用了上游变量"
         >
           {'{{}}'}
+        </span>
+      ) : null}
+
+      {runState !== 'idle' ? (
+        <span className={`flow-node__run-badge is-${runState}`} data-run-state={runState}>
+          {RUN_STATE_LABELS[runState]}
         </span>
       ) : null}
 

@@ -11,6 +11,7 @@ import { NodeRenderer } from './components/NodeRenderer.tsx'
 import { EdgeRenderer } from './components/EdgeRenderer.tsx'
 import { NodePanel, NODE_DRAG_MIME } from './components/NodePanel.tsx'
 import { ConfigPanel } from './components/ConfigPanel.tsx'
+import { RunPanel } from './components/RunPanel.tsx'
 import {
   CONNECTION_ERROR_MESSAGES,
   findTargetNode,
@@ -33,6 +34,8 @@ import {
 import { resolveNodeType } from './lib/registry.ts'
 import { NodeTypeRegistryContext, buildRegistry } from './lib/registryContext.tsx'
 import type { NodeTypeDefinition } from './lib/registry.ts'
+import { useRunStore } from './lib/runStore.ts'
+import { isRunLocked } from './lib/runController.ts'
 
 const EMPTY_NODES: Node[] = []
 const EMPTY_EDGES: Edge[] = []
@@ -92,6 +95,8 @@ export interface ReactFlowProps {
   showNodePanel?: boolean
   /** 是否显示内置的右侧配置面板覆盖层；宿主自建三栏布局时可关闭（R3-8）。 */
   showConfigPanel?: boolean
+  /** 是否显示内置的底部运行记录面板覆盖层；宿主自建布局时可关闭（R5-6）。 */
+  showRunPanel?: boolean
   children?: ReactNode
 }
 
@@ -118,6 +123,7 @@ export const ReactFlow = ({
   onChange,
   showNodePanel = true,
   showConfigPanel = true,
+  showRunPanel = true,
   children,
 }: ReactFlowProps) => {
   const registry = useMemo(() => buildRegistry(nodeTypes), [nodeTypes])
@@ -162,6 +168,11 @@ export const ReactFlow = ({
 
   // 注册画布容器，工具栏的"适应画布"需要它算视口（R4-9）。
   useEffect(() => registerCanvasContainer(containerRef.current), [])
+
+  // 把注册表同步给运行态存储（R5-1）：Runner 需要它查节点类型的输出字段。
+  useEffect(() => {
+    useRunStore.getState().setRegistry(registry)
+  }, [registry])
 
   // 非受控主语义 + 内容差异同步（R2-7）：只有 props 内容真的变了才同步，
   // 宿主每次渲染传出的新数组不会冲掉内部编辑状态。
@@ -273,6 +284,9 @@ export const ReactFlow = ({
       if (isEditableTarget(event.target)) return
 
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'z') {
+        // 运行中禁止编辑（R5-4、PRD Q8）：撤销 / 重做会改动文档，
+        // 让运行态与实际文档脱节。
+        if (isRunLocked()) return
         event.preventDefault()
         if (event.shiftKey) useFlowStore.getState().redo()
         else useFlowStore.getState().undo()
@@ -280,6 +294,8 @@ export const ReactFlow = ({
       }
 
       if (event.key === 'Delete' || event.key === 'Backspace') {
+        // 运行中禁止编辑（R5-4、PRD Q8）。
+        if (isRunLocked()) return
         if (useFlowStore.getState().deleteSelection()) event.preventDefault()
         return
       }
@@ -303,6 +319,14 @@ export const ReactFlow = ({
       const sourceId = connectionSourceRef.current
       const sourceHandleId = connectionHandleRef.current
       if (!sourceId) return
+
+      // 运行中禁止编辑（R5-4、PRD Q8）。
+      if (isRunLocked()) {
+        connectionSourceRef.current = null
+        connectionHandleRef.current = null
+        setConnection(null)
+        return
+      }
 
       const { nodes: currentNodes, edges: currentEdges } = useFlowStore.getState().workflow
       const pointer = toFlowPoint(container, event.clientX, event.clientY)
@@ -410,6 +434,9 @@ export const ReactFlow = ({
   const createNodeAt = (type: string, clientX: number, clientY: number) => {
     const container = containerRef.current
     if (!container) return
+
+    // 运行中禁止编辑（R5-4、PRD Q8）。
+    if (isRunLocked()) return
 
     const point = toFlowPoint(container, clientX, clientY)
     const definition = resolveNodeType(registry, type)
@@ -542,6 +569,8 @@ export const ReactFlow = ({
         {showNodePanel ? <NodePanel onAddNode={handlePanelAdd} /> : null}
 
         {showConfigPanel ? <ConfigPanel /> : null}
+
+        {showRunPanel ? <RunPanel /> : null}
 
         <div className="flow-controls">
           <button
