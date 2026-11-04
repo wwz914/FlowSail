@@ -31,6 +31,17 @@ import {
   findOutputHandle,
   type Point,
 } from './lib/geometry.ts'
+import {
+  getMarqueeHits,
+  normalizeRect,
+  type Rect,
+} from './lib/marquee.ts'
+import {
+  collectClipboard,
+  isClipboardEmpty,
+  pasteClipboard,
+  type ClipboardContent,
+} from './lib/clipboard.ts'
 import { resolveNodeType } from './lib/registry.ts'
 import { NodeTypeRegistryContext, buildRegistry } from './lib/registryContext.tsx'
 import type { NodeTypeDefinition } from './lib/registry.ts'
@@ -108,6 +119,17 @@ interface PanState {
   originY: number
 }
 
+/** 框选状态（R6-1）。选框画在画布世界坐标下，随视口一起变换。 */
+interface MarqueeState {
+  pointerId: number
+  /** 起点（画布世界坐标）。 */
+  start: Point
+  /** 当前点（画布世界坐标）。 */
+  current: Point
+  /** Shift 拖拽为追加选区。 */
+  additive: boolean
+}
+
 /**
  * 画布容器：负责视口（缩放/平移）、节点层与连线层的组装，以及连线创建交互。
  * 选择、删除、撤销重做与节点创建入口在 R2 补齐。
@@ -150,6 +172,7 @@ export const ReactFlow = ({
   const [connection, setConnection] = useState<ConnectionState | null>(null)
   const [isPanning, setIsPanning] = useState(false)
   const [isSpacePressed, setIsSpacePressed] = useState(false)
+  const [marquee, setMarquee] = useState<MarqueeState | null>(null)
   const isConnecting = connection !== null
 
   // 受控模式由 `workflow` prop 是否存在决定（R4-2）。
@@ -405,11 +428,125 @@ export const ReactFlow = ({
     }
   }, [isConnecting, registry])
 
+  // 框选（R6-1、FR-N5）：空白处按下并拖拽拉出选框，松开时按命中结果写入选区。
+  // 监听只在"开始框选"时挂一次：终点用 ref 记录，避免每次移动都重挂监听
+  // （重挂之间的事件会丢，快速拖拽时选框会落后于指针）。
+  const marqueeRef = useRef<MarqueeState | null>(null)
+  marqueeRef.current = marquee
+  const isMarqueeActive = marquee !== null
+
+  useEffect(() => {
+    if (!isMarqueeActive) return undefined
+    const container = containerRef.current
+    if (!container) return undefined
+
+    const handlePointerMove = (event: PointerEvent) => {
+      const active = marqueeRef.current
+      if (!active || event.pointerId !== active.pointerId) return
+      const point = toFlowPoint(container, event.clientX, event.clientY)
+      setMarquee((current) =>
+        current && current.pointerId === active.pointerId ? { ...current, current: point } : current,
+      )
+    }
+
+    const handlePointerUp = (event: PointerEvent) => {
+      const active = marqueeRef.current
+      if (!active || event.pointerId !== active.pointerId) return
+
+      // 用松手位置作为终点，保证选区包含指针实际到达的位置。
+      const end = toFlowPoint(container, event.clientX, event.clientY)
+      const rect = normalizeRect(active.start, end)
+      setMarquee(null)
+
+      // 点击（没有拖出选框）时清空选区，与"点空白取消选择"一致。
+      if (rect.width < 1 && rect.height < 1) {
+        if (!active.additive) useFlowStore.getState().clearSelection()
+        return
+      }
+
+      const { nodes } = useFlowStore.getState().workflow
+      const hits = getMarqueeHits(nodes, rect, active.additive)
+      useFlowStore.getState().selectNodes(hits, active.additive)
+    }
+
+    const handlePointerCancel = (event: PointerEvent) => {
+      const active = marqueeRef.current
+      if (!active || event.pointerId !== active.pointerId) return
+      setMarquee(null)
+    }
+
+    window.addEventListener('pointermove', handlePointerMove)
+    window.addEventListener('pointerup', handlePointerUp)
+    window.addEventListener('pointercancel', handlePointerCancel)
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove)
+      window.removeEventListener('pointerup', handlePointerUp)
+      window.removeEventListener('pointercancel', handlePointerCancel)
+    }
+  }, [isMarqueeActive])
+
+  // 复制 / 粘贴（R6-2、FR-N5、FR-U3、Q24）。
+  useEffect(() => {
+    let clipboard: ClipboardContent | null = null
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (isEditableTarget(event.target)) return
+      // 运行中禁止编辑（R5-4、PRD Q8）。
+      if (isRunLocked()) return
+
+      const modifier = event.metaKey || event.ctrlKey
+      if (!modifier) return
+
+      const key = event.key.toLowerCase()
+      const { nodes, edges } = useFlowStore.getState().workflow
+
+      if (key === 'c') {
+        const content = collectClipboard(nodes, edges)
+        if (isClipboardEmpty(content)) return
+        clipboard = content
+        event.preventDefault()
+        return
+      }
+
+      if (key === 'v') {
+        if (isClipboardEmpty(clipboard)) return
+        // `isClipboardEmpty` 已经排除了 null，但 TS 无法从自定义谓词里推断。
+        const content = clipboard
+        if (!content) return
+        const result = pasteClipboard(content, nodes, edges, {
+          // 按住 Alt/Option 粘贴时连同内部连线一起复制（Q24）。
+          withEdges: event.altKey,
+        })
+        useFlowStore.getState().pasteNodes(result.nodes, result.edges)
+        event.preventDefault()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
   // 点击画布空白取消选择（R2-2）；节点、连线与覆盖层各自阻止冒泡。
   const handleCanvasPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.button !== 0 || isSpacePressed) return
     if (isOverlayTarget(event.target)) return
-    useFlowStore.getState().clearSelection()
+
+    // 运行中禁止编辑（R5-4、PRD Q8）。
+    if (isRunLocked()) return
+
+    const container = containerRef.current
+    if (!container) return
+
+    // 空白处按下：开始框选（R6-1）。选区在松开时写回，
+    // 拖动过程中不打断已有选区。
+    const point = toFlowPoint(container, event.clientX, event.clientY)
+    setMarquee({
+      pointerId: event.pointerId,
+      start: point,
+      current: point,
+      additive: event.shiftKey,
+    })
+    if (!event.shiftKey) useFlowStore.getState().clearSelection()
   }
 
   const handleConnectStart = (
@@ -531,11 +668,15 @@ export const ReactFlow = ({
     isSpacePressed ? 'is-pannable' : '',
     isPanning ? 'is-panning' : '',
     isConnecting ? 'is-connecting' : '',
+    marquee ? 'is-marqueeing' : '',
   ]
     .filter(Boolean)
     .join(' ')
 
   const connectionError = connection?.targetId ? connection.error : null
+
+  // 选框画在画布世界坐标下，跟着视口一起缩放平移（R6-1）。
+  const marqueeRect: Rect | null = marquee ? normalizeRect(marquee.start, marquee.current) : null
 
   return (
     <NodeTypeRegistryContext.Provider value={registry}>
@@ -562,6 +703,19 @@ export const ReactFlow = ({
           className="flow-viewport"
           style={{ transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})` }}
         >
+          {marqueeRect ? (
+            <div
+              className="flow-marquee"
+              data-marquee="active"
+              style={{
+                left: marqueeRect.x,
+                top: marqueeRect.y,
+                width: marqueeRect.width,
+                height: marqueeRect.height,
+              }}
+              aria-hidden="true"
+            />
+          ) : null}
           <EdgeRenderer connection={connection} />
           <NodeRenderer connection={connection} onConnectStart={handleConnectStart} />
         </div>

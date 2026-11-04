@@ -134,14 +134,18 @@ function emptyResult(): RunResult {
  */
 function createHooks() {
   const startedAt = new Map<string, number>()
+  // 记住每个节点的运行输入（R6-5）：运行结束后回填到配置面板的输入/输出预览。
+  const inputs = new Map<string, Record<string, unknown>>()
 
   return {
     onRunStart: () => {
       startedAt.clear()
+      inputs.clear()
     },
 
-    onNodeStart: (node: Node, _input: NodeRunInput) => {
+    onNodeStart: (node: Node, input: NodeRunInput) => {
       startedAt.set(node.id, Date.now())
+      inputs.set(node.id, input.params)
       const meta = resolveNodeType(registry(), node.type)
       useRunStore.getState().markNodeRunning(node, nodeLabel(node), meta.label)
     },
@@ -153,11 +157,14 @@ function createHooks() {
     ) => {
       const meta = resolveNodeType(registry(), node.type)
       const duration = Date.now() - (startedAt.get(node.id) ?? Date.now())
+      const input = inputs.get(node.id)
       startedAt.delete(node.id)
+      inputs.delete(node.id)
 
       if (error) {
         useRunStore.getState().markNodeError(node, nodeLabel(node), meta.label, {
           duration,
+          ...(input !== undefined ? { input } : {}),
           error,
         })
         return
@@ -165,12 +172,14 @@ function createHooks() {
 
       useRunStore.getState().markNodeSuccess(node, nodeLabel(node), meta.label, {
         duration,
+        ...(input !== undefined ? { input } : {}),
         output: output?.fields ?? {},
       })
     },
 
     onNodeSkip: (node: Node) => {
       const meta = resolveNodeType(registry(), node.type)
+      inputs.delete(node.id)
       useRunStore.getState().markNodeSkipped(node, nodeLabel(node), meta.label)
     },
   }

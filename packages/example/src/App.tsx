@@ -10,6 +10,7 @@ import {
   ValidationPanel,
   createWorkflow,
   setDefaultNodeDelay,
+  useFlowStore,
   type Edge,
   type Node,
   type NodeTypeDefinition,
@@ -134,10 +135,26 @@ function App() {
     return () => setDefaultNodeDelay(0);
   }, []);
 
+  // 性能基准脚本要用 store 直接构造大文档（R6-8）：只在开发环境暴露，
+  // 不进入生产构建，也不属于库的公开 API。
+  useEffect(() => {
+    if (!import.meta.env.DEV) return undefined;
+    const target = window as unknown as Record<string, unknown>;
+    target.__flowBenchStore = useFlowStore;
+    return () => {
+      delete target.__flowBenchStore;
+    };
+  }, []);
+
   return (
     <NodeTypeProvider nodeTypes={customNodeTypes}>
       <div className="app-shell">
         <Toolbar title="FlowSail" />
+        <p className="app-hint">
+          v1.6 交互：空白处拖拽框选 · Ctrl/Cmd+C 复制、Ctrl/Cmd+V 粘贴（按住 Alt 连同连线）·
+          双击节点标题就地重命名 · 拖动按 8px 网格吸附（按住 Alt 临时关闭）· 试运行后选中节点可看
+          「最近一次运行」的实际输入输出，失败节点可直接展开错误详情
+        </p>
         <div className="app-body">
           <aside className="app-sidebar">
             <NodePanel variant="inline" />

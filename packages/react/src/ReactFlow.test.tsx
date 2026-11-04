@@ -195,7 +195,7 @@ describe('选择与删除', () => {
 })
 
 describe('拖拽与历史', () => {
-  it('拖拽位移按缩放换算，并把一次拖拽合并为一条历史', () => {
+  it('拖拽位移按缩放换算并吸附到网格，把一次拖拽合并为一条历史（R6-4）', () => {
     useFlowStore.setState({
       workflow: { nodes: [nodes[0]!], edges: [], viewport: { ...DEFAULT_VIEWPORT, zoom: 2 } },
     })
@@ -207,7 +207,8 @@ describe('拖拽与历史', () => {
     fireEvent.pointerMove(node, { pointerId: 1, clientX: 140, clientY: 120 })
     fireEvent.pointerUp(node, { pointerId: 1, clientX: 140, clientY: 120 })
 
-    expect(useFlowStore.getState().workflow.nodes[0]?.position).toEqual({ x: 60, y: 70 })
+    // 位移按缩放换算得 (60, 70)，再吸附到 8px 网格得 (64, 72)（R6-4）。
+    expect(useFlowStore.getState().workflow.nodes[0]?.position).toEqual({ x: 64, y: 72 })
     expect(onNodesChange).toHaveBeenCalled()
     expect(useFlowStore.getState().past).toHaveLength(1)
 
@@ -225,11 +226,11 @@ describe('props 同步边界', () => {
     fireEvent.pointerMove(node, { pointerId: 1, clientX: 150, clientY: 150 })
     fireEvent.pointerUp(node, { pointerId: 1, clientX: 150, clientY: 150 })
 
-    expect(useFlowStore.getState().workflow.nodes[0]?.position).toEqual({ x: 90, y: 110 })
+    expect(useFlowStore.getState().workflow.nodes[0]?.position).toEqual({ x: 88, y: 112 })
 
     rerender(<ReactFlow nodes={nodes.map((item) => ({ ...item }))} edges={[]} />)
 
-    expect(useFlowStore.getState().workflow.nodes[0]?.position).toEqual({ x: 90, y: 110 })
+    expect(useFlowStore.getState().workflow.nodes[0]?.position).toEqual({ x: 88, y: 112 })
   })
 
   it('props 内容真的变化时同步进 store', () => {
@@ -307,7 +308,7 @@ describe('受控模式（R4-2、FR-X1）', () => {
 
     rerender(<ReactFlow workflow={{ ...doc, nodes: nodes.map((item) => ({ ...item })) }} />)
 
-    expect(useFlowStore.getState().workflow.nodes[0]?.position).toEqual({ x: 90, y: 110 })
+    expect(useFlowStore.getState().workflow.nodes[0]?.position).toEqual({ x: 88, y: 112 })
   })
 
   it('受控模式下撤销重做仍然可用', () => {
@@ -347,5 +348,149 @@ describe('受控模式（R4-2、FR-X1）', () => {
     )
 
     expect(useFlowStore.getState().workflow.viewport).toEqual({ x: 100, y: 50, zoom: 1.5 })
+  })
+})
+
+describe('框选（R6-1、FR-N5）', () => {
+  it('在空白处拖出选框，松开后与选框相交的节点进入选中集合', () => {
+    useFlowStore.setState({
+      workflow: { nodes, edges: [], viewport: { ...DEFAULT_VIEWPORT } },
+    })
+    render(<ReactFlow nodes={nodes} edges={[]} />)
+
+    const root = getRoot()
+    fireEvent.pointerDown(root, { button: 0, pointerId: 1, clientX: 0, clientY: 0 })
+    fireEvent.pointerMove(root, { pointerId: 1, clientX: 250, clientY: 320 })
+    expect(document.querySelector('[data-marquee="active"]')).not.toBeNull()
+
+    fireEvent.pointerUp(root, { pointerId: 1, clientX: 250, clientY: 320 })
+
+    expect(useFlowStore.getState().workflow.nodes.map((node) => Boolean(node.selected))).toEqual([
+      true,
+      true,
+    ])
+    expect(document.querySelector('[data-marquee="active"]')).toBeNull()
+  })
+
+  it('选框只命中所覆盖的节点', () => {
+    useFlowStore.setState({
+      workflow: { nodes, edges: [], viewport: { ...DEFAULT_VIEWPORT } },
+    })
+    render(<ReactFlow nodes={nodes} edges={[]} />)
+
+    const root = getRoot()
+    fireEvent.pointerDown(root, { button: 0, pointerId: 1, clientX: 0, clientY: 0 })
+    fireEvent.pointerMove(root, { pointerId: 1, clientX: 240, clientY: 120 })
+    fireEvent.pointerUp(root, { pointerId: 1, clientX: 240, clientY: 120 })
+
+    expect(useFlowStore.getState().workflow.nodes[0]?.selected).toBe(true)
+    expect(useFlowStore.getState().workflow.nodes[1]?.selected).toBe(false)
+  })
+
+  it('Shift 拖拽为追加选区', () => {
+    const preselected = [{ ...nodes[0]!, selected: true }, nodes[1]!]
+    useFlowStore.setState({
+      workflow: { nodes: preselected, edges: [], viewport: { ...DEFAULT_VIEWPORT } },
+    })
+    render(<ReactFlow nodes={preselected} edges={[]} />)
+
+    const root = getRoot()
+    fireEvent.pointerDown(root, {
+      button: 0,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 200,
+      shiftKey: true,
+    })
+    fireEvent.pointerMove(root, { pointerId: 1, clientX: 240, clientY: 300, shiftKey: true })
+    fireEvent.pointerUp(root, { pointerId: 1, clientX: 240, clientY: 300, shiftKey: true })
+
+    expect(useFlowStore.getState().workflow.nodes.map((node) => Boolean(node.selected))).toEqual([
+      true,
+      true,
+    ])
+  })
+
+  it('空白处单击（没有拖动）清空选区', () => {
+    const preselected = [{ ...nodes[0]!, selected: true }, nodes[1]!]
+    useFlowStore.setState({
+      workflow: { nodes: preselected, edges: [], viewport: { ...DEFAULT_VIEWPORT } },
+    })
+    render(<ReactFlow nodes={preselected} edges={[]} />)
+
+    const root = getRoot()
+    fireEvent.pointerDown(root, { button: 0, pointerId: 1, clientX: 700, clientY: 700 })
+    fireEvent.pointerUp(root, { pointerId: 1, clientX: 700, clientY: 700 })
+
+    expect(useFlowStore.getState().workflow.nodes.every((node) => !node.selected)).toBe(true)
+  })
+})
+
+describe('复制 / 粘贴（R6-2、Q24）', () => {
+  it('复制选中节点后粘贴出带偏移的新节点', () => {
+    const preselected = [{ ...nodes[0]!, selected: true }, nodes[1]!]
+    useFlowStore.setState({
+      workflow: { nodes: preselected, edges: [], viewport: { ...DEFAULT_VIEWPORT } },
+    })
+    render(<ReactFlow nodes={preselected} edges={[]} />)
+
+    fireEvent.keyDown(window, { key: 'c', ctrlKey: true })
+    fireEvent.keyDown(window, { key: 'v', ctrlKey: true })
+
+    const state = useFlowStore.getState().workflow
+    expect(state.nodes).toHaveLength(3)
+    const pasted = state.nodes[2]!
+    expect(pasted.id).not.toBe('start')
+    expect(pasted.position).toEqual({ x: 40 + 24, y: 60 + 24 })
+    expect(pasted.selected).toBe(true)
+    expect(state.nodes[0]?.selected).toBe(false)
+  })
+
+  it('普通粘贴不复制连线，Alt 粘贴才连同内部连线', () => {
+    const preselected = [
+      { ...nodes[0]!, selected: true },
+      { ...nodes[1]!, selected: true },
+    ]
+    useFlowStore.setState({
+      workflow: { nodes: preselected, edges, viewport: { ...DEFAULT_VIEWPORT } },
+    })
+    render(<ReactFlow nodes={preselected} edges={edges} />)
+
+    fireEvent.keyDown(window, { key: 'c', ctrlKey: true })
+    fireEvent.keyDown(window, { key: 'v', ctrlKey: true })
+    expect(useFlowStore.getState().workflow.edges).toHaveLength(1)
+
+    // 粘贴后新节点成为选中项；重新选中原始两个节点再复制一次。
+    useFlowStore.getState().selectNodes(['start', 'llm'])
+    fireEvent.keyDown(window, { key: 'c', ctrlKey: true })
+    fireEvent.keyDown(window, { key: 'v', ctrlKey: true, altKey: true })
+    // Alt 粘贴带上了内部连线。
+    expect(useFlowStore.getState().workflow.edges).toHaveLength(2)
+  })
+
+  it('粘贴可撤销', () => {
+    const preselected = [{ ...nodes[0]!, selected: true }]
+    useFlowStore.setState({
+      workflow: { nodes: preselected, edges: [], viewport: { ...DEFAULT_VIEWPORT } },
+    })
+    render(<ReactFlow nodes={preselected} edges={[]} />)
+
+    fireEvent.keyDown(window, { key: 'c', ctrlKey: true })
+    fireEvent.keyDown(window, { key: 'v', ctrlKey: true })
+    expect(useFlowStore.getState().workflow.nodes).toHaveLength(2)
+
+    useFlowStore.getState().undo()
+    expect(useFlowStore.getState().workflow.nodes).toHaveLength(1)
+  })
+
+  it('没有复制过内容时 Ctrl+V 不产生节点', () => {
+    const single = [nodes[0]!]
+    useFlowStore.setState({
+      workflow: { nodes: single, edges: [], viewport: { ...DEFAULT_VIEWPORT } },
+    })
+    render(<ReactFlow nodes={single} edges={[]} />)
+
+    fireEvent.keyDown(window, { key: 'v', ctrlKey: true })
+    expect(useFlowStore.getState().workflow.nodes).toHaveLength(1)
   })
 })

@@ -35,6 +35,16 @@
   pointer-events: none;
 }
 
+// 框选选框（R6-1）：画在视口层里，跟着世界坐标一起缩放平移。
+.flow-marquee {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1px dashed #1e88e5;
+  background: rgb(30 136 229 / 8%);
+  pointer-events: none;
+  z-index: 2;
+}
+
 // 节点卡片（C-11、PRD Q7）：160 × 48，图标 + 标题 + 类型徽标，常态 / 悬停 / 选中三态。
 .flow-node {
   position: absolute;
@@ -92,6 +102,30 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+// 就地重命名的输入框（R6-3）：占据标题的位置，样式与标题对齐。
+.flow-node__rename {
+  flex: 1;
+  min-width: 0;
+  padding: 2px 4px;
+  border: 1px solid #1e88e5;
+  border-radius: 4px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+  outline: none;
+  user-select: text;
+  cursor: text;
+}
+
+.flow-node.is-renaming {
+  cursor: text;
+
+  // 重命名时隐藏类型徽标，把宽度让给输入框（R6-3）。
+  .flow-node__badge {
+    display: none;
+  }
 }
 
 .flow-node__badge {
@@ -694,6 +728,17 @@
   font-size: 11px;
 }
 
+// 最近一次运行的快照（R6-5）：与静态字段声明区分开。
+.flow-schema-preview__runtime {
+  padding-top: 6px;
+  border-top: 1px dashed #e4e7eb;
+
+  .flow-schema-preview__field-desc {
+    color: #52606d;
+    word-break: break-all;
+  }
+}
+
 // 文档级校验面板（R4-7）：可折叠，不阻塞编辑。
 .flow-validation-panel {
   position: absolute;
@@ -822,6 +867,12 @@
 }
 
 // 顶部工具栏（R4-9、FR-U2）。
+// 外层包一层是为了给会话变量面板（R6-7）做定位锚点。
+.flow-toolbar-wrap {
+  position: relative;
+  flex: none;
+}
+
 .flow-toolbar {
   display: flex;
   align-items: center;
@@ -932,6 +983,101 @@
   &.is-skipped {
     background: #868e96;
   }
+}
+
+// 画布侧错误详情（R6-6、R5-7）：错误码、消息与可折叠堆栈。
+.flow-node__error {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  z-index: 4;
+}
+
+.flow-node__error-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid #e03131;
+  border-radius: 999px;
+  background: #e03131;
+  color: #fff;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.flow-node__error-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+}
+
+// 错误浮层用 portal 渲染到 body，避免被画布的 overflow 裁剪（R6-6）。
+.flow-node__error-popover {
+  position: fixed;
+  z-index: 1000;
+  width: 260px;
+  padding: 8px 10px;
+  border: 1px solid #f1c2c2;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 6px 16px rgb(15 23 42 / 16%);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 12px;
+  color: #1f2933;
+  cursor: default;
+  user-select: text;
+}
+
+.flow-node__error-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.flow-node__error-code {
+  align-self: flex-start;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #fff5f5;
+  color: #e03131;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+}
+
+.flow-node__error-message {
+  word-break: break-word;
+}
+
+.flow-node__error-stack-toggle {
+  margin-top: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #1e88e5;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.flow-node__error-stack {
+  max-height: 160px;
+  margin: 6px 0 0;
+  padding: 6px;
+  overflow: auto;
+  border-radius: 4px;
+  background: #f8f9fa;
+  color: #52606d;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 
 // 运行记录面板（R5-6、R5-7）。
@@ -1312,4 +1458,127 @@
     border-color: #c92a2a;
     color: #c92a2a;
   }
+}
+
+// 会话变量面板（R6-7、FR-R2、X-7）。
+.flow-session-vars {
+  position: absolute;
+  top: 100%;
+  left: 12px;
+  z-index: 20;
+  width: 340px;
+  padding: 10px 12px;
+  border: 1px solid #e4e7eb;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 14%);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 12px;
+  color: #3e4c59;
+}
+
+.flow-session-vars__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.flow-session-vars__title {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.flow-session-vars__add {
+  padding: 2px 8px;
+  border: 1px solid #1e88e5;
+  border-radius: 4px;
+  background: #fff;
+  color: #1e88e5;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+
+  &:hover {
+    background: #eef6ff;
+  }
+}
+
+.flow-session-vars__empty {
+  margin: 0 0 8px;
+  color: #9aa5b1;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.flow-session-vars__list {
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.flow-session-vars__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.flow-session-vars__name,
+.flow-session-vars__value {
+  padding: 4px 6px;
+  border: 1px solid #cbd2d9;
+  border-radius: 4px;
+  font: inherit;
+  font-size: 12px;
+  outline: none;
+
+  &:focus {
+    border-color: #1e88e5;
+  }
+}
+
+.flow-session-vars__remove {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid #e4e7eb;
+  border-radius: 4px;
+  background: #fff;
+  color: #7b8794;
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #e03131;
+    color: #e03131;
+  }
+}
+
+.flow-session-vars__issue {
+  grid-column: 1 / -1;
+  color: #e03131;
+  font-size: 11px;
+}
+
+.flow-session-vars__system {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 8px;
+  border-top: 1px dashed #e4e7eb;
+  color: #7b8794;
+  font-size: 11px;
+}
+
+.flow-session-vars__system-label {
+  font-weight: 600;
+  color: #52606d;
+}
+
+.flow-session-vars__system-item code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: #1e88e5;
 }

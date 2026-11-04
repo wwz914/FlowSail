@@ -37,6 +37,13 @@ export interface FlowState {
   selectNode: (id: string, additive?: boolean) => void
   /** 选中连线；`additive` 为 Shift 追加/取消。 */
   selectEdge: (id: string, additive?: boolean) => void
+  /**
+   * 把选中集合设为给定的节点 id 集合（R6-1）。
+   *
+   * 框选据此一次性写入选区；`additive` 为真时只把 `ids` 追加进选区
+   * （Shift 拖拽框选），否则替换整个选区。
+   */
+  selectNodes: (ids: string[], additive?: boolean) => void
   clearSelection: () => void
   /** 删除选中的节点及其关联连线，以及单独选中的连线；入历史栈。 */
   deleteSelection: () => boolean
@@ -46,6 +53,20 @@ export interface FlowState {
    * 为 true 时把编辑前的快照压入历史栈，形成一条可撤销记录（R3-7）。
    */
   updateNodeData: (id: string, data: Record<string, unknown>, history?: boolean) => void
+  /**
+   * 重命名节点（R6-3）：写入 `data.label` 并入历史栈。
+   *
+   * 与 `updateNodeData` 分开，是因为就地编辑有"编辑前 / 编辑中 / 提交"
+   * 三态，需要在提交时才压一条历史。
+   */
+  renameNode: (id: string, label: string) => void
+  /**
+   * 粘贴节点与连线（R6-2）：新节点成为选中项，入历史栈。
+   *
+   * 是否携带内部连线由调用方在 `lib/clipboard.ts` 的 `pasteClipboard` 里决定
+   * （普通粘贴只复制节点，按住 `Alt` 才连同连线，Q24）。
+   */
+  pasteNodes: (nodes: Node[], edges: Edge[]) => void
   /** 修改连线标签（R3-4）；`history` 为 false 时只写文档不入栈。 */
   setEdgeLabel: (id: string, label: string, history?: boolean) => void
   /** 把指定快照（默认当前文档）压入撤销栈；用于拖拽结束后一次性记录（R2-4）。 */
@@ -243,6 +264,35 @@ export const useFlowStore = create<FlowState>((set, get) => ({
       }
     }),
 
+  selectNodes: (ids, additive = false) =>
+    set((state) => {
+      const { nodes, edges } = state.workflow
+      const target = new Set(ids)
+
+      const nextNodes = nodes.map((node) => {
+        // Shift 追加：只把命中的节点切到选中，其余保持原状。
+        if (additive) {
+          if (!target.has(node.id)) return node
+          return node.selected ? node : { ...node, selected: true }
+        }
+        // 替换选区：命中的选中，未命中的取消；连线一并取消。
+        const selected = target.has(node.id)
+        return node.selected === selected ? node : { ...node, selected }
+      })
+
+      const nextEdges = additive
+        ? edges
+        : edges.map((edge) => (edge.selected ? { ...edge, selected: false } : edge))
+
+      return {
+        workflow: {
+          ...state.workflow,
+          nodes: nextNodes,
+          edges: nextEdges,
+        },
+      }
+    }),
+
   deleteSelection: () => {
     const state = get()
     const { nodes, edges } = state.workflow
@@ -295,6 +345,37 @@ export const useFlowStore = create<FlowState>((set, get) => ({
       // 与参数写回同一套合并机制（R3-7）。
       if (!history) return { workflow: nextWorkflow }
       return commit(state, nextWorkflow)
+    }),
+
+  renameNode: (id, label) =>
+    set((state) => {
+      const target = state.workflow.nodes.find((node) => node.id === id)
+      if (!target) return {}
+
+      const nextNodes = state.workflow.nodes.map((node) =>
+        node.id === id ? { ...node, data: { ...(node.data ?? {}), label } } : node,
+      )
+      // 就地重命名提交时才压一条历史（R6-3）。
+      return commit(state, { ...state.workflow, nodes: nextNodes })
+    }),
+
+  pasteNodes: (nodes, edges) =>
+    set((state) => {
+      if (nodes.length === 0) return {}
+
+      // 粘贴出来的节点成为唯一选中项（原选区取消），与新建节点的语义一致。
+      const cleared = state.workflow.nodes.map((node) =>
+        node.selected ? { ...node, selected: false } : node,
+      )
+      const clearedEdges = state.workflow.edges.map((edge) =>
+        edge.selected ? { ...edge, selected: false } : edge,
+      )
+
+      return commit(state, {
+        ...state.workflow,
+        nodes: [...cleared, ...nodes.map((node) => ({ ...node, selected: true }))],
+        edges: [...clearedEdges, ...edges],
+      })
     }),
 
   pushHistory: (snapshot) =>

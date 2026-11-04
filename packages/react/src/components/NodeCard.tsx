@@ -1,11 +1,13 @@
-import { useRef, useState } from 'react'
-import type { PointerEvent as ReactPointerEvent } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from 'react'
 import type { Node, Workflow } from '@system'
 import { useNodeTypeRegistry } from '../lib/registryContext.tsx'
 import { resolveNodeType } from '../lib/registry.ts'
 import { hasReference } from '../lib/variables.ts'
 import { getNodeRunState, useRunStore } from '../lib/runStore.ts'
 import { isRunLocked } from '../lib/runController.ts'
+import { snapPosition } from '../lib/marquee.ts'
 import { useFlowStore } from '../store/index.ts'
 
 export interface NodeCardProps {
@@ -37,6 +39,8 @@ interface DragState {
   moved: boolean
   /** 点在多选中的节点上但不拖动时，松手收敛为单选（R2-2）。 */
   collapseOnClick: boolean
+  /** 按住修饰键时临时关闭网格吸附（Q23）。 */
+  disableSnap: boolean
 }
 
 /** 拖动阈值（PRD 7.3）：小于 3px 视为点击，不进入拖拽态。 */
@@ -66,11 +70,58 @@ export const NodeCard = ({
   const registry = useNodeTypeRegistry()
   const meta = resolveNodeType(registry, node.type)
   const dragRef = useRef<DragState | null>(null)
+  const inputRef = useRef<HTMLInputElement | null>(null)
   const [isDragging, setIsDragging] = useState(false)
+  const [isRenaming, setIsRenaming] = useState(false)
+  const [draftLabel, setDraftLabel] = useState('')
   const isSelected = Boolean(node.selected)
 
   // 节点运行态（R5-5）：与运行记录面板读同一份数据，状态始终一致。
   const runState = useRunStore((state) => getNodeRunState(state, node.id))
+  // 运行记录（R6-6）：画布侧要能直接看到错误码、消息与堆栈。
+  const runRecord = useRunStore((state) => state.records[node.id])
+  const [isErrorOpen, setIsErrorOpen] = useState(false)
+  const [isStackOpen, setIsStackOpen] = useState(false)
+  const [errorAnchor, setErrorAnchor] = useState<{ x: number; y: number } | null>(null)
+
+  // 就地重命名（R6-3）：进入编辑态后聚焦输入框。
+  useEffect(() => {
+    if (!isRenaming) return
+    inputRef.current?.focus()
+    inputRef.current?.select()
+  }, [isRenaming])
+
+  const startRename = () => {
+    // 运行中禁止编辑（R5-4、PRD Q8）。
+    if (isRunLocked()) return
+    setDraftLabel(String(node.data?.label ?? meta.label))
+    setIsRenaming(true)
+  }
+
+  const commitRename = () => {
+    if (!isRenaming) return
+    setIsRenaming(false)
+    const next = draftLabel.trim()
+    // 名称没变时不产生历史记录。
+    if (!next || next === String(node.data?.label ?? meta.label)) return
+    useFlowStore.getState().renameNode(node.id, next)
+  }
+
+  const cancelRename = () => {
+    setIsRenaming(false)
+  }
+
+  const handleRenameKeyDown = (event: ReactKeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      commitRename()
+      return
+    }
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      cancelRename()
+    }
+  }
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.button !== 0) return
@@ -103,6 +154,7 @@ export const NodeCard = ({
       before: useFlowStore.getState().workflow,
       moved: false,
       collapseOnClick: Boolean(current?.selected) && selectedBeforeClick.length > 1,
+      disableSnap: event.altKey,
     }
     event.currentTarget.setPointerCapture?.(event.pointerId)
     setIsDragging(true)
@@ -128,7 +180,10 @@ export const NodeCard = ({
     const nextNodes = useFlowStore.getState().workflow.nodes.map((current) => {
       const origin = origins.get(current.id)
       if (!origin) return current
-      return { ...current, position: { x: origin.x + dx, y: origin.y + dy } }
+      const position = { x: origin.x + dx, y: origin.y + dy }
+      // 网格吸附（R6-4、Q23）：按住 Alt 临时关闭。
+      const snapped = drag.disableSnap ? position : snapPosition(position)
+      return { ...current, position: snapped }
     })
     useFlowStore.getState().setNodes(nextNodes)
   }
@@ -158,6 +213,7 @@ export const NodeCard = ({
     isSelected ? 'is-selected' : '',
     isDragging ? 'is-dragging' : '',
     isConnectionSource ? 'is-connection-source' : '',
+    isRenaming ? 'is-renaming' : '',
     runState !== 'idle' ? `is-run-${runState}` : '',
   ]
     .filter(Boolean)
@@ -183,13 +239,27 @@ export const NodeCard = ({
       onPointerMove={handlePointerMove}
       onPointerUp={endDrag}
       onPointerCancel={endDrag}
+      onDoubleClick={startRename}
     >
       <span className="flow-node__icon" style={{ color: meta.color }}>
         {meta.icon}
       </span>
-      <span className="flow-node__title" title={title}>
-        {title}
-      </span>
+      {isRenaming ? (
+        <input
+          ref={inputRef}
+          className="flow-node__rename"
+          value={draftLabel}
+          onChange={(event) => setDraftLabel(event.target.value)}
+          onKeyDown={handleRenameKeyDown}
+          onBlur={commitRename}
+          onPointerDown={(event) => event.stopPropagation()}
+          aria-label="节点名称"
+        />
+      ) : (
+        <span className="flow-node__title" title={title}>
+          {title}
+        </span>
+      )}
       <span
         className="flow-node__badge"
         style={{ color: meta.color, backgroundColor: `${meta.color}1a` }}
@@ -211,6 +281,67 @@ export const NodeCard = ({
         <span className={`flow-node__run-badge is-${runState}`} data-run-state={runState}>
           {RUN_STATE_LABELS[runState]}
         </span>
+      ) : null}
+
+      {runRecord?.error ? (
+        <div className="flow-node__error">
+          <button
+            type="button"
+            className="flow-node__error-toggle"
+            // 节点卡片在 pointerdown 时会 setPointerCapture，抢走后续的 click；
+            // 这里阻止冒泡，按钮才收得到自己的点击（R6-6）。
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={(event) => {
+              // 画布有 overflow 裁剪，错误浮层改用 portal 渲染到 body，
+              // 用按钮的屏幕坐标定位（R6-6）。
+              const rect = event.currentTarget.getBoundingClientRect()
+              setErrorAnchor({ x: rect.left, y: rect.bottom + 6 })
+              setIsErrorOpen((current) => !current)
+            }}
+            aria-expanded={isErrorOpen}
+            aria-label="查看错误详情"
+            title="查看错误详情"
+          >
+            !
+          </button>
+          {isErrorOpen && errorAnchor
+            ? createPortal(
+                <>
+                  {/* 点空白处关闭浮层。 */}
+                  <div
+                    className="flow-node__error-backdrop"
+                    onPointerDown={() => setIsErrorOpen(false)}
+                  />
+                  <div
+                    className="flow-node__error-popover"
+                    role="alert"
+                    style={{ left: errorAnchor.x, top: errorAnchor.y }}
+                  >
+                    <div className="flow-node__error-head">
+                      <span className="flow-node__error-code">{runRecord.error.code}</span>
+                      <span className="flow-node__error-message">{runRecord.error.message}</span>
+                    </div>
+                    {runRecord.error.stack ? (
+                      <>
+                        <button
+                          type="button"
+                          className="flow-node__error-stack-toggle"
+                          onClick={() => setIsStackOpen((current) => !current)}
+                          aria-expanded={isStackOpen}
+                        >
+                          {isStackOpen ? '收起堆栈' : '展开堆栈'}
+                        </button>
+                        {isStackOpen ? (
+                          <pre className="flow-node__error-stack">{runRecord.error.stack}</pre>
+                        ) : null}
+                      </>
+                    ) : null}
+                  </div>
+                </>,
+                document.body,
+              )
+            : null}
+        </div>
       ) : null}
 
       {inputs.map((handle) => (

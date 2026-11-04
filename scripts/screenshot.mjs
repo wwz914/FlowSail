@@ -128,6 +128,119 @@ if (scenario === 'run-failed') {
   }
 }
 
+// v1.6：框选——空白处拖出选框，圈住起止节点（R6-1）。
+if (scenario === 'marquee') {
+  const canvas = await page.$('.react-flow')
+  if (canvas) {
+    const box = await canvas.boundingBox()
+    if (box) {
+      // 从画布左上角附近拖到覆盖 start / llm 两个节点的范围。
+      await page.mouse.move(box.x + 200, box.y + 20)
+      await page.mouse.down()
+      await page.mouse.move(box.x + 560, box.y + 330, { steps: 12 })
+      await page.waitForTimeout(120)
+    }
+  }
+}
+
+// v1.6：画布内就地重命名——双击节点标题进入输入态（R6-3）。
+if (scenario === 'rename') {
+  const node = await page.$('[data-node-id="llm"]')
+  if (node) {
+    await node.dblclick()
+    await page.waitForTimeout(300)
+  }
+}
+
+// v1.6：会话变量面板（R6-7）。
+if (scenario === 'session-vars') {
+  const toggle = await page.$('.flow-toolbar__button:has-text("会话变量")')
+  if (toggle) {
+    await toggle.click()
+    await page.waitForTimeout(300)
+    const add = await page.$('.flow-session-vars__add')
+    if (add) {
+      await add.click()
+      await page.waitForTimeout(200)
+      const name = await page.$('.flow-session-vars__name')
+      if (name) {
+        await name.fill('query')
+        await page.waitForTimeout(120)
+      }
+      const value = await page.$('.flow-session-vars__value')
+      if (value) {
+        await value.fill('总结这封邮件')
+        await page.waitForTimeout(120)
+      }
+    }
+  }
+}
+
+// v1.6：运行结果回填到配置面板的「最近一次运行」（R6-5）。
+if (scenario === 'runtime') {
+  const runButton = await page.$('.flow-toolbar__button--primary')
+  if (runButton) {
+    await runButton.click()
+    await page.waitForFunction(
+      () => {
+        const summary = document.querySelector('.flow-run-panel__summary')
+        return summary !== null && /成功|失败|取消/.test(summary.textContent ?? '')
+      },
+      { timeout: 20000 },
+    )
+    await page.waitForTimeout(300)
+  }
+  // 选中大模型节点，让配置面板露出最近一次运行的输入输出。
+  const llm = await page.$('[data-node-id="llm"]')
+  if (llm) {
+    await llm.click()
+    await page.waitForTimeout(400)
+  }
+  // 「最近一次运行」在面板底部，滚到底才看得见。
+  await page.evaluate(() => {
+    const body = document.querySelector('.flow-config-panel__body')
+    if (body) body.scrollTop = body.scrollHeight
+  })
+  await page.waitForTimeout(200)
+}
+
+// v1.6：画布侧错误详情——失败节点展开错误浮层（R6-6）。
+if (scenario === 'error') {
+  const llm = await page.$('[data-node-id="llm"]')
+  if (llm) {
+    await llm.click()
+    await page.waitForTimeout(300)
+  }
+
+  const prompt = await page.$('#flow-param-prompt')
+  if (prompt) {
+    await prompt.fill('摘要：{{start.missing}}')
+    await page.evaluate(() => {
+      document.querySelector('#flow-param-prompt')?.blur()
+    })
+    await page.waitForTimeout(900)
+  }
+
+  const runButton = await page.$('.flow-toolbar__button--primary')
+  if (runButton) {
+    await runButton.click()
+    await page.waitForFunction(
+      () => {
+        const summary = document.querySelector('.flow-run-panel__summary')
+        return summary !== null && /失败/.test(summary.textContent ?? '')
+      },
+      { timeout: 20000 },
+    )
+    await page.waitForTimeout(300)
+  }
+
+  const errorToggle = await page.$('.flow-node__error-toggle')
+  if (errorToggle) {
+    await errorToggle.click()
+    await page.waitForTimeout(300)
+  }
+}
+
 await page.screenshot({ path: output, fullPage: false })
 await browser.close()
 console.log(`saved ${output}`)

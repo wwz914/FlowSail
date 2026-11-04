@@ -38,6 +38,18 @@ body {
   min-height: 0;
 }
 
+/* v1.6 交互提示条：说明框选 / 复制粘贴 / 重命名 / 网格吸附（R6-9）。 */
+.app-hint {
+  flex: none;
+  margin: 0;
+  padding: 6px 16px;
+  border-bottom: 1px solid #e4e7eb;
+  background: #f8f9fa;
+  color: #7b8794;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
 .app-sidebar {
   display: flex;
   flex: none;

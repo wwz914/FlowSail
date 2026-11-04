@@ -15,6 +15,34 @@ export { RunPanel } from './components/RunPanel.tsx';
 export type { RunPanelProps } from './components/RunPanel.tsx';
 export { NodeTestPanel } from './components/NodeTestPanel.tsx';
 export type { NodeTestPanelProps } from './components/NodeTestPanel.tsx';
+export { SessionVariablePanel } from './components/SessionVariablePanel.tsx';
+export type { SessionVariablePanelProps } from './components/SessionVariablePanel.tsx';
+export {
+  SYSTEM_VARIABLES,
+  buildRunVariables,
+  validateSessionVariables,
+} from './lib/sessionVariables.ts';
+export type { SessionVariable, VariableIssue } from './lib/sessionVariables.ts';
+export {
+  DEFAULT_GRID_SIZE,
+  getMarqueeHits,
+  getNodeBounds,
+  normalizeRect,
+  rectHitsNode,
+  rectsIntersect,
+  snapPosition,
+  snapValue,
+} from './lib/marquee.ts';
+export type { Rect } from './lib/marquee.ts';
+export {
+  PASTE_OFFSET,
+  collectClipboard,
+  createUniqueId,
+  isClipboardEmpty,
+  pasteClipboard,
+  renameNode,
+} from './lib/clipboard.ts';
+export type { ClipboardContent, PasteResult } from './lib/clipboard.ts';
 export {
   buildMockFields,
   findStartNode,
