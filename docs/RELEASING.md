@@ -9,7 +9,7 @@ GitHub Pages 已启用，在线示例可访问。下面的"首次准备"保留�
 
 v1.8 已补齐两个包内的 `README.md`，并让 `files` 与 `check:pack` 显式包含它：
 - **`0.1.1`（patch，PR #30）**：只含包内 README、`files` 与冒烟断言，先合并、先发，修复 npm 页面空壳；
-- **`0.2.0`（minor，v1.8 主 PR）**：主题变量与亮 / 暗、键盘可访问性、P1 交互；
+- **`0.2.0`（minor，[PR #31](https://github.com/wwz914/FlowSail/pull/31)）**：主题变量与亮 / 暗、键盘可访问性、P1 交互；
 - 两个 PR 为 stacked：先合并并发布 `0.1.1`，再合并主 PR 发布 `0.2.0`。若顺序反了，
   `changeset version` 会把两个 changeset 合并成 `0.2.0`，`0.1.1` 将被跳过。
 
@@ -166,7 +166,7 @@ npm 的不可变发布策略决定了回滚手段有限，按影响从小到大�
 | --- | --- | --- | --- | --- |
 | 0.1.0 | 2026-11-04 | 首个公开版本：包改名、dist 入口、MIT、changesets、在线示例 | 维护者（Q29） | PR #28 |
 | 0.1.1 | 待发布 | 两个包内 README、`files` 与 `check:pack` 断言；修复 npm 页面空壳 | 维护者 | `.changeset/v18-package-readme.md`，PR #30 |
-| 0.2.0 | 待发布 | 主题变量与亮 / 暗、键盘可达与可访问性、P1 交互补全 | 维护者 | `.changeset/v18-theme-a11y.md`，v1.8 主 PR |
+| 0.2.0 | 待发布 | 主题变量与亮 / 暗、键盘可达与可访问性、P1 交互补全 | 维护者 | `.changeset/v18-theme-a11y.md`，PR #31 |
 
 > 发布后请把状态改为实际日期，并复核 npm 页面已显示 README。发布记录与实现证据见
 > [ROADMAP §13.10](./ROADMAP.md#1310-实施结果2026-11-05)。

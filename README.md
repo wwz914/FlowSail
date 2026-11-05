@@ -4,7 +4,7 @@
 
 [产品 PRD](docs/PRD.md) · [初期路线图](docs/ROADMAP.md) · [发布与部署](docs/RELEASING.md) · [开发约定](AGENTS.md)
 
-**当前状态：v1.7 已合并并首发 `0.1.0`；v1.8 已完成 M4 收口（待 review / 发布）。** M1 ~ M3 的编辑器能力在 v1.6 已全部落地；v1.7 把仓库里的编辑器变成**能安装、能发布、能上手**的交付物：包改名为 `@flowsail/core` / `@flowsail/react`，入口指向构建产物 `dist`，补上 `exports` / `types` / `files` / `sideEffects` 与 MIT 许可证，引入 changesets 发布流程、README 安装与嵌入路径、GitHub Pages 在线示例，以及 lint / 覆盖率 / 体积 / React 18/19 / pack 安装冒烟等发布前门禁。v1.8 补齐两个 npm 包页面（`0.1.1` patch）与 M4 的 D-5：`--flow-*` 主题变量与亮 / 暗主题、键盘可达与可访问性、P1 交互补全（`Ctrl/Cmd+A`、选中浮动工具条、输入锚点反向拖断连线）。
+**当前状态：v1.7 已合并并首发 `0.1.0`；v1.8 已完成 M4 收口（[PR #31](https://github.com/wwz914/FlowSail/pull/31)，待 review / 发布）。** M1 ~ M3 的编辑器能力在 v1.6 已全部落地；v1.7 把仓库里的编辑器变成**能安装、能发布、能上手**的交付物：包改名为 `@flowsail/core` / `@flowsail/react`，入口指向构建产物 `dist`，补上 `exports` / `types` / `files` / `sideEffects` 与 MIT 许可证，引入 changesets 发布流程、README 安装与嵌入路径、GitHub Pages 在线示例，以及 lint / 覆盖率 / 体积 / React 18/19 / pack 安装冒烟等发布前门禁。v1.8 补齐两个 npm 包页面（`0.1.1` patch）与 M4 的 D-5：`--flow-*` 主题变量与亮 / 暗主题、键盘可达与可访问性、P1 交互补全（`Ctrl/Cmd+A`、选中浮动工具条、输入锚点反向拖断连线）。
 
 - **在线示例**：<https://wwz914.github.io/FlowSail/>（`main` 自动部署）
 - **npm**：`0.1.0` 已发布——[@flowsail/react](https://www.npmjs.com/package/@flowsail/react) · [@flowsail/core](https://www.npmjs.com/package/@flowsail/core)；v1.8 的包内 README 与主题 / 可访问性将随 `0.2.0` 发布（R8-1 的 `0.1.1` patch 先行）。

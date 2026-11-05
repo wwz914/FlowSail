@@ -568,7 +568,7 @@ interface NodeTypeDefinition {
 
 2026-11-05 发布复核：PR #28 已合并（merge commit `dfc7d69`）；`@flowsail/core` 与 `@flowsail/react` 的 `0.1.0` 已发布到 npm；GitHub Pages 已启用，<https://wwz914.github.io/FlowSail/> 可访问。发布后发现两个包页面缺少 README（包内缺 `README.md`），补丁记入 v1.8 的 R8-1。
 
-2026-11-05 v1.8 实施：负责人确认按 Q32 的完整范围开发（R8-1 ~ R8-6），Q33 ~ Q36 按建议默认执行；实现记录见 [ROADMAP §13.10](./ROADMAP.md#1310-实施结果2026-11-05)。`pnpm test` 311 个用例、覆盖率 86.94%、`@flowsail/react` gzip 39.90KB，键盘走查 20/20。
+2026-11-05 v1.8 实施：负责人确认按 Q32 的完整范围开发（R8-1 ~ R8-6），Q33 ~ Q36 按建议默认执行；实现记录见 [ROADMAP §13.10](./ROADMAP.md#1310-实施结果2026-11-05)，代码见 [PR #31](https://github.com/wwz914/FlowSail/pull/31)。`pnpm test` 311 个用例、覆盖率 86.94%、`@flowsail/react` gzip 39.90KB，键盘走查 20/20。
 
 2026-11-05 v1.8 规划：负责人要求"分析下一步开发范围"并给出两个 npm 包页面截图（页面显示无 README）。v1.7 交付已完成，剩余的是 M4 的 D-5（主题与可访问性）、发布页收尾与 P1 交互补全。因此 v1.8 取 **M4 收口**：npm 包页面与 `0.1.1` 补丁（R8-1）、主题变量与亮 / 暗（R8-2）、键盘可达与可访问性（R8-3）、P1 交互补全（R8-4）、质量门禁（R8-5）、文档同步（R8-6）；新增 Q32 ~ Q36，其中 **Q32（v1.8 范围）阻塞开工**。范围见 [ROADMAP §13](./ROADMAP.md#13-v18-范围m4-收口发布页主题与可访问性p1-交互)。
 

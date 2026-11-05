@@ -208,7 +208,7 @@ pnpm check:pack
   [docs/ROADMAP.md §12.9](docs/ROADMAP.md#129-与待确定事项的关系)。**发包时两个包内没有
   `README.md`，npm 页面为空**；v1.8 的 R8-1 以 `0.1.1` 补丁修复。
 - **v1.8（2026-11-05 实现，待 review / 发布）**：M4 收口——两个包内 README 与 `0.1.1` patch
-  （PR #30 先行）、`--flow-*` 主题变量与亮 / 暗（D-5）、键盘可达与可访问性、
+  （PR #30 先行）、主 PR #31、`--flow-*` 主题变量与亮 / 暗（D-5）、键盘可达与可访问性、
   P1 交互补全（`Ctrl/Cmd+A`、选中浮动工具条、输入锚点反向拖断 / 改接）；
   实现记录见 [docs/ROADMAP.md §13.10](docs/ROADMAP.md#1310-实施结果2026-11-05)，
   键盘走查见 [docs/v1.8-keyboard-walkthrough.md](docs/v1.8-keyboard-walkthrough.md)，

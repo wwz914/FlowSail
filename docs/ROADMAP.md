@@ -1197,7 +1197,7 @@ node scripts/verify-v15.mjs http://localhost:4173/FlowSail/   # 20/20 运行与�
 
 ## 13. v1.8 范围（M4 收口：发布页、主题与可访问性、P1 交互）
 
-> 状态：**已实现（2026-11-05），待 review / 发布**。范围按 Q32 取完整范围（R8-1 ~ R8-6），Q33 ~ Q36 按建议默认执行；实施记录见 [§13.10](#1310-实施结果2026-11-05)。
+> 状态：**已实现（2026-11-05），待 review / 发布**。范围按 Q32 取完整范围（R8-1 ~ R8-6），Q33 ~ Q36 按建议默认执行；实现 PR：[#30](https://github.com/wwz914/FlowSail/pull/30)（R8-1）与 [#31](https://github.com/wwz914/FlowSail/pull/31)（R8-2 ~ R8-6），实施记录见 [§13.10](#1310-实施结果2026-11-05)。
 > 目标：把"能装、能发"推进到"**装上去看得懂、主题能覆盖、键盘能用**"——补上 npm 包页面与 M4 的 D-5，并收口最后一批 P1 交互。
 
 ### 13.1 版本定位与主题
@@ -1337,7 +1337,7 @@ v1.8 的待确定事项与确认结果：
 - `packages/system/README.md`、`packages/react/README.md`：包定位、安装、最小用法、`@flowsail/react/style.css` 的显式引入、仓库 / 文档 / 许可证链接；
 - 两个包 `files` 显式包含 `README.md`；`pnpm pack` 的 tarball 含 `package/README.md`；
 - `scripts/smoke-pack.mjs` 增加 README 断言，防止回归；
-- `.changeset/v18-package-readme.md` 以 patch 发布 `0.1.1`；本 PR 与 v1.8 主 PR 为 stacked，先合并它可先发 patch（Q36）。
+- `.changeset/v18-package-readme.md` 以 patch 发布 `0.1.1`；PR #30 与 v1.8 主 PR #31 为 stacked，先合并 #30 可先发 patch（Q36）。
 
 **R8-2 主题变量与亮 / 暗**
 
@@ -1375,7 +1375,7 @@ v1.8 的待确定事项与确认结果：
 | `node scripts/verify-v18.mjs` | 20 / 20（键盘、全选、工具条、反向拖断、主题、对比度 13.93） |
 | 截图 | `docs/screenshots/v1.8/before-*` vs `after-*`：亮色、暗色、键盘焦点、选中工具条 |
 
-`0.1.1` 与 `0.2.0` 的 changeset 分别是 `.changeset/v18-package-readme.md`（patch，随 PR #30）与 `.changeset/v18-theme-a11y.md`（minor，随 v1.8 主 PR）；发布记录在维护者执行 Release 工作流后回填。
+`0.1.1` 与 `0.2.0` 的 changeset 分别是 `.changeset/v18-package-readme.md`（patch，随 PR #30）与 `.changeset/v18-theme-a11y.md`（minor，随主 PR #31）；发布记录在维护者执行 Release 工作流后回填。
 
 **R8-6 文档同步**
 
