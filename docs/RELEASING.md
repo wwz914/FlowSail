@@ -137,6 +137,7 @@ pnpm check:size
 npm login                # 有 @flowsail 发布权限的账号
 pnpm changeset publish   # 会自动打包、改写 workspace 协议、发布并打 tag
 git push origin --tags
+node scripts/release-github.mjs   # 创建 GitHub Release（见 §4.3）
 ```
 
 `pnpm changeset publish` 使用 npm 的发布链路；`pnpm pack` 的 tarball 就是把
