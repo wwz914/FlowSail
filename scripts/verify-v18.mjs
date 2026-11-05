@@ -149,7 +149,9 @@ check('浮动工具条删除选中节点', (await state()).nodes.length === 0)
 
 // 5. 主题切换与对比度抽查。
 await load()
-await page.click('button:has-text("暗色主题")')
+// 工具栏按钮用键盘聚焦 + Enter 激活，验证工具条本身可键盘操作。
+await page.focus('button:has-text("暗色主题")')
+await page.keyboard.press('Enter')
 await page.waitForTimeout(300)
 const themeState = await page.evaluate(() => {
   const canvas = document.querySelector('.react-flow')
@@ -164,7 +166,7 @@ const themeState = await page.evaluate(() => {
     nodeText: nodeStyle.color,
   }
 })
-check('example 工具栏可切换到暗色主题', themeState?.dataTheme === 'dark')
+check('example 工具栏可用键盘切换到暗色主题', themeState?.dataTheme === 'dark')
 check(
   '暗色主题使用深色画布背景',
   themeState?.canvasBackground === 'rgb(15, 23, 32)',
