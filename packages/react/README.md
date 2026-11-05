@@ -95,7 +95,7 @@ document.documentElement.dataset.theme = 'dark'
 }
 ```
 
-主要变量（完整列表见 `packages/react/src/style.scss` 顶部）：
+主要变量（完整列表见[仓库里的 `style.scss`](https://github.com/wwz914/FlowSail/blob/main/packages/react/src/style.scss) 顶部）：
 
 - 画布：`--flow-bg`、`--flow-grid-dot`
 - 表面与文字：`--flow-surface`、`--flow-surface-subtle`、`--flow-surface-hover`、`--flow-text`、
