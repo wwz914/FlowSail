@@ -95,7 +95,7 @@ pnpm check:pack
 ## 发布与在线示例
 
 - 发布流程、所需 secret、版本步骤与回滚：[docs/RELEASING.md](docs/RELEASING.md)
-- `0.1.0` 已发布；后续版本由维护者触发 Release 工作流（或明确授权代理执行），CI 只校验，不自动发布。
+- `0.1.0` / `0.1.1` 已发布；后续版本由维护者触发 Release 工作流（或明确授权代理执行），CI 只校验，不自动发布。
 - 在线示例：<https://wwz914.github.io/FlowSail/>，Pages 已启用，`main` 推送自动部署。
 - 每个改动公开包行为的 PR 都要带 changeset；`changeset version` 产出 CHANGELOG 后再触发 Release 工作流。
 
@@ -207,8 +207,8 @@ pnpm check:pack
   [docs/ROADMAP.md §12.10](docs/ROADMAP.md#1210-实施结果2026-11-04)，发布与在线示例见
   [docs/ROADMAP.md §12.9](docs/ROADMAP.md#129-与待确定事项的关系)。**发包时两个包内没有
   `README.md`，npm 页面为空**；v1.8 的 R8-1 以 `0.1.1` 补丁修复。
-- **v1.8（2026-11-05 实现，待 review / 发布）**：M4 收口——两个包内 README 与 `0.1.1` patch
-  （PR #30 先行）、主 PR #31、`--flow-*` 主题变量与亮 / 暗（D-5）、键盘可达与可访问性、
+- **v1.8（2026-11-05 实现；`0.1.1` 已发布，主 PR #31 待合并）**：M4 收口——两个包内 README 与 `0.1.1` patch
+  （PR #30 / #32）、主 PR #31、`--flow-*` 主题变量与亮 / 暗（D-5）、键盘可达与可访问性、
   P1 交互补全（`Ctrl/Cmd+A`、选中浮动工具条、输入锚点反向拖断 / 改接）；
   实现记录见 [docs/ROADMAP.md §13.10](docs/ROADMAP.md#1310-实施结果2026-11-05)，
   键盘走查见 [docs/v1.8-keyboard-walkthrough.md](docs/v1.8-keyboard-walkthrough.md)，
