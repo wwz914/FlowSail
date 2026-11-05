@@ -8,7 +8,11 @@
 //   condition（默认）选中条件节点，用于对比参数表单；
 //   reference   选中大模型节点并展开变量选择器，用于对比变量引用能力；
 //   invalid     把 Prompt 改成失效引用，用于对比标红与文档级校验；
-//   run         试运行中的画布，用于对比 v1.5 的运行态与运行记录面板。
+//   run         试运行中的画布，用于对比 v1.5 的运行态与运行记录面板；
+//   light       默认亮色画布（v1.8 主题基线）；
+//   dark        把文档根节点切到 data-theme="dark"（v1.8 暗色主题）；
+//   focus       用 Tab 走到节点，用于对比键盘焦点（v1.8 可访问性）；
+//   toolbar     选中大模型节点，用于对比选中浮动工具条（v1.8 P1 交互）。
 // 用系统已安装的 Chrome，无需另外下载 Playwright 自带的浏览器。
 import { chromium } from 'playwright'
 
@@ -239,6 +243,57 @@ if (scenario === 'error') {
     await errorToggle.click()
     await page.waitForTimeout(300)
   }
+}
+
+// v1.8：主题切换——优先点 example 工具栏的切换按钮；
+// 基线版本没有该按钮时退回设置 data-theme（基线无效果，用于证明缺口）。
+if (scenario === 'dark') {
+  const toggle = await page.$('button:has-text("暗色主题")')
+  if (toggle) {
+    await toggle.click()
+  } else {
+    await page.evaluate(() => {
+      document.documentElement.dataset.theme = 'dark'
+    })
+  }
+  await page.waitForTimeout(400)
+}
+
+// v1.8：键盘焦点——Tab 走到第一个可获得焦点的节点 / 连线。
+if (scenario === 'focus') {
+  for (let index = 0; index < 24; index += 1) {
+    await page.keyboard.press('Tab')
+    const focus = await page.evaluate(() => {
+      const active = document.activeElement
+      return {
+        selector:
+          active instanceof Element
+            ? `${active.tagName.toLowerCase()}.${Array.from(active.classList).join('.')}`
+            : '',
+        isNode: Boolean(active instanceof Element && active.closest('[data-node-id]')),
+      }
+    })
+    if (focus.isNode) break
+  }
+  await page.waitForTimeout(200)
+}
+
+// v1.8：选中浮动工具条——点击节点后应当出现复制 / 删除等操作。
+if (scenario === 'toolbar') {
+  const llm = await page.$('[data-node-id="llm"]')
+  if (llm) {
+    await llm.click()
+    await page.waitForTimeout(400)
+  }
+}
+
+if (process.env.SCREENSHOT_ACTIVE) {
+  const active = await page.evaluate(() => {
+    const element = document.activeElement
+    if (!(element instanceof Element)) return '(none)'
+    return `${element.tagName.toLowerCase()}.${Array.from(element.classList).join('.')}`
+  })
+  console.log(`activeElement: ${active}`)
 }
 
 await page.screenshot({ path: output, fullPage: false })

@@ -37,6 +37,8 @@ export interface FlowState {
   selectNode: (id: string, additive?: boolean) => void
   /** 选中连线；`additive` 为 Shift 追加/取消。 */
   selectEdge: (id: string, additive?: boolean) => void
+  /** 全选节点与连线（R8-4、FR-U3：Ctrl/Cmd+A）。 */
+  selectAll: () => void
   /**
    * 把选中集合设为给定的节点 id 集合（R6-1）。
    *
@@ -69,6 +71,13 @@ export interface FlowState {
   pasteNodes: (nodes: Node[], edges: Edge[]) => void
   /** 修改连线标签（R3-4）；`history` 为 false 时只写文档不入栈。 */
   setEdgeLabel: (id: string, label: string, history?: boolean) => void
+  /**
+   * 改接连线目标（R8-4、FR-E5）：从输入锚点反向拖到另一个合法锚点时调用。
+   * 入历史栈；目标锚点省略时保持原目标锚点。
+   */
+  reconnectEdge: (id: string, targetId: string, targetHandle?: string) => void
+  /** 删除单条连线（R8-4、FR-E5）：反向拖到空白处时摘线；入历史栈。 */
+  removeEdge: (id: string) => void
   /** 把指定快照（默认当前文档）压入撤销栈；用于拖拽结束后一次性记录（R2-4）。 */
   pushHistory: (snapshot?: Workflow) => void
   undo: () => boolean
@@ -264,6 +273,25 @@ export const useFlowStore = create<FlowState>((set, get) => ({
       }
     }),
 
+  selectAll: () =>
+    set((state) => {
+      const { nodes, edges } = state.workflow
+      if (
+        nodes.every((node) => node.selected) &&
+        edges.every((edge) => edge.selected)
+      ) {
+        return {}
+      }
+
+      return {
+        workflow: {
+          ...state.workflow,
+          nodes: nodes.map((node) => (node.selected ? node : { ...node, selected: true })),
+          edges: edges.map((edge) => (edge.selected ? edge : { ...edge, selected: true })),
+        },
+      }
+    }),
+
   selectNodes: (ids, additive = false) =>
     set((state) => {
       const { nodes, edges } = state.workflow
@@ -345,6 +373,34 @@ export const useFlowStore = create<FlowState>((set, get) => ({
       // 与参数写回同一套合并机制（R3-7）。
       if (!history) return { workflow: nextWorkflow }
       return commit(state, nextWorkflow)
+    }),
+
+  reconnectEdge: (id, targetId, targetHandle) =>
+    set((state) => {
+      const target = state.workflow.edges.find((edge) => edge.id === id)
+      if (!target) return {}
+
+      const nextEdges = state.workflow.edges.map((edge) =>
+        edge.id === id
+          ? {
+              ...edge,
+              target: targetId,
+              ...(targetHandle ? { targetHandle } : {}),
+            }
+          : edge,
+      )
+
+      return commit(state, { ...state.workflow, edges: nextEdges })
+    }),
+
+  removeEdge: (id) =>
+    set((state) => {
+      if (!state.workflow.edges.some((edge) => edge.id === id)) return {}
+
+      return commit(state, {
+        ...state.workflow,
+        edges: state.workflow.edges.filter((edge) => edge.id !== id),
+      })
     }),
 
   renameNode: (id, label) =>

@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from 'react'
-import type { Node, Workflow } from '@flowsail/core'
+import type { Edge, Node, Workflow } from '@flowsail/core'
 import { useNodeTypeRegistry } from '../lib/registryContext.tsx'
 import { resolveNodeType } from '../lib/registry.ts'
 import { hasReference } from '../lib/variables.ts'
 import { getNodeRunState, useRunStore } from '../lib/runStore.ts'
 import { isRunLocked } from '../lib/runController.ts'
-import { snapPosition } from '../lib/marquee.ts'
+import { DEFAULT_GRID_SIZE, snapPosition } from '../lib/marquee.ts'
+import { findInputHandle } from '../lib/geometry.ts'
 import { useFlowStore } from '../store/index.ts'
 
 export interface NodeCardProps {
@@ -18,7 +19,11 @@ export interface NodeCardProps {
   isConnectionTarget: boolean
   /** 命中但连线非法时高亮为错误色。 */
   isConnectionTargetInvalid: boolean
+  /** 主题（R8-2）：错误浮层 portal 到 body 后仍要带上同一主题。 */
+  theme?: 'light' | 'dark' | undefined
   onConnectStart: (nodeId: string, handleId: string, clientX: number, clientY: number) => void
+  /** 从已有连线的输入锚点反向拖出（R8-4、FR-E5）。 */
+  onDisconnectStart: (edge: Edge, clientX: number, clientY: number) => void
 }
 
 interface DragOrigin {
@@ -65,7 +70,9 @@ export const NodeCard = ({
   isConnectionSource,
   isConnectionTarget,
   isConnectionTargetInvalid,
+  theme,
   onConnectStart,
+  onDisconnectStart,
 }: NodeCardProps) => {
   const registry = useNodeTypeRegistry()
   const meta = resolveNodeType(registry, node.type)
@@ -80,6 +87,10 @@ export const NodeCard = ({
   const runState = useRunStore((state) => getNodeRunState(state, node.id))
   // 运行记录（R6-6）：画布侧要能直接看到错误码、消息与堆栈。
   const runRecord = useRunStore((state) => state.records[node.id])
+  // 入边（R8-4）：输入锚点上已有连线时，允许从锚点反向拖出摘线 / 改接。
+  const incomingEdge = useFlowStore((state) =>
+    state.workflow.edges.find((edge) => edge.target === node.id),
+  )
   const [isErrorOpen, setIsErrorOpen] = useState(false)
   const [isStackOpen, setIsStackOpen] = useState(false)
   const [errorAnchor, setErrorAnchor] = useState<{ x: number; y: number } | null>(null)
@@ -208,6 +219,70 @@ export const NodeCard = ({
     onConnectStart(node.id, handleId, event.clientX, event.clientY)
   }
 
+  const handleDisconnectStart = (
+    event: ReactPointerEvent<HTMLSpanElement>,
+    edge: Edge,
+  ) => {
+    if (event.button !== 0) return
+    event.stopPropagation()
+    onDisconnectStart(edge, event.clientX, event.clientY)
+  }
+
+  /**
+   * 节点键盘操作（R8-3、FR-U3）：
+   * Enter / Space 选中，方向键按网格步长移动选中节点（每次按键入一条历史）。
+   * Delete 由画布的全局快捷键统一处理。
+   */
+  const handleKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    // 重命名输入框里的按键由输入框自己处理。
+    if (event.target !== event.currentTarget) return
+
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      useFlowStore.getState().selectNode(node.id, event.shiftKey)
+      return
+    }
+
+    const delta =
+      event.key === 'ArrowUp'
+        ? { x: 0, y: -1 }
+        : event.key === 'ArrowDown'
+          ? { x: 0, y: 1 }
+          : event.key === 'ArrowLeft'
+            ? { x: -1, y: 0 }
+            : event.key === 'ArrowRight'
+              ? { x: 1, y: 0 }
+              : null
+    if (!delta) return
+
+    event.preventDefault()
+    // 运行中禁止编辑（R5-4、PRD Q8）。
+    if (isRunLocked()) return
+
+    const store = useFlowStore.getState()
+    const selected = store.workflow.nodes.filter((candidate) => candidate.selected)
+    const isInSelection = selected.some((candidate) => candidate.id === node.id)
+    const movingIds = new Set(
+      isInSelection ? selected.map((candidate) => candidate.id) : [node.id],
+    )
+    if (!isInSelection) store.selectNode(node.id)
+
+    const before = useFlowStore.getState().workflow
+    const nextNodes = before.nodes.map((candidate) =>
+      movingIds.has(candidate.id)
+        ? {
+            ...candidate,
+            position: {
+              x: candidate.position.x + delta.x * DEFAULT_GRID_SIZE,
+              y: candidate.position.y + delta.y * DEFAULT_GRID_SIZE,
+            },
+          }
+        : candidate,
+    )
+    useFlowStore.getState().setNodes(nextNodes)
+    useFlowStore.getState().pushHistory(before)
+  }
+
   const className = [
     'flow-node',
     isSelected ? 'is-selected' : '',
@@ -223,6 +298,12 @@ export const NodeCard = ({
 
   const inputs = meta.inputs ?? []
   const outputs = meta.outputs ?? []
+  const connectedInputId = incomingEdge
+    ? (findInputHandle(inputs, incomingEdge.targetHandle)?.id ?? inputs[0]?.id)
+    : undefined
+  const ariaLabel = `${title}，${meta.label}节点，运行状态：${RUN_STATE_LABELS[runState]}${
+    isSelected ? '，已选中' : ''
+  }`
 
   // 变量引用标记（R4-5）：参数里有 `{{nodeId.field}}` 时在卡片上给一个轻量提示。
   const hasVariableReference = (meta.params ?? []).some((schema) =>
@@ -235,6 +316,11 @@ export const NodeCard = ({
       data-node-id={node.id}
       data-node-type={node.type ?? 'unknown'}
       style={{ left: node.position.x, top: node.position.y }}
+      tabIndex={0}
+      role="button"
+      aria-label={ariaLabel}
+      aria-pressed={isSelected}
+      onKeyDown={handleKeyDown}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={endDrag}
@@ -315,6 +401,7 @@ export const NodeCard = ({
                   <div
                     className="flow-node__error-popover"
                     role="alert"
+                    data-theme={theme}
                     style={{ left: errorAnchor.x, top: errorAnchor.y }}
                   >
                     <div className="flow-node__error-head">
@@ -344,22 +431,35 @@ export const NodeCard = ({
         </div>
       ) : null}
 
-      {inputs.map((handle) => (
-        <span
-          key={`in-${handle.id}`}
-          className={[
-            'flow-handle',
-            'flow-handle--target',
-            isConnectionTarget ? 'is-connection-target' : '',
-            isConnectionTargetInvalid ? 'is-invalid' : '',
-          ]
-            .filter(Boolean)
-            .join(' ')}
-          data-handle-id={handle.id}
-          style={{ left: `${handle.offset * 100}%` }}
-          aria-hidden="true"
-        />
-      ))}
+      {inputs.map((handle) => {
+        const isConnected = connectedInputId === handle.id
+        return (
+          <span
+            key={`in-${handle.id}`}
+            className={[
+              'flow-handle',
+              'flow-handle--target',
+              isConnected ? 'is-reconnectable' : '',
+              isConnectionTarget ? 'is-connection-target' : '',
+              isConnectionTargetInvalid ? 'is-invalid' : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+            data-handle-id={handle.id}
+            style={{
+              left: `${handle.offset * 100}%`,
+              ...(isConnected ? { pointerEvents: 'auto' as const } : {}),
+            }}
+            aria-hidden="true"
+            title={isConnected ? '从输入锚点拖出可断开或改接连线' : undefined}
+            onPointerDown={
+              isConnected && incomingEdge
+                ? (event) => handleDisconnectStart(event, incomingEdge)
+                : undefined
+            }
+          />
+        )
+      })}
 
       {outputs.map((handle) => (
         <span

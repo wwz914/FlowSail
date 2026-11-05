@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import type { ReactNode } from 'react'
 import { useFlowStore } from '../store/index.ts'
 import { useNodeTypeRegistry } from '../lib/registryContext.tsx'
 import { canRedo, canUndo, fitViewToNodes, redoStep, replaceDocument, undoStep } from '../lib/actions.ts'
@@ -16,6 +17,8 @@ export interface ToolbarProps {
   /** 工具栏标题。 */
   title?: string
   className?: string
+  /** 宿主自定义操作（如主题切换），渲染在工具栏右侧。 */
+  children?: ReactNode
 }
 
 /**
@@ -24,7 +27,7 @@ export interface ToolbarProps {
  * 提供撤销 / 重做 / 适应画布 / 导出 / 导入，
  * 以及 v1.5 起的试运行 / 取消运行（R5-9）。
  */
-export const Toolbar = ({ title = 'FlowSail', className }: ToolbarProps) => {
+export const Toolbar = ({ title = 'FlowSail', className, children }: ToolbarProps) => {
   const registry = useNodeTypeRegistry()
   const workflow = useFlowStore((state) => state.workflow)
   const pastCount = useFlowStore((state) => state.past.length)
@@ -196,6 +199,8 @@ export const Toolbar = ({ title = 'FlowSail', className }: ToolbarProps) => {
             aria-label="导入文档"
           />
         </div>
+
+        {children ? <div className="flow-toolbar__group">{children}</div> : null}
 
         {message ? <span className="flow-toolbar__message">{message}</span> : null}
       </div>

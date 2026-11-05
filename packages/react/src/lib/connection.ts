@@ -28,6 +28,11 @@ export interface ConnectionState {
   pointer: Point
   targetId: string | null
   error: ConnectionError | null
+  /**
+   * 反向拖拽（R8-4、FR-E5）：正在被摘下的已有连线 id。
+   * 拖动期间该连线从画布上隐藏，松手时按落点改接或删除。
+   */
+  detachedEdgeId?: string
 }
 
 /**
@@ -65,15 +70,19 @@ export function findTargetNode(
 /**
  * 校验一条待创建的连线（FR-E4）：禁自连、禁重复、输入锚点默认单入。
  * 返回 null 表示可以创建。
+ *
+ * `ignoreEdgeId` 用于反向改接（R8-4）：被摘下的那条连线不应把自己判成重复 / 占用。
  */
 export function validateConnection(
   edges: Edge[],
   sourceId: string,
   targetId: string,
+  ignoreEdgeId?: string,
 ): ConnectionError | null {
   if (sourceId === targetId) return 'self'
-  if (edges.some((edge) => edge.source === sourceId && edge.target === targetId)) return 'duplicate'
-  if (edges.some((edge) => edge.target === targetId)) return 'target-occupied'
+  const others = ignoreEdgeId ? edges.filter((edge) => edge.id !== ignoreEdgeId) : edges
+  if (others.some((edge) => edge.source === sourceId && edge.target === targetId)) return 'duplicate'
+  if (others.some((edge) => edge.target === targetId)) return 'target-occupied'
   return null
 }
 

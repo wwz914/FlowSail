@@ -127,7 +127,14 @@ function createInitialDocument(): Workflow {
 
 function App() {
   // 受控模式（R4-2）：宿主持有文档，内部编辑通过 onChange 写回。
-  const [document, setDocument] = useState<Workflow>(() => createInitialDocument());
+  const [document, setDocument] = useState<Workflow>(() => createInitialDocument())
+  // 主题（R8-2、Q33）：宿主自己保存亮 / 暗选择，画布用 `theme` prop，
+  // 面板等在 ReactFlow 之外的部分通过 <html data-theme> 继承同一套变量。
+  const [theme, setTheme] = useState<'light' | 'dark'>('light')
+
+  useEffect(() => {
+    window.document.documentElement.dataset.theme = theme
+  }, [theme]);
 
   // 单节点执行延迟（R5-2）：留一点延迟才看得清节点依次进入「运行中」。
   useEffect(() => {
@@ -149,11 +156,21 @@ function App() {
   return (
     <NodeTypeProvider nodeTypes={customNodeTypes}>
       <div className="app-shell">
-        <Toolbar title="FlowSail" />
+        <Toolbar title="FlowSail">
+          <button
+            type="button"
+            className="flow-toolbar__button"
+            onClick={() => setTheme((current) => (current === 'light' ? 'dark' : 'light'))}
+            aria-pressed={theme === 'dark'}
+            title="切换亮色 / 暗色主题"
+          >
+            {theme === 'light' ? '暗色主题' : '亮色主题'}
+          </button>
+        </Toolbar>
         <p className="app-hint">
-          v1.6 交互：空白处拖拽框选 · Ctrl/Cmd+C 复制、Ctrl/Cmd+V 粘贴（按住 Alt 连同连线）·
-          双击节点标题就地重命名 · 拖动按 8px 网格吸附（按住 Alt 临时关闭）· 试运行后选中节点可看
-          「最近一次运行」的实际输入输出，失败节点可直接展开错误详情
+          v1.8 交互：空白处拖拽框选 · Ctrl/Cmd+A 全选 · 选中节点出现浮动工具条（创建副本 / 复制 /
+          删除）· 从已有连线的输入锚点反向拖出可摘线或改接 · 双击节点标题就地重命名 ·
+          Tab 进入画布，方向键按网格移动节点 · 工具栏可切换亮色 / 暗色
         </p>
         <div className="app-body">
           <aside className="app-sidebar">
@@ -164,6 +181,7 @@ function App() {
               workflow={document}
               onChange={setDocument}
               nodeTypes={customNodeTypes}
+              theme={theme}
               showNodePanel={false}
               showConfigPanel={false}
               showRunPanel={false}

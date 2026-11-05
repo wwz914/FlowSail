@@ -5,6 +5,7 @@ import { createWorkflow } from '@flowsail/core'
 import { ReactFlow } from './ReactFlow.tsx'
 import { useFlowStore } from './store/index.ts'
 import { DEFAULT_VIEWPORT } from './lib/viewport.ts'
+import { setClipboardContent } from './lib/clipboard.ts'
 
 const nodes: Node[] = [
   { id: 'start', type: 'start', position: { x: 40, y: 60 }, data: { label: 'Start' } },
@@ -60,7 +61,10 @@ function fireDrop(clientX: number, clientY: number, type = 'llm') {
   fireEvent(getRoot(), event)
 }
 
-beforeEach(resetStore)
+beforeEach(() => {
+  resetStore()
+  setClipboardContent(null)
+})
 
 describe('ReactFlow', () => {
   it('把 props 中的节点同步进 store 并渲染画布控件', () => {

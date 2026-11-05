@@ -11,6 +11,8 @@ export { ValidationPanel } from './components/ValidationPanel.tsx';
 export type { ValidationPanelProps } from './components/ValidationPanel.tsx';
 export { Toolbar } from './components/Toolbar.tsx';
 export type { ToolbarProps } from './components/Toolbar.tsx';
+export { SelectionToolbar } from './components/SelectionToolbar.tsx';
+export type { SelectionToolbarProps } from './components/SelectionToolbar.tsx';
 export { RunPanel } from './components/RunPanel.tsx';
 export type { RunPanelProps } from './components/RunPanel.tsx';
 export { NodeTestPanel } from './components/NodeTestPanel.tsx';
@@ -37,10 +39,13 @@ export type { Rect } from './lib/marquee.ts';
 export {
   PASTE_OFFSET,
   collectClipboard,
+  copySelection,
   createUniqueId,
+  getClipboardContent,
   isClipboardEmpty,
   pasteClipboard,
   renameNode,
+  setClipboardContent,
 } from './lib/clipboard.ts';
 export type { ClipboardContent, PasteResult } from './lib/clipboard.ts';
 export {
