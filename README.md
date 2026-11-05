@@ -4,13 +4,13 @@
 
 [产品 PRD](docs/PRD.md) · [初期路线图](docs/ROADMAP.md) · [发布与部署](docs/RELEASING.md) · [开发约定](AGENTS.md)
 
-**当前状态：v1.7 已合并并首发 `0.1.0`（M4 交付主线）。** M1 ~ M3 的编辑器能力在 v1.6 已全部落地；v1.7 把仓库里的编辑器变成**能安装、能发布、能上手**的交付物：包改名为 `@flowsail/core` / `@flowsail/react`，入口指向构建产物 `dist`，补上 `exports` / `types` / `files` / `sideEffects` 与 MIT 许可证，引入 changesets 发布流程、README 安装与嵌入路径、GitHub Pages 在线示例，以及 lint / 覆盖率 / 体积 / React 18/19 / pack 安装冒烟等发布前门禁。v1.8 正在规划 M4 收口：npm 包页面、主题与可访问性、P1 交互补全。
+**当前状态：v1.7 已合并并首发 `0.1.0`；v1.8 已完成 M4 收口（待 review / 发布）。** M1 ~ M3 的编辑器能力在 v1.6 已全部落地；v1.7 把仓库里的编辑器变成**能安装、能发布、能上手**的交付物：包改名为 `@flowsail/core` / `@flowsail/react`，入口指向构建产物 `dist`，补上 `exports` / `types` / `files` / `sideEffects` 与 MIT 许可证，引入 changesets 发布流程、README 安装与嵌入路径、GitHub Pages 在线示例，以及 lint / 覆盖率 / 体积 / React 18/19 / pack 安装冒烟等发布前门禁。v1.8 补齐两个 npm 包页面（`0.1.1` patch）与 M4 的 D-5：`--flow-*` 主题变量与亮 / 暗主题、键盘可达与可访问性、P1 交互补全（`Ctrl/Cmd+A`、选中浮动工具条、输入锚点反向拖断连线）。
 
 - **在线示例**：<https://wwz914.github.io/FlowSail/>（`main` 自动部署）
-- **npm**：`0.1.0` 已发布——[@flowsail/react](https://www.npmjs.com/package/@flowsail/react) · [@flowsail/core](https://www.npmjs.com/package/@flowsail/core)。
+- **npm**：`0.1.0` 已发布——[@flowsail/react](https://www.npmjs.com/package/@flowsail/react) · [@flowsail/core](https://www.npmjs.com/package/@flowsail/core)；v1.8 的包内 README 与主题 / 可访问性将随 `0.2.0` 发布（R8-1 的 `0.1.1` patch 先行）。
 - **公开 API 仍不稳定**：`1.0.0` 之前可能按 minor 版本调整；稳定版计划另议（Q31）。
 
-主题与可访问性（D-5）、P1 交互补全（`Ctrl/Cmd+A`、选中浮动工具条、反向拖断连线）排在 v1.8；自动布局、小地图、循环 / 并行执行语义等 P2 能力尚未实现。
+主题与可访问性（D-5）、P1 交互补全（`Ctrl/Cmd+A`、选中浮动工具条、反向拖断连线）已随 v1.8 实现；自动布局、小地图、循环 / 并行执行语义等 P2 能力尚未实现。
 
 ---
 
@@ -163,6 +163,22 @@ setRunner(runner)
 **视图态**，不写回 `Workflow` 文档、不进历史栈（ROADMAP Q20）。完整契约见导出的
 `Runner` / `RunnerHooks` / `RunResult` / `NodeRunInput` 类型。
 
+## 主题与可访问性
+
+画布与面板由一组 `--flow-*` CSS 变量驱动，默认亮色，`data-theme="dark"` 提供暗色：
+
+```tsx
+<ReactFlow workflow={workflow} onChange={setWorkflow} theme="dark" />
+```
+
+`theme` 省略时跟随最近的 `data-theme`（默认亮色），宿主也可以把它挂在 `<html>` 上，
+让 ReactFlow 之外的面板共享同一套变量。覆盖方式、完整变量名与自定义背景见
+[`packages/react/README.md`](packages/react/README.md#主题与可访问性)。
+
+键盘关键路径：Tab 进入画布 → 连线 / 节点；Enter / Space 选中，方向键按 8px 网格移动选中节点，
+Delete 删除，`Ctrl/Cmd+A` 全选；画布、节点与连线都有 `aria-label`、`role`、可见焦点环，
+运行状态同时用文字与 `aria-label` 表达。本版不宣称完整 WCAG 2.x AA 合规。
+
 ## 包与产物
 
 | 包 | 版本 | 入口 | 说明 |
@@ -172,7 +188,7 @@ setRunner(runner)
 | `packages/example` | private | `src/main.tsx` | Vite + React 演示应用，不发布 |
 
 两个库包都用 Vite library mode 产出 ESM，用 `tsc -p tsconfig.build.json` 产出 `.d.ts`；
-发布 tarball 只含 `dist` 与 `LICENSE`，业务工程不会拿到 TS 源码。
+发布 tarball 只含 `dist` / `LICENSE` / `README.md`，业务工程不会拿到 TS 源码；两个包的 npm 页面直接展示包内 README。
 
 ## 现在能做什么
 
@@ -194,7 +210,10 @@ setRunner(runner)
 | 顶部工具栏（撤销 / 重做 / 适应画布 / 导出 / 导入） | ✅ |
 | `Runner` 接口、试运行 / 取消、运行记录、节点运行态、单节点测试 | ✅ |
 | 画布内重命名、8px 网格吸附、运行结果回填、错误详情 | ✅ |
-| 自动化测试（Vitest，295 个用例）与覆盖率 / 体积 / pack 冒烟门禁 | ✅ |
+| 主题变量与亮 / 暗（`theme` prop、`--flow-*` 可覆盖、自定义背景） | ✅ |
+| 键盘可达与可访问性（Tab / Enter / 方向键 / 焦点环 / aria） | ✅ |
+| `Ctrl/Cmd+A` 全选、选中浮动工具条、输入锚点反向拖断 / 改接 | ✅ |
+| 自动化测试（Vitest，311 个用例）与覆盖率 / 体积 / pack 冒烟门禁 | ✅ |
 
 完整能力拆解与优先级见 [PRD](docs/PRD.md) 与 [ROADMAP](docs/ROADMAP.md)。
 
@@ -206,7 +225,7 @@ pnpm install
 
 pnpm dev          # 先构建两个库包，再启动示例 http://localhost:5173
 pnpm build        # core → react → example（产物在各自 dist/）
-pnpm test         # Vitest（jsdom），295 个用例
+pnpm test         # Vitest（jsdom），311 个用例
 pnpm test:coverage # 覆盖率门禁（≥ 70%）
 pnpm lint         # ESLint，覆盖 system / react / example / 脚本
 pnpm typecheck    # 先构建库声明，再检查 example 从 dist 解析类型
@@ -253,8 +272,9 @@ pnpm check:size && pnpm check:links && pnpm check:pack
 - 发布流程、secret、版本步骤与回滚：[docs/RELEASING.md](docs/RELEASING.md)
 - 变更记录：每个包的 `CHANGELOG.md`（changesets 生成）
 - 在线示例：<https://wwz914.github.io/FlowSail/>（GitHub Pages，`main` 自动部署）
+- v1.8 视觉对比与键盘走查：[`docs/screenshots/v1.8`](docs/screenshots/v1.8/README.md) · [`docs/v1.8-keyboard-walkthrough.md`](docs/v1.8-keyboard-walkthrough.md)
 
-仓库以版本对齐节奏，不保留 v1.2：v1.0 → v1.1 → v1.3 → v1.4 → v1.5 → v1.6 → **v1.7（已首发）** → v1.8（规划中）。
+仓库以版本对齐节奏，不保留 v1.2：v1.0 → v1.1 → v1.3 → v1.4 → v1.5 → v1.6 → v1.7（已首发）→ **v1.8（已实现，待 review / 发布）**。
 
 ## 路线图概览
 
@@ -265,7 +285,7 @@ pnpm check:size && pnpm check:links && pnpm check:pack
 | M3 | v1.5 | Runner、试运行、运行记录、节点运行态 | ✅ 已合并 |
 | 遗留收口 | v1.6 | 框选、复制粘贴、重命名、网格吸附、运行结果回填 | ✅ 已合并 |
 | M4 | **v1.7** | **交付主线：打包、发布、文档、在线示例、质量门禁** | ✅ 已合并并首发 `0.1.0` |
-| M4 收口 | v1.8 | 发布页补丁、主题与可访问性、P1 交互补全 | 规划中 |
+| M4 收口 | **v1.8** | **发布页补丁、主题与可访问性、P1 交互补全** | ✅ 已实现（待 review / 发布） |
 
 ## 参与开发
 

@@ -5,8 +5,13 @@
 
 **当前状态（2026-11-05）**：`@flowsail/core` 与 `@flowsail/react` 的 `0.1.0` 已发布到 npm；
 GitHub Pages 已启用，在线示例可访问。下面的"首次准备"保留为记录，后续版本直接走
-[§2 发布前检查](#2-发布前检查r7-5-门禁)与 [§3 版本与 CHANGELOG](#3-版本与-changelog) 即可。发布后发现两个包页面缺少
-README（发包时包内没有 `README.md`），补丁计划见 [ROADMAP §13](./ROADMAP.md#13-v18-范围m4-收口发布页主题与可访问性p1-交互)。
+[§2 发布前检查](#2-发布前检查r7-5-门禁)与 [§3 版本与 CHANGELOG](#3-版本与-changelog) 即可。
+
+v1.8 已补齐两个包内的 `README.md`，并让 `files` 与 `check:pack` 显式包含它：
+- **`0.1.1`（patch，PR #30）**：只含包内 README、`files` 与冒烟断言，先合并、先发，修复 npm 页面空壳；
+- **`0.2.0`（minor，v1.8 主 PR）**：主题变量与亮 / 暗、键盘可访问性、P1 交互；
+- 两个 PR 为 stacked：先合并并发布 `0.1.1`，再合并主 PR 发布 `0.2.0`。若顺序反了，
+  `changeset version` 会把两个 changeset 合并成 `0.2.0`，`0.1.1` 将被跳过。
 
 - 包：`@flowsail/core`（数据层）与 `@flowsail/react`（React 画布）
 - 版本：`0.1.0` 起步，changesets 管理；公开 API 在 `1.0.0` 前仍可能变动
@@ -56,7 +61,14 @@ pnpm typecheck            # 先构建库声明，再检查 example 从 dist 解�
 pnpm build                # core → react → example
 pnpm check:size           # @flowsail/react gzip JS + CSS < 60KB
 pnpm check:links          # Markdown 链接与锚点
-pnpm check:pack           # tarball 安装到干净目录并完成构建 / SSR 渲染（React 19）
+pnpm check:pack           # tarball 安装到干净目录并完成构建 / jsdom 渲染（React 19）
+```
+
+改了画布 / 面板（v1.8 起）还需在 dev server 上跑键盘走查：
+
+```sh
+pnpm dev                  # 终端输出的 URL（默认 5173，被占用会自动顺延）
+node scripts/verify-v18.mjs http://localhost:5173   # 20 项键盘 / 主题 / P1 交互检查
 ```
 
 CI 会额外跑 React 18 与 React 19 的 pack smoke，以及 Pages 子路径构建。
@@ -84,9 +96,12 @@ git push
 ```
 
 `changeset version` 会删除已消费的 changeset 文件。v1.7 的 PR 已消费首个 changeset，两个包当前就是
-`0.1.0`，所以首次发布不需要再跑一次版本步骤，直接进入 §4。后续版本才按本节执行。发布前确认：
+`0.1.0`，所以首次发布不需要再跑一次版本步骤，直接进入 §4。后续版本才按本节执行。v1.8 有两个
+changeset：`.changeset/v18-package-readme.md`（patch）与 `.changeset/v18-theme-a11y.md`（minor）；
+按 §13.6 的顺序先合并 PR #30 并发布 `0.1.1`，再合并主 PR 发布 `0.2.0`。发布前确认：
 
 - 两个包的 `version` 一致（本版`fixed` 未启用，靠 changeset 同时 bump 保持一致）；
+- tarball 含 `package/README.md`（`pnpm check:pack` 会断言），npm 页面显示包内 README；
 - `packages/react/package.json` 的 `@flowsail/core` 仍是 `workspace:*`
   （`pnpm pack` 会在 tarball 中写成实际版本，见 §4）；
 - CHANGELOG 面向使用者，写清破坏性变更与迁移方式。
@@ -147,9 +162,11 @@ npm 的不可变发布策略决定了回滚手段有限，按影响从小到大�
 
 ## 6. 发布记录
 
-| 版本 | 日期 | 内容 | 执行人 |
-| --- | --- | --- | --- |
-| 0.1.0 | 2026-11-04 | 首个公开版本：包改名、dist 入口、MIT、changesets、在线示例 | 维护者（Q29） |
+| 版本 | 日期 | 内容 | 执行人 | changeset / PR |
+| --- | --- | --- | --- | --- |
+| 0.1.0 | 2026-11-04 | 首个公开版本：包改名、dist 入口、MIT、changesets、在线示例 | 维护者（Q29） | PR #28 |
+| 0.1.1 | 待发布 | 两个包内 README、`files` 与 `check:pack` 断言；修复 npm 页面空壳 | 维护者 | `.changeset/v18-package-readme.md`，PR #30 |
+| 0.2.0 | 待发布 | 主题变量与亮 / 暗、键盘可达与可访问性、P1 交互补全 | 维护者 | `.changeset/v18-theme-a11y.md`，v1.8 主 PR |
 
-> `0.1.0` 的 npm 页面缺少 README（发包时包内没有 `README.md`）；计划以 `0.1.1`
-> patch 补两个包的 README，见 [ROADMAP §13](./ROADMAP.md#13-v18-范围m4-收口发布页主题与可访问性p1-交互)。
+> 发布后请把状态改为实际日期，并复核 npm 页面已显示 README。发布记录与实现证据见
+> [ROADMAP §13.10](./ROADMAP.md#1310-实施结果2026-11-05)。

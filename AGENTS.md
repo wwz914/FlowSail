@@ -22,7 +22,7 @@ v1.7（R7-1）已经完成包改名与发布入口切换，下面这几条是**�
    example 直接依赖 `"@flowsail/react": "workspace:*"` 并 `import { ReactFlow } from '@flowsail/react'`；
    旧的 `reactflow` workspace 别名已删除。
 2. **两个库包的入口都指向 `dist`**：`main` / `module` / `types` / `exports` 全部指向构建产物，
-   `files` 只含 `dist` 与 `LICENSE`。因此 example 的 `tsc -b` 与 Vite 消费的是**构建后的产物**，
+   `files` 含 `dist`、`LICENSE` 与 `README.md`。因此 example 的 `tsc -b` 与 Vite 消费的是**构建后的产物**，
    不是 TS 源码。根脚本已把顺序固定：`pnpm dev` / `pnpm typecheck` / `pnpm build` 都会先构建两个库包。
 3. **库内统一 `import ... from '@flowsail/core'`**：`packages/react/package.json` 声明
    `"@flowsail/core": "workspace:*"`，pnpm 会创建 `packages/react/node_modules/@flowsail/core`。
@@ -50,7 +50,7 @@ v1.7（R7-1）已经完成包改名与发布入口切换，下面这几条是**�
 | `pnpm dev` | 构建两个库包后启动 example 开发服务器（http://localhost:5173） |
 | `pnpm build` | 构建 `@flowsail/core` → `@flowsail/react` → example |
 | `pnpm build:libs` | 只构建两个库包（修改库源码后刷新 example 前执行） |
-| `pnpm test` | Vitest（jsdom），295 个用例，覆盖数据层、文档模型、视口/连线、选择/历史、渲染、注册表、变量引用、校验、导入导出、Runner 与运行期 |
+| `pnpm test` | Vitest（jsdom），311 个用例，覆盖数据层、文档模型、视口/连线、选择/历史、渲染、注册表、变量引用、校验、导入导出、Runner 与运行期、主题、键盘可访问性与 P1 交互 |
 | `pnpm test:coverage` | 同上并跑覆盖率门禁（统计 `packages/system/src` 与 `packages/react/src/lib`，要求 ≥ 70%） |
 | `pnpm lint` | 仓库级 ESLint（flat config，覆盖 system / react / example / 脚本） |
 | `pnpm typecheck` | 先构建库声明，再 `tsc -b packages/example/tsconfig.json` |
@@ -88,7 +88,9 @@ pnpm check:pack
 
 **UI 改动的验证要求**：改 `packages/react` 或 `packages/example` 的界面后，
 必须在 PR 里给出 **Before / After 两张截图**，同一视口、同一场景、同一主题。
-截图用 dev server 实际截取，不要用设计稿冒充旧实现。v1.7 不改界面，因此没有对比图。
+截图用 dev server 实际截取，不要用设计稿冒充旧实现。v1.8 的四组对比见
+[docs/screenshots/v1.8](docs/screenshots/v1.8/README.md)，键盘走查脚本为
+`node scripts/verify-v18.mjs [url]`。
 
 ## 发布与在线示例
 
@@ -187,6 +189,16 @@ pnpm check:pack
   到 `SchemaPreview` 的「最近一次运行」、画布侧错误详情都只读 `useRunStore`，不写回文档。
   会话变量在 `lib/sessionVariables.ts` + `components/SessionVariablePanel.tsx`，
   经 `RunContext.variables` 注入，不属文档。
+- **主题与可访问性（v1.8、M4 D-5）**：`style.scss` 顶部的 `:root` / `[data-theme='dark']`
+  定义全部 `--flow-*` 变量，组件样式只消费变量；`ReactFlow` 的 `theme` 写到画布根节点
+  `data-theme`，省略时跟随宿主祖先；`background` 支持 `false` 与自定义 ReactNode。
+  键盘：画布 `role="application"`、节点与连线 `role="button"` + `tabIndex=0` + `aria-label`，
+  Enter / Space 选中、方向键按 `DEFAULT_GRID_SIZE` 移动（每次按键压一条历史）。
+  **新增颜色不要写字面量，一律加 `--flow-*` token**，并同时补暗色值。
+- **P1 交互（v1.8）**：`Ctrl/Cmd+A` 走 `store.selectAll`；`components/SelectionToolbar.tsx`
+  按屏幕坐标浮在选区上方，复制与 Ctrl/Cmd+C 共用 `lib/clipboard.ts` 的模块级剪贴板；
+  输入锚点反向拖拽复用连线预览与 `findTargetNode`，松手时 `removeEdge`（空白）或
+  `reconnectEdge`（合法节点），`validateConnection` 用 `ignoreEdgeId` 忽略被摘下的连线。
 - 性能基准：`node scripts/benchmark.mjs [url]`（需先 `pnpm dev`）构造 300 节点 / 500 连线，
   度量拖拽与缩放帧率并与 ≥ 50fps 目标对照。示例应用只在开发环境暴露
   `window.__flowBenchStore` 供脚本使用。
@@ -195,18 +207,22 @@ pnpm check:pack
   [docs/ROADMAP.md §12.10](docs/ROADMAP.md#1210-实施结果2026-11-04)，发布与在线示例见
   [docs/ROADMAP.md §12.9](docs/ROADMAP.md#129-与待确定事项的关系)。**发包时两个包内没有
   `README.md`，npm 页面为空**；v1.8 的 R8-1 以 `0.1.1` 补丁修复。
-- **v1.8（规划中）**：M4 收口——npm 包页面与 `0.1.1`、主题变量与亮 / 暗（D-5）、
-  键盘可达与可访问性、P1 交互补全（`Ctrl/Cmd+A`、选中浮动工具条、反向拖断连线）；
-  范围见 [docs/ROADMAP.md §13](docs/ROADMAP.md#13-v18-范围m4-收口发布页主题与可访问性p1-交互)。
+- **v1.8（2026-11-05 实现，待 review / 发布）**：M4 收口——两个包内 README 与 `0.1.1` patch
+  （PR #30 先行）、`--flow-*` 主题变量与亮 / 暗（D-5）、键盘可达与可访问性、
+  P1 交互补全（`Ctrl/Cmd+A`、选中浮动工具条、输入锚点反向拖断 / 改接）；
+  实现记录见 [docs/ROADMAP.md §13.10](docs/ROADMAP.md#1310-实施结果2026-11-05)，
+  键盘走查见 [docs/v1.8-keyboard-walkthrough.md](docs/v1.8-keyboard-walkthrough.md)，
+  视觉对比见 [docs/screenshots/v1.8](docs/screenshots/v1.8/README.md)。
   仍不在范围：自动布局、小地图、异常策略、资源与性能观测、循环 / 并行分支的执行语义。
   v1.6 的范围与实施记录见 [docs/ROADMAP.md §11](docs/ROADMAP.md#11-v16-范围m3-及以前的遗留收口--编辑器手感)
   与 §11.10，v1.5 见 [§10](docs/ROADMAP.md#10-v15-范围) 与 §10.10，
   v1.4 见 [§9](docs/ROADMAP.md#9-v14-范围) 与 §9.10，v1.3 的实施记录见 §8.10。
 - `packages/react/src/index.ts` 导出 store、`ReactFlow`、`NodePanel`、`ConfigPanel`、
-  `Toolbar`、`ValidationPanel`、`VariablePicker`、`SchemaPreview`、`RunPanel`、
+  `Toolbar`、`SelectionToolbar`、`ValidationPanel`、`VariablePicker`、`SchemaPreview`、`RunPanel`、
   `NodeTestPanel`、`SessionVariablePanel`、`NodeTypeProvider`、注册表与参数校验工具、
   变量引用与文档校验工具、框选（`getMarqueeHits` / `snapPosition`）、复制粘贴
-  （`collectClipboard` / `pasteClipboard`）、会话变量（`validateSessionVariables` /
+  （`collectClipboard` / `pasteClipboard` / `copySelection` / `getClipboardContent` /
+  `setClipboardContent`）、会话变量（`validateSessionVariables` /
   `buildRunVariables`）、导入导出工具、`Runner` / `NodeExecutor` 接口与运行期工具
   （`startRun` / `cancelRun` / `setRunner` / `useRunStore` 等），以及 `Node` / `Edge` /
   `Workflow` / `WorkflowMeta` / `Viewport` / change 类型与文档模型函数；
