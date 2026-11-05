@@ -11,7 +11,7 @@ v1.8 已补齐两个包内的 `README.md`，并让 `files` 与 `check:pack` 显�
 - **`0.1.1`（patch，PR #30，已发布）**：只含包内 README、`files` 与冒烟断言，已修复 npm 页面空壳；
   发布 commit `2935566`（PR #32），两个包的 tarball 均含 `package/README.md`；
 - **`0.2.0`（minor，PR #31，已发布）**：主题变量与亮 / 暗、键盘可访问性、P1 交互；
-  版本 commit 由本收尾 PR 生成，Release 工作流发布并推送 `@flowsail/core@0.2.0` / `@flowsail/react@0.2.0` tag；
+  版本 commit 由收尾 PR #33 生成，Release 工作流 [42010164055](https://github.com/wwz914/FlowSail/actions/runs/42010164055) 于 2026-11-05 发布，tag `@flowsail/core@0.2.0` / `@flowsail/react@0.2.0` 指向 `3c39a40`；
 - PR #30 / #32 先行修复包页面并发布 `0.1.1`；PR #31 已合并，`0.2.0` 的发布记录见 §6。
 
 - 包：`@flowsail/core`（数据层）与 `@flowsail/react`（React 画布）
@@ -165,7 +165,9 @@ npm 的不可变发布策略决定了回滚手段有限，按影响从小到大�
 | --- | --- | --- | --- | --- |
 | 0.1.0 | 2026-11-04 | 首个公开版本：包改名、dist 入口、MIT、changesets、在线示例 | 维护者（Q29） | PR #28 |
 | 0.1.1 | 2026-11-05 | 两个包内 README、`files` 与 `check:pack` 断言；修复 npm 页面空壳 | 维护者 | PR #30 / #32（`2935566`） |
-| 0.2.0 | 2026-11-05 | 主题变量与亮 / 暗、键盘可达与可访问性、P1 交互补全 | 代理（负责人授权，Q29） | `.changeset/v18-theme-a11y.md`，PR #31 + 收尾 PR |
+| 0.2.0 | 2026-11-05 | 主题变量与亮 / 暗、键盘可达与可访问性、P1 交互补全 | 代理（负责人授权，Q29） | `.changeset/v18-theme-a11y.md`，PR #31 + 收尾 PR #33 |
 
 > `0.1.1` 发布后已复核：registry tarball 含 `package/README.md`，干净工程从 registry 安装后 `tsc --noEmit` 与 `vite build` 通过。发布记录与实现证据见
 > [ROADMAP §13.10](./ROADMAP.md#1310-实施结果2026-11-05)。
+>
+> `0.2.0` 发布复核（2026-11-05）：`npm view @flowsail/react version` / `@flowsail/core version` 均为 `0.2.0`；两个 tag 指向发布 commit `3c39a40`。首次运行时 changeset 创建 annotated tag 需要 git 身份，Actions 默认没有配置，导致 tag 未生成；已在 `release.yml` 的 Publish 前补 `git config user.name/user.email`，并手工补推本次两个 tag。

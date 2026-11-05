@@ -60,6 +60,12 @@ jobs:
       - name: Pack install smoke
         run: node scripts/smoke-pack.mjs --react 19
 
+      - name: Configure git identity for release tags
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git config user.name "xunmu-spuer"
+          git config user.email "351488484+xunmu-spuer@users.noreply.github.com"
+
       - name: Publish
         if: ${{ !inputs.dry_run }}
         run: pnpm changeset publish

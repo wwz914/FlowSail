@@ -1395,8 +1395,9 @@ v1.8 的待确定事项与确认结果：
 
 **发布与收尾（2026-11-05 补充）**
 
-- `changeset version` 把 `@flowsail/core` / `@flowsail/react` 从 `0.1.1` 推到 `0.2.0`，生成两份 CHANGELOG；Release 工作流（`dry_run: false`）完成发布并推送 `@flowsail/core@0.2.0` / `@flowsail/react@0.2.0` tag；
-- registry 复核：`npm view @flowsail/react version` / `@flowsail/core` 均为 `0.2.0`，tarball 含 `README.md`；
+- `changeset version` 把 `@flowsail/core` / `@flowsail/react` 从 `0.1.1` 推到 `0.2.0`，生成两份 CHANGELOG；Release 工作流 [42010164055](https://github.com/wwz914/FlowSail/actions/runs/42010164055)（`dry_run: false`）完成发布，tag `@flowsail/core@0.2.0` / `@flowsail/react@0.2.0` 指向发布 commit `3c39a40`；
+- 发布链路修正：changeset 创建 annotated tag 需要 git 身份，Actions 默认未配置；已在 `release.yml` 的 Publish 前补 `git config user.name/user.email`，本次 tag 已手工补推；
+- registry 复核：`npm view @flowsail/react version` / `@flowsail/core version` 均为 `0.2.0`，registry 的 `0.2.0` 发布时间为 2026-11-05T10:25Z；tarball 含 `README.md`；
 - PRD Q9 同日复核：扣子官方文档 1014 篇无小地图说明，自动布局在编辑器截图中可见；节点清单与异常处理按官方文档校正，详见 [PRD §4.5](./PRD.md#45-q9-复核记录2026-11-05)；
 - README / PRD / ROADMAP / AGENTS / RELEASING 的状态已统一为"v1.8 已合并、`0.2.0` 已发布"，不再保留"待合并 / 待发布"口径。
 
