@@ -1,5 +1,7 @@
 body {
   margin: 0;
+  background: var(--flow-bg, #fafafa);
+  color: var(--flow-text-secondary, #3e4c59);
 }
 
 /* 三栏布局（R3-8）：顶部工具栏 + 左节点面板 + 中画布 + 右配置面板。 */
@@ -9,7 +11,7 @@ body {
   width: 100vw;
   height: 100vh;
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  color: #3e4c59;
+  color: var(--flow-text-secondary, #3e4c59);
 }
 
 .app-toolbar {
@@ -18,8 +20,8 @@ body {
   align-items: baseline;
   gap: 12px;
   padding: 10px 16px;
-  border-bottom: 1px solid #e4e7eb;
-  background: #fff;
+  border-bottom: 1px solid var(--flow-border, #e4e7eb);
+  background: var(--flow-surface, #fff);
 }
 
 .app-toolbar__title {
@@ -28,7 +30,7 @@ body {
 }
 
 .app-toolbar__hint {
-  color: #7b8794;
+  color: var(--flow-text-muted, #7b8794);
   font-size: 12px;
 }
 
@@ -43,9 +45,9 @@ body {
   flex: none;
   margin: 0;
   padding: 6px 16px;
-  border-bottom: 1px solid #e4e7eb;
-  background: #f8f9fa;
-  color: #7b8794;
+  border-bottom: 1px solid var(--flow-border, #e4e7eb);
+  background: var(--flow-surface-subtle, #f8f9fa);
+  color: var(--flow-text-muted, #7b8794);
   font-size: 12px;
   line-height: 1.6;
 }
@@ -54,7 +56,7 @@ body {
   display: flex;
   flex: none;
   width: 160px;
-  background: #fff;
+  background: var(--flow-surface, #fff);
 }
 
 .app-canvas {
@@ -75,5 +77,5 @@ body {
   display: flex;
   flex: none;
   width: 300px;
-  background: #fff;
+  background: var(--flow-surface, #fff);
 }

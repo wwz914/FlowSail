@@ -67,6 +67,60 @@ export default function App() {
 - 宿主自建三栏布局时，用导出的 `NodePanel` / `ConfigPanel` / `ValidationPanel` / `RunPanel` /
   `Toolbar` 组合，并用 `NodeTypeProvider` 让面板与画布共享同一份注册表。
 
+## 主题与可访问性
+
+默认亮色。`theme` prop 取 `light` / `dark`，写到画布根节点的 `data-theme`：
+
+```tsx
+<ReactFlow workflow={workflow} onChange={setWorkflow} theme="dark" />
+```
+
+省略 `theme` 时跟随最近的 `data-theme`（默认亮色）。宿主可以把属性放在 `<html>` 或任意祖先上，
+让画布之外的 `NodePanel` / `ConfigPanel` / `Toolbar` 等面板共享同一套主题：
+
+```ts
+document.documentElement.dataset.theme = 'dark'
+```
+
+主题由一组 `--flow-*` CSS 变量驱动，宿主可在自己的样式里覆盖：
+
+```css
+:root {
+  --flow-accent: #0b7285;
+  --flow-node-selected-bg: #e6fcf5;
+}
+
+[data-theme='dark'] {
+  --flow-accent: #66d9e8;
+}
+```
+
+主要变量（完整列表见[仓库里的 `style.scss`](https://github.com/wwz914/FlowSail/blob/main/packages/react/src/style.scss) 顶部）：
+
+- 画布：`--flow-bg`、`--flow-grid-dot`
+- 表面与文字：`--flow-surface`、`--flow-surface-subtle`、`--flow-surface-hover`、`--flow-text`、
+  `--flow-text-secondary`、`--flow-text-strong`、`--flow-text-muted`、`--flow-text-faint`
+- 边框：`--flow-border`、`--flow-border-subtle`、`--flow-border-input`、`--flow-border-strong`
+- 强调 / 焦点：`--flow-accent`、`--flow-accent-strong`、`--flow-accent-bg`、`--flow-accent-text`、
+  `--flow-focus`、`--flow-node-selected-bg`
+- 状态：`--flow-success`、`--flow-success-bg`、`--flow-danger`、`--flow-danger-bg`、
+  `--flow-warning`、`--flow-warning-bg`、`--flow-running-bg`、`--flow-skipped`、`--flow-skipped-bg`
+- 其他：`--flow-edge`、`--flow-code-bg`、`--flow-shadow`、`--flow-shadow-strong`
+
+背景默认是点阵网格；`background={false}` 关闭，传入 ReactNode 作为自定义背景：
+
+```tsx
+<ReactFlow workflow={workflow} onChange={setWorkflow} background={<MyBackdrop />} />
+```
+
+键盘与可访问性：
+
+- Tab 顺序为画布 → 连线 → 节点；画布、节点与连线都有 `aria-label` 和可见焦点环；
+- Enter / Space 选中节点或连线，Delete 删除，方向键按 8px 网格移动选中节点（每次按键入一条历史）；
+- `Ctrl/Cmd+A` 全选；节点与连线都带 `role` 与 `aria-pressed`，运行状态同时用文字与 `aria-label` 表达。
+
+本版只覆盖键盘关键路径与对比度抽查，**不宣称完整 WCAG 2.x AA 合规**。
+
 ## 文档
 
 - 仓库与完整文档：<https://github.com/wwz914/FlowSail>

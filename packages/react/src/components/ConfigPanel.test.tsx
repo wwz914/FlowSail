@@ -139,7 +139,7 @@ describe('配置面板（R3-5、R3-6、R3-7）', () => {
     expect(screen.getByLabelText('名称')).toBeTruthy()
     expect(screen.getByLabelText('描述')).toBeTruthy()
     expect(screen.getByLabelText(/提示词/)).toBeTruthy()
-    expect(screen.getByLabelText(/模型/)).toBeTruthy()
+    expect(screen.getByLabelText('模型')).toBeTruthy()
     expect(screen.getByLabelText(/温度/)).toBeTruthy()
     expect(screen.getByLabelText(/流式输出/)).toBeTruthy()
   })

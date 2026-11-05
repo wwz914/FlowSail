@@ -1,5 +1,5 @@
 import { useId } from 'react'
-import type { PointerEvent as ReactPointerEvent } from 'react'
+import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from 'react'
 import type { Edge } from '@flowsail/core'
 import { useFlowStore } from '../store/index.ts'
 import {
@@ -92,8 +92,21 @@ export const EdgeRenderer = ({ connection }: EdgeRendererProps) => {
     selectEdge(edge.id, event.shiftKey)
   }
 
+  const handleKeyDown = (edge: Edge, event: ReactKeyboardEvent<SVGGElement>) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return
+    event.preventDefault()
+    event.stopPropagation()
+    selectEdge(edge.id, event.shiftKey)
+  }
+
+  const getNodeLabel = (nodeId: string) => {
+    const node = nodeById.get(nodeId)
+    if (!node) return nodeId
+    return String(node.data?.label ?? resolveNodeType(registry, node.type).label)
+  }
+
   return (
-    <svg className="flow-edges" aria-hidden="true">
+    <svg className="flow-edges" role="group" aria-label="连线">
       <defs>
         <marker
           id={`${idPrefix}-normal`}
@@ -120,12 +133,19 @@ export const EdgeRenderer = ({ connection }: EdgeRendererProps) => {
       </defs>
 
       {edges.map((edge: Edge) => {
+        // 反向拖拽期间隐藏被摘下的连线（R8-4）。
+        if (connection?.detachedEdgeId === edge.id) return null
         const endpoints = resolveEndpoints(edge)
         if (!endpoints) return null
 
         const { source, target } = endpoints
         const path = getBezierPath(source, target)
         const midpoint = getBezierMidpoint(source, target)
+        const sourceLabel = getNodeLabel(edge.source)
+        const targetLabel = getNodeLabel(edge.target)
+        const edgeLabel = `从 ${sourceLabel} 到 ${targetLabel} 的连线${
+          edge.label ? `（分支：${edge.label}）` : ''
+        }${edge.selected ? '，已选中' : ''}`
 
         return (
           <g
@@ -133,6 +153,11 @@ export const EdgeRenderer = ({ connection }: EdgeRendererProps) => {
             className={`flow-edge${edge.selected ? ' is-selected' : ''}`}
             data-edge-id={edge.id}
             data-source-handle={edge.sourceHandle ?? ''}
+            tabIndex={0}
+            role="button"
+            aria-label={edgeLabel}
+            aria-pressed={Boolean(edge.selected)}
+            onKeyDown={(event) => handleKeyDown(edge, event)}
             onPointerDown={(event) => handleSelect(edge, event)}
           >
             <path className="flow-edge__hit" d={path} />

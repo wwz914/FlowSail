@@ -3,8 +3,8 @@ import type { Edge, Node } from '@flowsail/core'
 /**
  * 复制 / 粘贴（R6-2、FR-N5、FR-U3、X-2）。
  *
- * 纯函数：把"选中的节点"变成"一组新节点 + 新连线"，
- * 不碰 store，便于单测覆盖 id 不冲突、位置偏移与连线映射。
+ * 剪贴板内容是纯数据；模块级剪贴板只保存一次复制结果，
+ * 供 Ctrl/Cmd+C/V 与选中浮动工具条的「复制」共用（R8-4）。
  */
 
 /** 剪贴板内容：一次复制下来的节点与它们之间的连线。 */
@@ -34,6 +34,30 @@ export function collectClipboard(nodes: Node[], edges: Edge[]): ClipboardContent
 /** 剪贴板是否为空（没有可粘贴的节点）。 */
 export function isClipboardEmpty(content: ClipboardContent | null): boolean {
   return !content || content.nodes.length === 0
+}
+
+/**
+ * 模块级剪贴板（R8-4）：Ctrl/Cmd+C 与浮动工具条的「复制」写同一份。
+ * 浏览器剪贴板不参与：节点数据是内部结构，只在编辑器内流转。
+ */
+let internalClipboard: ClipboardContent | null = null
+
+/** 把当前选区写入剪贴板；没有选中节点时返回 null 且不覆盖已有内容。 */
+export function copySelection(nodes: Node[], edges: Edge[]): ClipboardContent | null {
+  const content = collectClipboard(nodes, edges)
+  if (isClipboardEmpty(content)) return null
+  internalClipboard = content
+  return content
+}
+
+/** 读取模块级剪贴板；没有复制过或已被清空时为 null。 */
+export function getClipboardContent(): ClipboardContent | null {
+  return internalClipboard
+}
+
+/** 直接写入 / 清空模块级剪贴板（测试与宿主集成用）。 */
+export function setClipboardContent(content: ClipboardContent | null): void {
+  internalClipboard = content
 }
 
 /** 生成一个不与现有节点冲突的新 id。 */

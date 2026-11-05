@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import type {
   DragEvent as ReactDragEvent,
   PointerEvent as ReactPointerEvent,
@@ -9,6 +9,7 @@ import './style.scss'
 import { useFlowStore, getSelection, getSelectionKey, type SelectionState } from './store/index.ts'
 import { NodeRenderer } from './components/NodeRenderer.tsx'
 import { EdgeRenderer } from './components/EdgeRenderer.tsx'
+import { SelectionToolbar } from './components/SelectionToolbar.tsx'
 import { NodePanel, NODE_DRAG_MIME } from './components/NodePanel.tsx'
 import { ConfigPanel } from './components/ConfigPanel.tsx'
 import { RunPanel } from './components/RunPanel.tsx'
@@ -37,10 +38,10 @@ import {
   type Rect,
 } from './lib/marquee.ts'
 import {
-  collectClipboard,
+  copySelection,
+  getClipboardContent,
   isClipboardEmpty,
   pasteClipboard,
-  type ClipboardContent,
 } from './lib/clipboard.ts'
 import { resolveNodeType } from './lib/registry.ts'
 import { NodeTypeRegistryContext, buildRegistry } from './lib/registryContext.tsx'
@@ -73,7 +74,10 @@ function isEditableTarget(target: EventTarget | null): boolean {
 
 /** 面板与控件是画布上的覆盖层，拖放落在它们上面时不创建节点。 */
 function isOverlayTarget(target: EventTarget | null): boolean {
-  return target instanceof Element && Boolean(target.closest('.flow-node-panel, .flow-controls'))
+  return (
+    target instanceof Element &&
+    Boolean(target.closest('.flow-node-panel, .flow-controls, .flow-selection-toolbar'))
+  )
 }
 
 /** 客户端坐标 → 画布世界坐标（以容器左上角为原点）。 */
@@ -108,6 +112,16 @@ export interface ReactFlowProps {
   showConfigPanel?: boolean
   /** 是否显示内置的底部运行记录面板覆盖层；宿主自建布局时可关闭（R5-6）。 */
   showRunPanel?: boolean
+  /**
+   * 主题（R8-2、Q33）：`light` / `dark`。
+   * 省略时跟随最近的 `data-theme`（默认亮色），由宿主的主题切换控制。
+   */
+  theme?: 'light' | 'dark'
+  /**
+   * 背景（R8-2、FR-C1）：默认点阵网格；`false` 关闭；
+   * 传入 ReactNode 时作为自定义背景内容渲染。
+   */
+  background?: boolean | ReactNode
   children?: ReactNode
 }
 
@@ -146,6 +160,8 @@ export const ReactFlow = ({
   showNodePanel = true,
   showConfigPanel = true,
   showRunPanel = true,
+  theme,
+  background,
   children,
 }: ReactFlowProps) => {
   const registry = useMemo(() => buildRegistry(nodeTypes), [nodeTypes])
@@ -157,10 +173,13 @@ export const ReactFlow = ({
   const setControlled = useFlowStore((state) => state.setControlled)
   const applyExternalDocument = useFlowStore((state) => state.applyExternalDocument)
 
+  const helpId = useId()
   const containerRef = useRef<HTMLDivElement | null>(null)
   const panRef = useRef<PanState | null>(null)
   const connectionSourceRef = useRef<string | null>(null)
   const connectionHandleRef = useRef<string | null>(null)
+  /** 反向拖拽（R8-4）：正在被摘下的已有连线。 */
+  const detachedEdgeRef = useRef<Edge | null>(null)
   const onNodesChangeRef = useRef(onNodesChange)
   const onEdgesChangeRef = useRef(onEdgesChange)
   const onSelectionChangeRef = useRef(onSelectionChange)
@@ -341,12 +360,14 @@ export const ReactFlow = ({
     const resolveConnection = (event: PointerEvent, commit: boolean) => {
       const sourceId = connectionSourceRef.current
       const sourceHandleId = connectionHandleRef.current
+      const detached = detachedEdgeRef.current
       if (!sourceId) return
 
       // 运行中禁止编辑（R5-4、PRD Q8）。
       if (isRunLocked()) {
         connectionSourceRef.current = null
         connectionHandleRef.current = null
+        detachedEdgeRef.current = null
         setConnection(null)
         return
       }
@@ -359,33 +380,51 @@ export const ReactFlow = ({
         useFlowStore.getState().workflow.viewport.zoom,
         registry,
       )
-      const error = targetId ? validateConnection(currentEdges, sourceId, targetId) : null
+      const error = targetId
+        ? validateConnection(currentEdges, sourceId, targetId, detached?.id)
+        : null
 
-      if (commit && targetId && !error) {
-        // 条件节点的连线默认带出口名作为分支标签（R3-4）。
-        const sourceNode = currentNodes.find((node) => node.id === sourceId)
-        const sourceDefinition = sourceNode
-          ? resolveNodeType(registry, sourceNode.type)
-          : undefined
-        const output = findOutputHandle(sourceDefinition?.outputs, sourceHandleId ?? undefined)
-        const targetNode = currentNodes.find((node) => node.id === targetId)
-        const targetDefinition = targetNode
-          ? resolveNodeType(registry, targetNode.type)
-          : undefined
-        const input = findInputHandle(targetDefinition?.inputs)
+      if (commit) {
+        if (detached) {
+          // 反向拖拽（R8-4、FR-E5）：落在空白处摘线，落在合法目标上改接，
+          // 落在非法目标上保持原样（松开即取消）。
+          if (!targetId) {
+            useFlowStore.getState().removeEdge(detached.id)
+          } else if (!error && targetId !== detached.target) {
+            const targetNode = currentNodes.find((node) => node.id === targetId)
+            const targetDefinition = targetNode
+              ? resolveNodeType(registry, targetNode.type)
+              : undefined
+            const input = findInputHandle(targetDefinition?.inputs)
+            useFlowStore.getState().reconnectEdge(detached.id, targetId, input?.id)
+          }
+        } else if (targetId && !error) {
+          // 条件节点的连线默认带出口名作为分支标签（R3-4）。
+          const sourceNode = currentNodes.find((node) => node.id === sourceId)
+          const sourceDefinition = sourceNode
+            ? resolveNodeType(registry, sourceNode.type)
+            : undefined
+          const output = findOutputHandle(sourceDefinition?.outputs, sourceHandleId ?? undefined)
+          const targetNode = currentNodes.find((node) => node.id === targetId)
+          const targetDefinition = targetNode
+            ? resolveNodeType(registry, targetNode.type)
+            : undefined
+          const input = findInputHandle(targetDefinition?.inputs)
 
-        useFlowStore.getState().addEdge({
-          id: createEdgeId(sourceId, targetId),
-          source: sourceId,
-          target: targetId,
-          ...(output ? { sourceHandle: output.id } : {}),
-          ...(input ? { targetHandle: input.id } : {}),
-          ...(output?.label ? { label: output.label } : {}),
-        })
+          useFlowStore.getState().addEdge({
+            id: createEdgeId(sourceId, targetId),
+            source: sourceId,
+            target: targetId,
+            ...(output ? { sourceHandle: output.id } : {}),
+            ...(input ? { targetHandle: input.id } : {}),
+            ...(output?.label ? { label: output.label } : {}),
+          })
+        }
       }
 
       connectionSourceRef.current = null
       connectionHandleRef.current = null
+      detachedEdgeRef.current = null
       setConnection(null)
     }
 
@@ -401,7 +440,9 @@ export const ReactFlow = ({
       } = useFlowStore.getState().workflow
       const pointer = toFlowPoint(container, event.clientX, event.clientY)
       const targetId = findTargetNode(currentNodes, pointer, currentViewport.zoom, registry)
-      const error = targetId ? validateConnection(currentEdges, sourceId, targetId) : null
+      const error = targetId
+        ? validateConnection(currentEdges, sourceId, targetId, detachedEdgeRef.current?.id)
+        : null
 
       setConnection({ sourceId, sourceHandle: sourceHandleId ?? 'out', pointer, targetId, error })
     }
@@ -415,6 +456,7 @@ export const ReactFlow = ({
       if (event.key !== 'Escape') return
       connectionSourceRef.current = null
       connectionHandleRef.current = null
+      detachedEdgeRef.current = null
       setConnection(null)
     }
 
@@ -487,14 +529,10 @@ export const ReactFlow = ({
     }
   }, [isMarqueeActive])
 
-  // 复制 / 粘贴（R6-2、FR-N5、FR-U3、Q24）。
+  // 复制 / 粘贴 / 全选（R6-2、R8-4、FR-N5、FR-U3、Q24）。
   useEffect(() => {
-    let clipboard: ClipboardContent | null = null
-
     const handleKeyDown = (event: KeyboardEvent) => {
       if (isEditableTarget(event.target)) return
-      // 运行中禁止编辑（R5-4、PRD Q8）。
-      if (isRunLocked()) return
 
       const modifier = event.metaKey || event.ctrlKey
       if (!modifier) return
@@ -502,18 +540,28 @@ export const ReactFlow = ({
       const key = event.key.toLowerCase()
       const { nodes, edges } = useFlowStore.getState().workflow
 
+      if (key === 'a') {
+        // 全选节点与连线（R8-4、FR-U3）。
+        event.preventDefault()
+        useFlowStore.getState().selectAll()
+        return
+      }
+
+      // 运行中禁止编辑（R5-4、PRD Q8）。
+      if (isRunLocked()) return
+
       if (key === 'c') {
-        const content = collectClipboard(nodes, edges)
-        if (isClipboardEmpty(content)) return
-        clipboard = content
+        // 浮动工具条的「复制」与 Ctrl/Cmd+C 共用同一份模块级剪贴板（R8-4）。
+        const content = copySelection(nodes, edges)
+        if (!content) return
         event.preventDefault()
         return
       }
 
       if (key === 'v') {
-        if (isClipboardEmpty(clipboard)) return
+        const content = getClipboardContent()
+        if (isClipboardEmpty(content)) return
         // `isClipboardEmpty` 已经排除了 null，但 TS 无法从自定义谓词里推断。
-        const content = clipboard
         if (!content) return
         const result = pasteClipboard(content, nodes, edges, {
           // 按住 Alt/Option 粘贴时连同内部连线一起复制（Q24）。
@@ -559,6 +607,7 @@ export const ReactFlow = ({
   ) => {
     const container = containerRef.current
     if (!container) return
+    detachedEdgeRef.current = null
     connectionSourceRef.current = nodeId
     connectionHandleRef.current = handleId
     setConnection({
@@ -567,6 +616,30 @@ export const ReactFlow = ({
       pointer: toFlowPoint(container, clientX, clientY),
       targetId: null,
       error: null,
+    })
+  }
+
+  /**
+   * 从已有连线的输入锚点反向拖出（R8-4、FR-E5）。
+   * 起点沿用原连线的输出节点与出口锚点，松手时改接或摘线。
+   */
+  const handleDisconnectStart = (
+    edge: Edge,
+    clientX: number,
+    clientY: number,
+  ) => {
+    const container = containerRef.current
+    if (!container) return
+    detachedEdgeRef.current = edge
+    connectionSourceRef.current = edge.source
+    connectionHandleRef.current = edge.sourceHandle ?? 'out'
+    setConnection({
+      sourceId: edge.source,
+      sourceHandle: edge.sourceHandle ?? 'out',
+      pointer: toFlowPoint(container, clientX, clientY),
+      targetId: null,
+      error: null,
+      detachedEdgeId: edge.id,
     })
   }
 
@@ -685,6 +758,11 @@ export const ReactFlow = ({
       <div
         ref={containerRef}
         className={className}
+        data-theme={theme}
+        tabIndex={0}
+        role="application"
+        aria-label="工作流画布"
+        aria-describedby={helpId}
         onPointerDownCapture={handlePointerDownCapture}
         onPointerDown={handleCanvasPointerDown}
         onPointerMove={handlePointerMove}
@@ -693,13 +771,22 @@ export const ReactFlow = ({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
-        <div
-          className="flow-background"
-          style={{
-            backgroundPosition: `${viewport.x}px ${viewport.y}px`,
-            backgroundSize: `${20 * viewport.zoom}px ${20 * viewport.zoom}px`,
-          }}
-        />
+        <span id={helpId} className="flow-visually-hidden">
+          Tab 在节点与连线之间移动；Enter 或空格选中，方向键按网格移动选中节点，Delete
+          删除，Ctrl 或 Command 加 A 全选。
+        </span>
+
+        {background === false ? null : background === true || background === undefined ? (
+          <div
+            className="flow-background"
+            style={{
+              backgroundPosition: `${viewport.x}px ${viewport.y}px`,
+              backgroundSize: `${20 * viewport.zoom}px ${20 * viewport.zoom}px`,
+            }}
+          />
+        ) : (
+          <div className="flow-background flow-background--custom">{background}</div>
+        )}
 
         <div
           className="flow-viewport"
@@ -719,8 +806,15 @@ export const ReactFlow = ({
             />
           ) : null}
           <EdgeRenderer connection={connection} />
-          <NodeRenderer connection={connection} onConnectStart={handleConnectStart} />
+          <NodeRenderer
+            connection={connection}
+            theme={theme}
+            onConnectStart={handleConnectStart}
+            onDisconnectStart={handleDisconnectStart}
+          />
         </div>
+
+        <SelectionToolbar hidden={isConnecting || marquee !== null} />
 
         {showNodePanel ? <NodePanel onAddNode={handlePanelAdd} /> : null}
 

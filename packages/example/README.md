@@ -3,7 +3,8 @@
 `packages/example` 是 FlowSail 的参考应用（private，不发布）：用 `@flowsail/react` 的
 `NodeTypeProvider` + `Toolbar` + `NodePanel` + `ReactFlow` + `ConfigPanel` + `ValidationPanel`
 + `RunPanel` 拼出三栏布局，以受控模式（`workflow` + `onChange`）演示宿主如何持有文档，
-并注册一个自定义「通知」节点演示 `nodeTypes` 注入。
+并注册一个自定义「通知」节点演示 `nodeTypes` 注入。v1.8 起工具栏还提供亮 / 暗主题切换：
+主题状态由宿主保存，`<html data-theme>` 让画布外面板与 `<ReactFlow theme>` 共享同一套变量。
 
 ## 本地运行
 
@@ -35,4 +36,6 @@ VITE_BASE=/FlowSail/ pnpm --filter example preview -- --port 4173
 ```sh
 node scripts/verify-v17.mjs http://localhost:4173/FlowSail/   # 建节点 → 连线 → 配参数 → 试运行
 node scripts/verify-v15.mjs http://localhost:4173/FlowSail/   # 试运行 / 分支跳过 / 失败恢复
+node scripts/verify-v18.mjs http://localhost:5173              # v1.8：键盘 / 主题 / 工具条 / 反向拖断（20 项）
+node scripts/screenshot.mjs docs/screenshots/v1.8/after-dark.png http://localhost:5173 dark
 ```
