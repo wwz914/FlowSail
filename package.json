@@ -23,6 +23,7 @@
     "check:size": "node scripts/check-size.mjs",
     "check:links": "node scripts/check-links.mjs",
     "check:pack": "node scripts/smoke-pack.mjs",
+    "release:github": "node scripts/release-github.mjs",
     "changeset": "changeset",
     "version": "changeset version",
     "release": "pnpm build:libs && changeset publish"

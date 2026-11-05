@@ -213,7 +213,7 @@ Delete 删除，`Ctrl/Cmd+A` 全选；画布、节点与连线都有 `aria-label
 | 主题变量与亮 / 暗（`theme` prop、`--flow-*` 可覆盖、自定义背景） | ✅ |
 | 键盘可达与可访问性（Tab / Enter / 方向键 / 焦点环 / aria） | ✅ |
 | `Ctrl/Cmd+A` 全选、选中浮动工具条、输入锚点反向拖断 / 改接 | ✅ |
-| 自动化测试（Vitest，311 个用例）与覆盖率 / 体积 / pack 冒烟门禁 | ✅ |
+| 自动化测试（Vitest，315 个用例）与覆盖率 / 体积 / pack 冒烟门禁 | ✅ |
 
 完整能力拆解与优先级见 [PRD](docs/PRD.md) 与 [ROADMAP](docs/ROADMAP.md)。
 
@@ -225,7 +225,7 @@ pnpm install
 
 pnpm dev          # 先构建两个库包，再启动示例 http://localhost:5173
 pnpm build        # core → react → example（产物在各自 dist/）
-pnpm test         # Vitest（jsdom），311 个用例
+pnpm test         # Vitest（jsdom），315 个用例
 pnpm test:coverage # 覆盖率门禁（≥ 70%）
 pnpm lint         # ESLint，覆盖 system / react / example / 脚本
 pnpm typecheck    # 先构建库声明，再检查 example 从 dist 解析类型
@@ -270,6 +270,7 @@ pnpm check:size && pnpm check:links && pnpm check:pack
 ## 发布与在线示例
 
 - 发布流程、secret、版本步骤与回滚：[docs/RELEASING.md](docs/RELEASING.md)
+- 版本更新：[GitHub Releases](https://github.com/wwz914/FlowSail/releases)（每个版本一条，正文取自两个包的 CHANGELOG）
 - 变更记录：每个包的 `CHANGELOG.md`（changesets 生成）
 - 在线示例：<https://wwz914.github.io/FlowSail/>（GitHub Pages，`main` 自动部署）
 - v1.8 视觉对比与键盘走查：[`docs/screenshots/v1.8`](docs/screenshots/v1.8/README.md) · [`docs/v1.8-keyboard-walkthrough.md`](docs/v1.8-keyboard-walkthrough.md)

@@ -50,7 +50,7 @@ v1.7（R7-1）已经完成包改名与发布入口切换，下面这几条是**�
 | `pnpm dev` | 构建两个库包后启动 example 开发服务器（http://localhost:5173） |
 | `pnpm build` | 构建 `@flowsail/core` → `@flowsail/react` → example |
 | `pnpm build:libs` | 只构建两个库包（修改库源码后刷新 example 前执行） |
-| `pnpm test` | Vitest（jsdom），311 个用例，覆盖数据层、文档模型、视口/连线、选择/历史、渲染、注册表、变量引用、校验、导入导出、Runner 与运行期、主题、键盘可访问性与 P1 交互 |
+| `pnpm test` | Vitest（jsdom），315 个用例，覆盖数据层、文档模型、视口/连线、选择/历史、渲染、注册表、变量引用、校验、导入导出、Runner 与运行期、主题、键盘可访问性、P1 交互与 Release 正文生成 |
 | `pnpm test:coverage` | 同上并跑覆盖率门禁（统计 `packages/system/src` 与 `packages/react/src/lib`，要求 ≥ 70%） |
 | `pnpm lint` | 仓库级 ESLint（flat config，覆盖 system / react / example / 脚本） |
 | `pnpm typecheck` | 先构建库声明，再 `tsc -b packages/example/tsconfig.json` |
@@ -58,6 +58,7 @@ v1.7（R7-1）已经完成包改名与发布入口切换，下面这几条是**�
 | `pnpm check:links` | README / docs / AGENTS 的 Markdown 链接与锚点检查 |
 | `pnpm check:pack` | `pnpm pack` → 干净目录安装 → 类型检查 / Vite 构建 / jsdom 渲染冒烟 |
 | `pnpm changeset` | 新增 changeset；发布流程见 [docs/RELEASING.md](docs/RELEASING.md) |
+| `pnpm release:github` | 为当前版本创建 / 更新 GitHub Release（需要 `gh` 登录） |
 
 `pnpm test` 只跑根脚本即可；`packages/system`、`packages/react` 各自的 `test` 脚本
 会复用根 `vitest.config.ts`，便于单包调试。
@@ -96,6 +97,8 @@ pnpm check:pack
 
 - 发布流程、所需 secret、版本步骤与回滚：[docs/RELEASING.md](docs/RELEASING.md)
 - `0.1.0` / `0.1.1` / `0.2.0` 已发布；后续版本由维护者触发 Release 工作流（或明确授权代理执行），CI 只校验，不自动发布。
+- 每个版本在 GitHub 上有一条 Release（tag `vX.Y.Z`），正文取自两个包 CHANGELOG 的本版本条目；
+  由 Release 工作流在 npm 发布后自动创建，补发用 `node scripts/release-github.mjs --version x.y.z`。
 - 在线示例：<https://wwz914.github.io/FlowSail/>，Pages 已启用，`main` 推送自动部署。
 - 每个改动公开包行为的 PR 都要带 changeset；`changeset version` 产出 CHANGELOG 后再触发 Release 工作流。
 
