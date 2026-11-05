@@ -1,9 +1,9 @@
 # v1.8 视觉对比（Before / After）
 
 同一场景、同一视口（1280 × 800）、同一主题的示例应用截图，用于 R8-2 ~ R8-5 的验收。
-截图由 `scripts/screenshot.mjs` 在真实 dev server 上抓取（Chrome，Playwright）。
+截图由 `scripts/screenshot.mjs` 在真实 dev server 上抓取（Chrome，Playwright，1280 × 800）。
 
-- **Before**：`main` @ `cbeb706`（v1.7 合并后的基线，`@flowsail/*` `0.1.0`）；
+- **Before**：`main` @ `cbeb706`（v1.7 合并后的基线，`@flowsail/*` `0.1.0`），在独立的 `git worktree` 中构建后实拍；
 - **After**：v1.8 实现分支（主题变量、键盘可达、选中浮动工具条）。
 
 | 文件 | 场景 | 说明 |
