@@ -60,6 +60,10 @@ jobs:
       - name: Pack install smoke
         run: node scripts/smoke-pack.mjs --react 19
 
+      # 发布前先校验本版本的 CHANGELOG 段落齐全，并打印 Release 正文（dry_run 也跑）。
+      - name: Preview GitHub Release notes
+        run: node scripts/release-github.mjs --dry-run
+
       - name: Configure git identity for release tags
         if: ${{ !inputs.dry_run }}
         run: |
@@ -77,3 +81,10 @@ jobs:
       - name: Push release tags
         if: ${{ !inputs.dry_run }}
         run: git push origin --tags
+
+      # 每个版本一条 Release：正文来自两个包 CHANGELOG 的本版本条目，tag 为 vX.Y.Z。
+      - name: Create GitHub Release
+        if: ${{ !inputs.dry_run }}
+        run: node scripts/release-github.mjs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
