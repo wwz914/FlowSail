@@ -58,7 +58,13 @@ try {
   console.log('[3/6] 校验 tarball 内容与发布元数据')
   const coreEntries = capture('tar', ['-tzf', coreTarball], root).split('\n')
   const reactEntries = capture('tar', ['-tzf', reactTarball], root).split('\n')
-  for (const entry of ['package/package.json', 'package/LICENSE', 'package/dist/index.js', 'package/dist/index.d.ts']) {
+  for (const entry of [
+    'package/package.json',
+    'package/LICENSE',
+    'package/README.md',
+    'package/dist/index.js',
+    'package/dist/index.d.ts',
+  ]) {
     assert(coreEntries.includes(entry), `@flowsail/core tarball 缺少 ${entry}`)
     assert(reactEntries.includes(entry), `@flowsail/react tarball 缺少 ${entry}`)
   }
