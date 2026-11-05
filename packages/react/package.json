@@ -1,6 +1,6 @@
 {
   "name": "@flowsail/react",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "FlowSail 的可嵌入 React 工作流画布编辑器",
   "license": "MIT",
   "type": "module",
