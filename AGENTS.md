@@ -93,9 +93,8 @@ pnpm check:pack
 ## 发布与在线示例
 
 - 发布流程、所需 secret、版本步骤与回滚：[docs/RELEASING.md](docs/RELEASING.md)
-- 首次 npm 发布由负责人执行或明确授权（Q29）；CI 只校验，不自动发布。
-- 在线示例：<https://wwz914.github.io/FlowSail/>，`main` 推送自动部署；
-  首次需要仓库管理员在 `Settings → Pages` 选择 GitHub Actions。
+- `0.1.0` 已发布；后续版本由维护者触发 Release 工作流（或明确授权代理执行），CI 只校验，不自动发布。
+- 在线示例：<https://wwz914.github.io/FlowSail/>，Pages 已启用，`main` 推送自动部署。
 - 每个改动公开包行为的 PR 都要带 changeset；`changeset version` 产出 CHANGELOG 后再触发 Release 工作流。
 
 ## 提交时的注意事项
@@ -191,11 +190,15 @@ pnpm check:pack
 - 性能基准：`node scripts/benchmark.mjs [url]`（需先 `pnpm dev`）构造 300 节点 / 500 连线，
   度量拖拽与缩放帧率并与 ≥ 50fps 目标对照。示例应用只在开发环境暴露
   `window.__flowBenchStore` 供脚本使用。
-- **v1.7（2026-11-04 实施）**：M4 交付主线——包改名与可发布产物、changeset 发布流程、
+- **v1.7（2026-11-04 合并并首发 `0.1.0`）**：M4 交付主线——包改名与可发布产物、changeset 发布流程、
   README 安装 / 嵌入路径、GitHub Pages 在线示例、发布前质量门禁；实现记录见
-  [docs/ROADMAP.md §12.10](docs/ROADMAP.md#1210-实施结果2026-11-04)。仍不在范围：
-  主题与可访问性（D-5，v1.8）、自动布局、小地图、异常策略、资源与性能观测、
-  循环与并行分支的执行语义。
+  [docs/ROADMAP.md §12.10](docs/ROADMAP.md#1210-实施结果2026-11-04)，发布与在线示例见
+  [docs/ROADMAP.md §12.9](docs/ROADMAP.md#129-与待确定事项的关系)。**发包时两个包内没有
+  `README.md`，npm 页面为空**；v1.8 的 R8-1 以 `0.1.1` 补丁修复。
+- **v1.8（规划中）**：M4 收口——npm 包页面与 `0.1.1`、主题变量与亮 / 暗（D-5）、
+  键盘可达与可访问性、P1 交互补全（`Ctrl/Cmd+A`、选中浮动工具条、反向拖断连线）；
+  范围见 [docs/ROADMAP.md §13](docs/ROADMAP.md#13-v18-范围m4-收口发布页主题与可访问性p1-交互)。
+  仍不在范围：自动布局、小地图、异常策略、资源与性能观测、循环 / 并行分支的执行语义。
   v1.6 的范围与实施记录见 [docs/ROADMAP.md §11](docs/ROADMAP.md#11-v16-范围m3-及以前的遗留收口--编辑器手感)
   与 §11.10，v1.5 见 [§10](docs/ROADMAP.md#10-v15-范围) 与 §10.10，
   v1.4 见 [§9](docs/ROADMAP.md#9-v14-范围) 与 §9.10，v1.3 的实施记录见 §8.10。
