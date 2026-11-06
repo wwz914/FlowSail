@@ -12,7 +12,7 @@ packages/example   example          Vite + React 演示应用（private，不发
 
 根目录 `package.json` 名为 `flowsail`（private），只承载共享依赖、根脚本与构建依赖，**本身不是一个包**。
 
-产品与规划文档：[`docs/PRD.md`](docs/PRD.md)（定位、对标、功能需求）、[`docs/ROADMAP.md`](docs/ROADMAP.md)（阶段规划与实施记录）、[`docs/RELEASING.md`](docs/RELEASING.md)（发布、secret、回滚与 Pages 部署）。
+产品与规划文档：[`docs/PRD.md`](docs/PRD.md)（定位、对标、功能需求）、[`docs/ROADMAP.md`](docs/ROADMAP.md)（已完成版本索引与下一阶段规划）、[`docs/RELEASING.md`](docs/RELEASING.md)（发布、secret、回滚与 Pages 部署）。
 
 ## 先读这一段：命名与构建约定
 
@@ -206,22 +206,20 @@ pnpm check:pack
   度量拖拽与缩放帧率并与 ≥ 50fps 目标对照。示例应用只在开发环境暴露
   `window.__flowBenchStore` 供脚本使用。
 - **v1.7（2026-11-04 合并并首发 `0.1.0`）**：M4 交付主线——包改名与可发布产物、changeset 发布流程、
-  README 安装 / 嵌入路径、GitHub Pages 在线示例、发布前质量门禁；实现记录见
-  [docs/ROADMAP.md §12.10](docs/ROADMAP.md#1210-实施结果2026-11-04)，发布与在线示例见
-  [docs/ROADMAP.md §12.9](docs/ROADMAP.md#129-与待确定事项的关系)。**发包时两个包内没有
+  README 安装 / 嵌入路径、GitHub Pages 在线示例、发布前质量门禁；发布记录见
+  [v0.1.0](https://github.com/wwz914/FlowSail/releases/tag/v0.1.0)，版本索引见
+  [docs/ROADMAP.md §2](docs/ROADMAP.md#2-已完成阶段与版本索引)。**发包时两个包内没有
   `README.md`，npm 页面为空**；v1.8 的 R8-1 以 `0.1.1` 补丁修复。
 - **v1.8（2026-11-05 合并（PR #31）并发布 `0.2.0`）**：M4 收口——两个包内 README 与 `0.1.1` patch
   （PR #30 / #32）、主 PR #31、`--flow-*` 主题变量与亮 / 暗（D-5）、键盘可达与可访问性、
-  P1 交互补全（`Ctrl/Cmd+A`、选中浮动工具条、输入锚点反向拖断 / 改接）；
-  实现记录见 [docs/ROADMAP.md §13.10](docs/ROADMAP.md#1310-实施结果2026-11-05)，
+  P1 交互补全（`Ctrl/Cmd+A`、选中浮动工具条、输入锚点反向拖断 / 改接）；发布记录见
+  [v0.2.0](https://github.com/wwz914/FlowSail/releases/tag/v0.2.0)，
   键盘走查见 [docs/v1.8-keyboard-walkthrough.md](docs/v1.8-keyboard-walkthrough.md)，
   视觉对比见 [docs/screenshots/v1.8](docs/screenshots/v1.8/README.md)。
   PRD Q9（扣子能力清单复核）已于同日完成：官方文档未证实小地图、自动布局具备，
   见 [docs/PRD.md §4.5](docs/PRD.md#45-q9-复核记录2026-11-05)。
-  仍不在范围：自动布局、小地图、异常策略、资源与性能观测、循环 / 并行分支的执行语义。
-  v1.6 的范围与实施记录见 [docs/ROADMAP.md §11](docs/ROADMAP.md#11-v16-范围m3-及以前的遗留收口--编辑器手感)
-  与 §11.10，v1.5 见 [§10](docs/ROADMAP.md#10-v15-范围) 与 §10.10，
-  v1.4 见 [§9](docs/ROADMAP.md#9-v14-范围) 与 §9.10，v1.3 的实施记录见 §8.10。
+  下一阶段 v1.9（运行可控：异常策略、运行到节点、运行观测）已规划、待确认，
+  见 [docs/ROADMAP.md §5](docs/ROADMAP.md#5-下一阶段m5v19运行可控)。
 - `packages/react/src/index.ts` 导出 store、`ReactFlow`、`NodePanel`、`ConfigPanel`、
   `Toolbar`、`SelectionToolbar`、`ValidationPanel`、`VariablePicker`、`SchemaPreview`、`RunPanel`、
   `NodeTestPanel`、`SessionVariablePanel`、`NodeTypeProvider`、注册表与参数校验工具、

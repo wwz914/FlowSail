@@ -55,7 +55,7 @@ if (result.ok && result.document) {
 
 - 仓库与完整文档：<https://github.com/wwz914/FlowSail>
 - 产品与需求：[PRD](https://github.com/wwz914/FlowSail/blob/main/docs/PRD.md)
-- 阶段规划与实施记录：[ROADMAP](https://github.com/wwz914/FlowSail/blob/main/docs/ROADMAP.md)
+- 版本索引与下一阶段规划：[ROADMAP](https://github.com/wwz914/FlowSail/blob/main/docs/ROADMAP.md)
 - 发布流程：[RELEASING](https://github.com/wwz914/FlowSail/blob/main/docs/RELEASING.md)
 
 ## 许可证

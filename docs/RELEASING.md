@@ -201,7 +201,7 @@ npm 的不可变发布策略决定了回滚手段有限，按影响从小到大�
 | 0.2.0 | 2026-11-05 | 主题变量与亮 / 暗、键盘可达与可访问性、P1 交互补全 | 代理（负责人授权，Q29） | `.changeset/v18-theme-a11y.md`，PR #31 + 收尾 PR #33 | [v0.2.0](https://github.com/wwz914/FlowSail/releases/tag/v0.2.0) |
 
 > `0.1.1` 发布后已复核：registry tarball 含 `package/README.md`，干净工程从 registry 安装后 `tsc --noEmit` 与 `vite build` 通过。发布记录与实现证据见
-> [ROADMAP §13.10](./ROADMAP.md#1310-实施结果2026-11-05)。
+> [v0.2.0](https://github.com/wwz914/FlowSail/releases/tag/v0.2.0) 与 [ROADMAP §2](./ROADMAP.md#2-已完成阶段与版本索引)。
 >
 > `0.2.0` 发布复核（2026-11-05）：`npm view @flowsail/react version` / `@flowsail/core version` 均为 `0.2.0`；两个 tag 指向发布 commit `3c39a40`。首次运行时 changeset 创建 annotated tag 需要 git 身份，Actions 默认没有配置，导致 tag 未生成；已在 `release.yml` 的 Publish 前补 `git config user.name/user.email`，并手工补推本次两个 tag。
 >
