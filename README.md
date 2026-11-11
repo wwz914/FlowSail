@@ -4,13 +4,13 @@
 
 [产品 PRD](docs/PRD.md) · [路线图](docs/ROADMAP.md) · [发布与部署](docs/RELEASING.md) · [开发约定](AGENTS.md)
 
-**当前状态：v1.7 已合并并首发 `0.1.0`；v1.8（M4 收口）已合并（[PR #31](https://github.com/wwz914/FlowSail/pull/31)）并发布 `0.2.0`，包页面补丁随 `0.1.1` 发布。** M1 ~ M3 的编辑器能力在 v1.6 已全部落地；v1.7 把仓库里的编辑器变成**能安装、能发布、能上手**的交付物：包改名为 `@flowsail/core` / `@flowsail/react`，入口指向构建产物 `dist`，补上 `exports` / `types` / `files` / `sideEffects` 与 MIT 许可证，引入 changesets 发布流程、README 安装与嵌入路径、GitHub Pages 在线示例，以及 lint / 覆盖率 / 体积 / React 18/19 / pack 安装冒烟等发布前门禁。v1.8 补齐两个 npm 包页面（`0.1.1` patch）与 M4 的 D-5：`--flow-*` 主题变量与亮 / 暗主题、键盘可达与可访问性、P1 交互补全（`Ctrl/Cmd+A`、选中浮动工具条、输入锚点反向拖断连线）。下一阶段 v1.9（运行可控：异常策略、运行到节点、运行观测）已规划、待确认，见 [ROADMAP §5](docs/ROADMAP.md#5-下一阶段m5v19运行可控)。
+**当前状态：`0.2.1` 视觉打磨已发布（0.2.x 视觉补丁序列第 1 版）。** M1 ~ M3 的编辑器能力在 v1.6 已全部落地；v1.7 把仓库里的编辑器变成**能安装、能发布、能上手**的交付物；v1.8 补齐两个 npm 包页面（`0.1.1` patch）与 `--flow-*` 主题变量、键盘可达、P1 交互（`0.2.0`）。`0.2.1` 在此基础上重做画布与面板的视觉层级：节点类型色、画布光晕与网格、工具栏分组、配置面板与空状态、示例初始布局。下一阶段 v1.9（运行可控：异常策略、运行到节点、运行观测）仍按 [ROADMAP §5](docs/ROADMAP.md#5-下一阶段m5v19运行可控) 规划。
 
 - **在线示例**：<https://wwz914.github.io/FlowSail/>（`main` 自动部署）
-- **npm**：`0.2.0` 已发布——[@flowsail/react](https://www.npmjs.com/package/@flowsail/react) · [@flowsail/core](https://www.npmjs.com/package/@flowsail/core)；包内 README、主题 / 可访问性与 P1 交互均已随 `0.2.0` 上线。
+- **npm**：`0.2.1` 已发布——[@flowsail/react](https://www.npmjs.com/package/@flowsail/react) · [@flowsail/core](https://www.npmjs.com/package/@flowsail/core)；视觉打磨与主题变量均已随 `0.2.1` 上线。
 - **公开 API 仍不稳定**：`1.0.0` 之前可能按 minor 版本调整；稳定版计划另议（Q31）。
 
-主题与可访问性（D-5）、P1 交互补全（`Ctrl/Cmd+A`、选中浮动工具条、反向拖断连线）已随 v1.8 实现；自动布局、小地图、循环 / 并行执行语义等 P2 能力尚未实现。
+主题与可访问性（D-5）、P1 交互补全（`Ctrl/Cmd+A`、选中浮动工具条、反向拖断连线）已随 v1.8 实现；`0.2.1` 起以补丁版本持续做视觉打磨。自动布局、小地图、循环 / 并行执行语义等 P2 能力尚未实现。
 
 ---
 
@@ -183,8 +183,8 @@ Delete 删除，`Ctrl/Cmd+A` 全选；画布、节点与连线都有 `aria-label
 
 | 包 | 版本 | 入口 | 说明 |
 | --- | --- | --- | --- |
-| `@flowsail/core` | `0.2.0` | `dist/index.js` + `dist/index.d.ts` | 无运行时依赖 |
-| `@flowsail/react` | `0.2.0` | `dist/index.js` + `dist/style.css` | peer：React 18/19；依赖 `@flowsail/core` 与 `zustand` |
+| `@flowsail/core` | `0.2.1` | `dist/index.js` + `dist/index.d.ts` | 无运行时依赖 |
+| `@flowsail/react` | `0.2.1` | `dist/index.js` + `dist/style.css` | peer：React 18/19；依赖 `@flowsail/core` 与 `zustand` |
 | `packages/example` | private | `src/main.tsx` | Vite + React 演示应用，不发布 |
 
 两个库包都用 Vite library mode 产出 ESM，用 `tsc -p tsconfig.build.json` 产出 `.d.ts`；
@@ -213,6 +213,7 @@ Delete 删除，`Ctrl/Cmd+A` 全选；画布、节点与连线都有 `aria-label
 | 主题变量与亮 / 暗（`theme` prop、`--flow-*` 可覆盖、自定义背景） | ✅ |
 | 键盘可达与可访问性（Tab / Enter / 方向键 / 焦点环 / aria） | ✅ |
 | `Ctrl/Cmd+A` 全选、选中浮动工具条、输入锚点反向拖断 / 改接 | ✅ |
+| 视觉打磨（类型色节点、画布层次、亮 / 暗一致、工具栏与面板细节） | ✅ |
 | 自动化测试（Vitest，315 个用例）与覆盖率 / 体积 / pack 冒烟门禁 | ✅ |
 
 完整能力拆解与优先级见 [PRD](docs/PRD.md) 与 [ROADMAP](docs/ROADMAP.md)。
@@ -274,8 +275,9 @@ pnpm check:size && pnpm check:links && pnpm check:pack
 - 变更记录：每个包的 `CHANGELOG.md`（changesets 生成）
 - 在线示例：<https://wwz914.github.io/FlowSail/>（GitHub Pages，`main` 自动部署）
 - v1.8 视觉对比与键盘走查：[`docs/screenshots/v1.8`](docs/screenshots/v1.8/README.md) · [`docs/v1.8-keyboard-walkthrough.md`](docs/v1.8-keyboard-walkthrough.md)
+- 0.2.1 视觉对比：[`docs/screenshots/v0.2.1`](docs/screenshots/v0.2.1/README.md)
 
-仓库以版本对齐节奏，不保留 v1.2：v1.0 → v1.1 → v1.3 → v1.4 → v1.5 → v1.6 → v1.7（已首发）→ **v1.8（已合并并发布 `0.2.0`）** → **v1.9（规划中）**。
+仓库以版本对齐节奏，不保留 v1.2：v1.0 → v1.1 → v1.3 → v1.4 → v1.5 → v1.6 → v1.7（已首发）→ v1.8（已合并并发布 `0.2.0`）→ **`0.2.1` ~ `0.2.10`（视觉补丁序列，进行中）** → v1.9（运行可控，规划中）。
 
 ## 路线图概览
 
@@ -287,6 +289,7 @@ pnpm check:size && pnpm check:links && pnpm check:pack
 | 遗留收口 | v1.6 | 框选、复制粘贴、重命名、网格吸附、运行结果回填 | ✅ 已合并 |
 | M4 | **v1.7** | **交付主线：打包、发布、文档、在线示例、质量门禁** | ✅ 已合并并首发 `0.1.0` |
 | M4 收口 | **v1.8** | **发布页补丁、主题与可访问性、P1 交互补全** | ✅ 已合并并发布 `0.2.0` |
+| 视觉打磨 | **0.2.1 ~ 0.2.10** | **类型色节点、画布层次、面板 / 工具栏细节与示例布局（逐版递增）** | 🚧 `0.2.1` 已发布 |
 | M5 | **v1.9（规划中）** | **运行可控：异常策略、运行到节点、运行观测** | 📋 待确认（[ROADMAP §5](docs/ROADMAP.md#5-下一阶段m5v19运行可控)） |
 
 ## 参与开发

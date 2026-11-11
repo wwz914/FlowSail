@@ -90,13 +90,14 @@ pnpm check:pack
 **UI 改动的验证要求**：改 `packages/react` 或 `packages/example` 的界面后，
 必须在 PR 里给出 **Before / After 两张截图**，同一视口、同一场景、同一主题。
 截图用 dev server 实际截取，不要用设计稿冒充旧实现。v1.8 的四组对比见
-[docs/screenshots/v1.8](docs/screenshots/v1.8/README.md)，键盘走查脚本为
+[docs/screenshots/v1.8](docs/screenshots/v1.8/README.md)，0.2.1 的四组对比见
+[docs/screenshots/v0.2.1](docs/screenshots/v0.2.1/README.md)，键盘走查脚本为
 `node scripts/verify-v18.mjs [url]`。
 
 ## 发布与在线示例
 
 - 发布流程、所需 secret、版本步骤与回滚：[docs/RELEASING.md](docs/RELEASING.md)
-- `0.1.0` / `0.1.1` / `0.2.0` 已发布；后续版本由维护者触发 Release 工作流（或明确授权代理执行），CI 只校验，不自动发布。
+- `0.1.0` / `0.1.1` / `0.2.0` / `0.2.1` 已发布；后续版本由维护者触发 Release 工作流（或明确授权代理执行），CI 只校验，不自动发布。
 - 每个版本在 GitHub 上有一条 Release（tag `vX.Y.Z`），正文取自两个包 CHANGELOG 的本版本条目；
   由 Release 工作流在 npm 发布后自动创建，补发用 `node scripts/release-github.mjs --version x.y.z`。
 - 在线示例：<https://wwz914.github.io/FlowSail/>，Pages 已启用，`main` 推送自动部署。
@@ -198,6 +199,12 @@ pnpm check:pack
   键盘：画布 `role="application"`、节点与连线 `role="button"` + `tabIndex=0` + `aria-label`，
   Enter / Space 选中、方向键按 `DEFAULT_GRID_SIZE` 移动（每次按键压一条历史）。
   **新增颜色不要写字面量，一律加 `--flow-*` token**，并同时补暗色值。
+- **视觉系统（0.2.1 起）**：节点卡片的左侧 3px 强调条与图标底色取注册表里的
+  `NodeTypeDefinition.color`（由 `NodeCard` 内联到 `borderLeftColor` / `backgroundColor`），
+  不再统一使用主题蓝；标题与类型徽标在 `.flow-node__body` 里分两行，避免 160px 卡片把标题
+  截断。画布用 `::before` 品牌色光晕 + 网格渐隐，面板统一 10–14px 圆角与更轻的阴影。
+  **改这些样式时保留节点 160 × 48 的几何常量**（连线端点与适应画布依赖它），
+  并同时检查亮 / 暗两套 token；视觉补丁按 `0.2.x` 递增，需求来自对应工单而不是本文。
 - **P1 交互（v1.8）**：`Ctrl/Cmd+A` 走 `store.selectAll`；`components/SelectionToolbar.tsx`
   按屏幕坐标浮在选区上方，复制与 Ctrl/Cmd+C 共用 `lib/clipboard.ts` 的模块级剪贴板；
   输入锚点反向拖拽复用连线预览与 `findTargetNode`，松手时 `removeEdge`（空白）或
@@ -220,6 +227,11 @@ pnpm check:pack
   见 [docs/PRD.md §4.5](docs/PRD.md#45-q9-复核记录2026-11-05)。
   下一阶段 v1.9（运行可控：异常策略、运行到节点、运行观测）已规划、待确认，
   见 [docs/ROADMAP.md §5](docs/ROADMAP.md#5-下一阶段m5v19运行可控)。
+- **`0.2.1`（2026-11-11，视觉补丁序列第 1 版）**：节点 160 × 48 几何不变，左侧强调条与
+  图标底色改用节点类型色，标题与类型徽标分两行；画布加入品牌色光晕与网格渐隐；
+  工具栏分组并把宿主操作靠右；配置面板、校验 / 运行面板与空状态统一圆角、阴影与间距；
+  示例初始布局与提示条收紧。Before / After 见
+  [docs/screenshots/v0.2.1](docs/screenshots/v0.2.1/README.md)。
 - `packages/react/src/index.ts` 导出 store、`ReactFlow`、`NodePanel`、`ConfigPanel`、
   `Toolbar`、`SelectionToolbar`、`ValidationPanel`、`VariablePicker`、`SchemaPreview`、`RunPanel`、
   `NodeTestPanel`、`SessionVariablePanel`、`NodeTypeProvider`、注册表与参数校验工具、

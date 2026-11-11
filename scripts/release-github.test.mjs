@@ -10,6 +10,9 @@ import {
 
 const coreChangelog = readFileSync(join(process.cwd(), 'packages/system/CHANGELOG.md'), 'utf8')
 const reactChangelog = readFileSync(join(process.cwd(), 'packages/react/CHANGELOG.md'), 'utf8')
+const currentVersion = JSON.parse(
+  readFileSync(join(process.cwd(), 'packages/system/package.json'), 'utf8'),
+).version
 
 function sections(version) {
   return [
@@ -25,7 +28,10 @@ describe('release-github', () => {
     expect(section).not.toContain('补充 npm 包页面 README')
 
     expect(extractVersionSection(coreChangelog, '9.9.9')).toBeNull()
-    expect(listVersions(coreChangelog)).toEqual(['0.2.0', '0.1.1', '0.1.0'])
+    // 版本列表以当前 package.json 为准，后续 patch 递增时无需改测试。
+    const versions = listVersions(coreChangelog)
+    expect(versions[0]).toBe(currentVersion)
+    expect(versions).toEqual(expect.arrayContaining(['0.2.0', '0.1.1', '0.1.0']))
   })
 
   it('按 changeset 分组解析条目', () => {

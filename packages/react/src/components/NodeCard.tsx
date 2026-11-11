@@ -315,7 +315,12 @@ export const NodeCard = ({
       className={className}
       data-node-id={node.id}
       data-node-type={node.type ?? 'unknown'}
-      style={{ left: node.position.x, top: node.position.y }}
+      style={{
+        left: node.position.x,
+        top: node.position.y,
+        // 类型色落在左侧强调条与图标底色上，避免所有节点都是同一种蓝（v0.2.1）。
+        borderLeftColor: meta.color,
+      }}
       tabIndex={0}
       role="button"
       aria-label={ariaLabel}
@@ -327,41 +332,48 @@ export const NodeCard = ({
       onPointerCancel={endDrag}
       onDoubleClick={startRename}
     >
-      <span className="flow-node__icon" style={{ color: meta.color }}>
+      <span
+        className="flow-node__icon"
+        style={{ color: meta.color, backgroundColor: `${meta.color}1f` }}
+      >
         {meta.icon}
       </span>
-      {isRenaming ? (
-        <input
-          ref={inputRef}
-          className="flow-node__rename"
-          value={draftLabel}
-          onChange={(event) => setDraftLabel(event.target.value)}
-          onKeyDown={handleRenameKeyDown}
-          onBlur={commitRename}
-          onPointerDown={(event) => event.stopPropagation()}
-          aria-label="节点名称"
-        />
-      ) : (
-        <span className="flow-node__title" title={title}>
-          {title}
-        </span>
-      )}
-      <span
-        className="flow-node__badge"
-        style={{ color: meta.color, backgroundColor: `${meta.color}1a` }}
-      >
-        {meta.label}
-      </span>
+      <span className="flow-node__body">
+        {isRenaming ? (
+          <input
+            ref={inputRef}
+            className="flow-node__rename"
+            value={draftLabel}
+            onChange={(event) => setDraftLabel(event.target.value)}
+            onKeyDown={handleRenameKeyDown}
+            onBlur={commitRename}
+            onPointerDown={(event) => event.stopPropagation()}
+            aria-label="节点名称"
+          />
+        ) : (
+          <span className="flow-node__title" title={title}>
+            {title}
+          </span>
+        )}
+        <span className="flow-node__meta">
+          <span
+            className="flow-node__badge"
+            style={{ color: meta.color, backgroundColor: `${meta.color}14` }}
+          >
+            {meta.label}
+          </span>
 
-      {hasVariableReference ? (
-        <span
-          className="flow-node__reference"
-          title="该节点的参数引用了上游变量"
-          aria-label="该节点的参数引用了上游变量"
-        >
-          {'{{}}'}
+          {hasVariableReference ? (
+            <span
+              className="flow-node__reference"
+              title="该节点的参数引用了上游变量"
+              aria-label="该节点的参数引用了上游变量"
+            >
+              {'{{}}'}
+            </span>
+          ) : null}
         </span>
-      ) : null}
+      </span>
 
       {runState !== 'idle' ? (
         <span className={`flow-node__run-badge is-${runState}`} data-run-state={runState}>

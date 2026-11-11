@@ -246,7 +246,27 @@ export const ConfigPanel = ({ className, variant = 'overlay' }: ConfigPanelProps
           <span className="flow-config-panel__title">配置</span>
         </header>
         <div className="flow-config-panel__empty">
-          <p>未选中节点</p>
+          <span className="flow-config-panel__empty-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <rect
+                x="3"
+                y="6"
+                width="10"
+                height="7"
+                rx="2"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeDasharray="2.4 2.2"
+              />
+              <path
+                d="M14 5.5 17 8.5M17 5.5 14 8.5"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+              />
+            </svg>
+          </span>
+          <p className="flow-config-panel__empty-title">未选中节点</p>
           <p className="flow-config-panel__hint">在画布上选择一个节点来编辑它的名称、描述与参数。</p>
         </div>
       </aside>
@@ -258,7 +278,7 @@ export const ConfigPanel = ({ className, variant = 'overlay' }: ConfigPanelProps
       <header className="flow-config-panel__header">
         <span
           className="flow-config-panel__icon"
-          style={{ color: definition.color }}
+          style={{ color: definition.color, backgroundColor: `${definition.color}1f` }}
           aria-hidden="true"
         >
           {definition.icon}

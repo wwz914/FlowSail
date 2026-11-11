@@ -83,7 +83,10 @@ export const NodePanel = ({ onAddNode, title = '节点', variant = 'overlay' }: 
           onDragStart={(event) => handleDragStart(definition.type, event)}
           title={`添加${definition.label}节点`}
         >
-          <span className="flow-node-panel__icon" style={{ color: definition.color }}>
+          <span
+            className="flow-node-panel__icon"
+            style={{ color: definition.color, backgroundColor: `${definition.color}1f` }}
+          >
             {definition.icon}
           </span>
           <span>{definition.label}</span>
