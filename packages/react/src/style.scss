@@ -190,7 +190,6 @@
   cursor: move;
   user-select: none;
   pointer-events: auto;
-  box-shadow: 0 1px 2px var(--flow-shadow);
   transition:
     border-color 140ms ease,
     box-shadow 140ms ease,
@@ -389,7 +388,6 @@
   stroke-width: 1.8;
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
-  filter: drop-shadow(0 1px 1.5px var(--flow-shadow));
   transition: stroke 120ms ease, stroke-width 120ms ease;
 }
 
