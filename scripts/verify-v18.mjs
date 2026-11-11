@@ -167,10 +167,12 @@ const themeState = await page.evaluate(() => {
   }
 })
 check('example 工具栏可用键盘切换到暗色主题', themeState?.dataTheme === 'dark')
+// 只断言“确实变暗”，不锁死具体色值：视觉补丁可以继续调整暗色 token。
+const darkCanvasBackground = themeState?.canvasBackground ?? ''
 check(
   '暗色主题使用深色画布背景',
-  themeState?.canvasBackground === 'rgb(15, 23, 32)',
-  themeState?.canvasBackground ?? '',
+  /^rgb\(/.test(darkCanvasBackground) && luminance(darkCanvasBackground) < 0.15,
+  darkCanvasBackground,
 )
 
 function luminance(rgb) {

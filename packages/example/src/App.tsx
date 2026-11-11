@@ -57,11 +57,11 @@ const customNodeTypes: NodeTypeDefinition[] = [
  * → 运行记录面板逐节点列出状态与耗时 → 改坏参数重跑，失败节点在画布与记录面板同时标红。
  */
 const initialNodes: Node[] = [
-  { id: 'start', type: 'start', position: { x: 320, y: 40 }, data: { label: 'Start' } },
+  { id: 'start', type: 'start', position: { x: 320, y: 80 }, data: { label: 'Start' } },
   {
     id: 'llm',
     type: 'llm',
-    position: { x: 320, y: 190 },
+    position: { x: 320, y: 196 },
     data: {
       label: 'LLM',
       prompt: '把这封邮件改写成三句话摘要：{{start.query}}',
@@ -73,13 +73,13 @@ const initialNodes: Node[] = [
   {
     id: 'condition',
     type: 'condition',
-    position: { x: 320, y: 340 },
+    position: { x: 320, y: 312 },
     data: { label: 'Condition', expression: 'text.length > 40' },
   },
   {
     id: 'llm-yes',
     type: 'llm',
-    position: { x: 120, y: 500 },
+    position: { x: 220, y: 432 },
     data: {
       label: 'LLM (是)',
       prompt: '把摘要翻成英文：{{llm.text}}',
@@ -88,7 +88,7 @@ const initialNodes: Node[] = [
       stream: true,
     },
   },
-  { id: 'end', type: 'end', position: { x: 540, y: 500 }, data: { label: 'End' } },
+  { id: 'end', type: 'end', position: { x: 440, y: 432 }, data: { label: 'End' } },
 ];
 
 const initialEdges: Edge[] = [
@@ -168,9 +168,11 @@ function App() {
           </button>
         </Toolbar>
         <p className="app-hint">
-          v1.8 交互：空白处拖拽框选 · Ctrl/Cmd+A 全选 · 选中节点出现浮动工具条（创建副本 / 复制 /
-          删除）· 从已有连线的输入锚点反向拖出可摘线或改接 · 双击节点标题就地重命名 ·
-          Tab 进入画布，方向键按网格移动节点 · 工具栏可切换亮色 / 暗色
+          <span className="app-hint__badge">提示</span>
+          <span>
+            拖拽框选 · Ctrl/Cmd+A 全选 · 双击节点重命名 · 从输入锚点反向拖拽改接 ·
+            Tab 进入画布后方向键移动
+          </span>
         </p>
         <div className="app-body">
           <aside className="app-sidebar">
