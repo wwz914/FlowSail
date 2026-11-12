@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FlowSail · 2026-11 四版视觉方向</title>
+<style>
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:#f4f4f1;color:#181a1c;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;line-height:1.65;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1240px;margin:0 auto;padding:56px 32px 80px}
+  .eyebrow{font-size:11px;font-weight:600;letter-spacing:.16em;color:#8a8f94;text-transform:uppercase}
+  h1{margin:10px 0 14px;font-size:42px;font-weight:650;letter-spacing:-.025em;line-height:1.15}
+  .lede{max-width:780px;margin:0;font-size:15px;color:#555b60}
+  .meta{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:20px;font-size:12px;color:#8a8f94}
+  .meta span{display:inline-flex;align-items:center;gap:6px}
+  .meta span::before{content:"";width:4px;height:4px;border-radius:50%;background:#c2c6c9}
+  .meta span:first-child::before{display:none}
+  section{margin-top:52px}
+  h2{margin:0 0 16px;font-size:19px;font-weight:650;letter-spacing:-.01em}
+  .caption{margin:10px 2px 0;font-size:12px;color:#8a8f94}
+  .shot{display:block;width:100%;height:auto;border-radius:14px;border:1px solid #e3e3dd;background:#fff;box-shadow:0 1px 2px rgba(20,20,20,.05)}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+  .card{display:flex;flex-direction:column;background:#fff;border:1px solid #e3e3dd;border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(20,20,20,.04)}
+  .card__shot{padding:14px 14px 0;background:#fafaf7}
+  .card__shot img{display:block;width:100%;height:auto;border-radius:8px;border:1px solid #e6e6e0;background:#fff}
+  .card__body{padding:18px 20px 22px}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:600;letter-spacing:.1em;color:#8a8f94;text-transform:uppercase}
+  .tag b{display:grid;place-items:center;width:18px;height:18px;border-radius:5px;background:#181a1c;color:#fff;font-size:10px;letter-spacing:0}
+  .card h3{margin:8px 0 0;font-size:18px;font-weight:650;letter-spacing:-.01em}
+  .card h3 span{color:#9a9fa4;font-weight:500;font-size:14px;letter-spacing:0}
+  .desc{margin:8px 0 0;font-size:12.5px;color:#5b6166}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .chip{font-size:10.5px;padding:2px 8px;border-radius:999px;background:#f2f2ee;color:#565b60}
+  .open{display:inline-flex;align-items:center;gap:5px;margin-top:14px;font-size:12px;font-weight:600;color:#1b1e21;text-decoration:none;border-bottom:1px solid #d8d8d2;padding-bottom:1px}
+  .open:hover{border-color:#1b1e21}
+  .note{margin-top:14px;padding:18px 20px;border:1px dashed #d9d9d2;border-radius:12px;font-size:12px;color:#6b7075}
+  .note b{color:#3a3f43;font-weight:600}
+  .note ul{margin:8px 0 0;padding-left:18px}
+  .note li{margin:3px 0}
+  footer{margin-top:44px;padding-top:20px;border-top:1px solid #e4e4df;font-size:11.5px;color:#8a8f94}
+  @media (max-width:900px){
+    .wrap{padding:36px 20px 60px}
+    h1{font-size:32px}
+    .grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">FlowSail · Design directions · 2026-11</div>
+  <h1>四版视觉方向</h1>
+  <p class="lede">在同一套布局、节点几何（160 × 48）、文案与流程拓扑上，探索四种可落地的界面视觉语言。选定一版后再进入 UI 重构。</p>
+  <div class="meta">
+    <span>1280 × 800</span>
+    <span>选中「条件」节点</span>
+    <span>C 为深色方向，其余为亮色</span>
+    <span>2026-11-12</span>
+  </div>
+
+  <section>
+    <h2>现状基线 · 0.2.1</h2>
+    <img class="shot" src="screenshots/baseline-0.2.1.png" alt="FlowSail 0.2.1 现状界面">
+    <p class="caption">main @ 4dd5fbc，选中条件节点。四版均以此为比较基线。</p>
+  </section>
+
+  <section>
+    <h2>四个方向</h2>
+    <div class="grid">
+      <article class="card">
+        <div class="card__shot"><img src="screenshots/direction-a.png" alt="方向 A 精炼工作台"></div>
+        <div class="card__body">
+          <div class="tag"><b>A</b> Precision</div>
+          <h3>精炼工作台 <span>/ 中性极简</span></h3>
+          <p class="desc">在现状上做减法：中性灰白、细线分隔、单一靛蓝强调，节点去掉左侧色条，只留类型色图标。最接近当前气质，改动最克制。</p>
+          <div class="chips"><span class="chip">中性灰</span><span class="chip">细线</span><span class="chip">靛蓝强调</span><span class="chip">近黑主按钮</span></div>
+          <a class="open" href="direction-a-precision.html">打开 HTML →</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card__shot"><img src="screenshots/direction-b.png" alt="方向 B 暖纸手作"></div>
+        <div class="card__body">
+          <div class="tag"><b>B</b> Paper</div>
+          <h3>暖纸手作 <span>/ 温暖编辑感</span></h3>
+          <p class="desc">奶油纸面、衬线标题、圆形图标与陶土色强调，配合更大的圆角和柔和阴影，让画布更像一张可以慢慢写的纸。</p>
+          <div class="chips"><span class="chip">暖纸面</span><span class="chip">衬线标题</span><span class="chip">圆形图标</span><span class="chip">陶土色</span></div>
+          <a class="open" href="direction-b-paper.html">打开 HTML →</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card__shot"><img src="screenshots/direction-c.png" alt="方向 C 深色智能"></div>
+        <div class="card__body">
+          <div class="tag"><b>C</b> Obsidian</div>
+          <h3>深色智能 <span>/ AI 原生</span></h3>
+          <p class="desc">近黑画布配品牌紫青渐变与光晕，节点图标发光、面板半透明。强化 AI 工作流工具的专业与沉浸感；需要与现有暗色主题一起落地。</p>
+          <div class="chips"><span class="chip">深色优先</span><span class="chip">渐变强调</span><span class="chip">光晕</span><span class="chip">玻璃面板</span></div>
+          <a class="open" href="direction-c-obsidian.html">打开 HTML →</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card__shot"><img src="screenshots/direction-d.png" alt="方向 D 工程蓝图"></div>
+        <div class="card__body">
+          <div class="tag"><b>D</b> Blueprint</div>
+          <h3>工程蓝图 <span>/ 技术图纸</span></h3>
+          <p class="desc">冷青图纸网格、等宽字体标注、直角连线与方形锚点，选中态用虚线框标出。更像开发者工具，强调流程结构与可读性。</p>
+          <div class="chips"><span class="chip">图纸网格</span><span class="chip">等宽标注</span><span class="chip">直角连线</span><span class="chip">方形锚点</span></div>
+          <a class="open" href="direction-d-blueprint.html">打开 HTML →</a>
+        </div>
+      </article>
+    </div>
+
+    <div class="note">
+      <b>评审方式</b>
+      <ul>
+        <li>截图即真实 HTML 在 Chrome 1280 × 800 下的实拍；点「打开 HTML」可在浏览器中查看完整页面。</li>
+        <li>选定方向时，请说明选 A / B / C / D，以及希望保留或调整的细节（如节点卡片、强调色、密度）。</li>
+        <li>四版只改变视觉语言，不改变交互、文案、节点 160 × 48 几何与连线拓扑；D 的直角连线与虚线选中框属于视觉提案，落地时需评估实现成本。</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>FlowSail · 0.2.1 基线 · 设计稿用于评审，尚未接入实现 · 2026-11-12</footer>
+</div>
+</body>
+</html>
