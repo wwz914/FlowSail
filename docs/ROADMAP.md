@@ -1,14 +1,14 @@
 # FlowSail 路线图（ROADMAP）
 
 > 配套文档：[产品 PRD](./PRD.md) · [README](../README.md) · [发布与部署](./RELEASING.md) · [AGENTS.md](../AGENTS.md)
-> 适用基线：`main` @ `905765b`（v1.8 已合并、`0.2.0` 已发布，2026-11-06）
-> 本文只回答两个问题：**现在已经有什么**、**下一阶段做什么**。v1.8 及以前的逐项实施记录不再重复，统一看 [GitHub Releases](https://github.com/wwz914/FlowSail/releases)、对应 PR 与两个包的 `CHANGELOG.md`；版本索引见 [§2](#2-已完成阶段与版本索引)。
+> 适用基线：`main` @ `7de4300`（v1.8 已合并、`0.2.0` 已发布；`0.2.1` 视觉补丁已发布，2026-11-11）
+> 本文只回答两个问题：**现在已经有什么**、**下一阶段做什么**。v1.8 及以前的逐项实施记录不再重复，统一看 [GitHub Releases](https://github.com/wwz914/FlowSail/releases)、对应 PR 与两个包的 `CHANGELOG.md`；`0.2.x` 视觉补丁按工单逐版递增，版本索引见 [§2](#2-已完成阶段与版本索引)。
 
 ---
 
 ## 0. 一页结论
 
-**已经完成的（M1 ~ M4）**：从一个空仓库做到可安装、可在线试用的画布内核——能画、能连、能配、能存、能校验、能跑，并且有主题、键盘可达、npm 包与发布流程。当前公开版本是 `@flowsail/core@0.2.0` / `@flowsail/react@0.2.0`。
+**已经完成的（M1 ~ M4）**：从一个空仓库做到可安装、可在线试用的画布内核——能画、能连、能配、能存、能校验、能跑，并且有主题、键盘可达、npm 包与发布流程。当前公开版本是 `@flowsail/core@0.2.1` / `@flowsail/react@0.2.1`；`0.2.1` 是视觉补丁序列的第一版，功能范围不变。
 
 **下一阶段（M5 / v1.9）**：主题是**运行可控**——把"能跑一条流程"推进到"失败可处理、执行可定位、结果可解释"：
 
@@ -24,7 +24,7 @@
 
 ---
 
-## 1. 当前状态（v1.8 / `0.2.0` 基线）
+## 1. 当前状态（v1.8 能力 + `0.2.1` 视觉基线）
 
 | 能力域 | 现状 / 计划 | 状态 |
 | --- | --- | --- |
@@ -34,15 +34,16 @@
 | 文档 | schema v1、JSON 导入导出、版本迁移、受控 `workflow` + `onChange`、未知字段保留 | ✅ |
 | 运行与调试 | `Runner` 接口、内置 Mock Runner、试运行 / 取消、运行记录、节点五态、单节点测试 | ✅ 基础能力 |
 | 主题与可访问性 | `--flow-*` 变量、亮 / 暗主题、键盘关键路径、焦点环、`aria-label` | ✅ |
-| 交付与工程 | npm `0.2.0`、GitHub Pages 在线示例、changeset / Release 工作流、lint / 测试 / 覆盖率 / 体积 / pack / 链接门禁 | ✅ |
+| 视觉效果 | 节点类型色、画布光晕与网格、工具栏 / 面板层级、示例布局（`0.2.1` 起逐版打磨） | ✅ 进行中 |
+| 交付与工程 | npm `0.2.1`、GitHub Pages 在线示例、changeset / Release 工作流、lint / 测试 / 覆盖率 / 体积 / pack / 链接门禁 | ✅ |
 | **运行容错与部分执行** | 重试、忽略、异常分支、运行到指定节点、运行汇总 | ❌ **v1.9** |
 | **复杂控制流** | 循环、批处理、并行、子工作流 | ❌ v1.10 |
 | **规模化编辑** | 自动布局、小地图、节点分组 / 注释、连线路由 | ❌ v1.11 |
 
 **当前发布物**：
 
-- [`@flowsail/core@0.2.0`](https://www.npmjs.com/package/@flowsail/core/v/0.2.0) / [`@flowsail/react@0.2.0`](https://www.npmjs.com/package/@flowsail/react/v/0.2.0)（两个包版本保持一致）；
-- [GitHub Releases](https://github.com/wwz914/FlowSail/releases)：`v0.1.0`（v1.7）、`v0.1.1`（包页面补丁）、`v0.2.0`（v1.8）；
+- [`@flowsail/core@0.2.1`](https://www.npmjs.com/package/@flowsail/core/v/0.2.1) / [`@flowsail/react@0.2.1`](https://www.npmjs.com/package/@flowsail/react/v/0.2.1)（两个包版本保持一致）；
+- [GitHub Releases](https://github.com/wwz914/FlowSail/releases)：`v0.1.0`（v1.7）、`v0.1.1`（包页面补丁）、`v0.2.0`（v1.8）、`v0.2.1`（视觉补丁）；
 - 在线示例：<https://wwz914.github.io/FlowSail/>。
 
 ---
@@ -61,8 +62,9 @@
 | M3 收口 | v1.6 | 框选、复制粘贴、重命名、吸附、运行回填、会话变量、性能基准 | [#24](https://github.com/wwz914/FlowSail/pull/24) | 未单独发布 |
 | M4 | v1.7 | 包改名与产物、发布流程、文档、在线示例、质量门禁 | [#28](https://github.com/wwz914/FlowSail/pull/28) | [v0.1.0](https://github.com/wwz914/FlowSail/releases/tag/v0.1.0) |
 | M4 收口 | v1.8 | 包内 README、主题与可访问性、P1 交互补全 | [#30](https://github.com/wwz914/FlowSail/pull/30) / [#31](https://github.com/wwz914/FlowSail/pull/31) / [#32](https://github.com/wwz914/FlowSail/pull/32) | [v0.1.1](https://github.com/wwz914/FlowSail/releases/tag/v0.1.1) · [v0.2.0](https://github.com/wwz914/FlowSail/releases/tag/v0.2.0) |
+| 视觉补丁 1 | `0.2.1` | 节点类型色、画布层次、工具栏 / 面板细节、示例布局 | [#36](https://github.com/wwz914/FlowSail/pull/36) | [v0.2.1](https://github.com/wwz914/FlowSail/releases/tag/v0.2.1) |
 
-**版本序列**：v1.0 → v1.1 → v1.3 → v1.4 → v1.5 → v1.6 → v1.7 → v1.8 → **v1.9（规划中）**。v1.2 没有对应内容，不预留。
+**版本序列**：v1.0 → v1.1 → v1.3 → v1.4 → v1.5 → v1.6 → v1.7 → v1.8 → `0.2.1` → … → `0.2.10`（视觉补丁）→ **v1.9（规划中）**。v1.2 没有对应内容，不预留。
 
 ---
 
@@ -70,6 +72,7 @@
 
 - 仓库以**版本**对齐节奏，不再交待"轮次"；每个版本结束时应是一个可演示、可回归的状态。
 - 公开包用 changesets 管理版本：新能力走 minor（如 `0.2.0` → `0.3.0`），修复走 patch；两个包版本保持一致。
+- 视觉补丁只改样式、模板结构与示例布局，不改公开 API：走 patch，两个包同步 bump；`0.2.1` ~ `0.2.10` 由对应工单逐版驱动，不改变 v1.9 的功能规划。
 - 每个版本合并后由维护者触发 Release 工作流（或明确授权代理执行）；Release 正文取自两个包的 `CHANGELOG.md`，并在版本发布后自动创建 GitHub Release（见 [docs/RELEASING.md](./RELEASING.md)）。
 - `1.0.0` 之前，公开 API 仍可能按 minor 调整；文档 schema 的版本（当前 `1`，v1.9 计划升到 `2`）与包的 semver 分开演进，导入时按文档版本迁移。
 - `1.0.0` 的前置条件：公开 API 与文档 schema 至少一个 minor 无破坏性变更；SSR、持久化适配器与端到端回归有明确归属（见 [§7](#7-更远阶段v110)）。

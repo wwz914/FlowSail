@@ -3,7 +3,7 @@
 本文覆盖 v1.7 引入的 npm 发布（R7-2）与 GitHub Pages 在线示例（R7-4），以及每个版本的
 GitHub Release。发布与部署都只由维护者手动触发；CI 不会自行发布或部署。
 
-**当前状态（2026-11-05）**：`@flowsail/core` 与 `@flowsail/react` 的 `0.1.0` / `0.1.1` / `0.2.0` 已发布到 npm；
+**当前状态（2026-11-11）**：`@flowsail/core` 与 `@flowsail/react` 的 `0.1.0` / `0.1.1` / `0.2.0` / `0.2.1` 已发布到 npm；
 GitHub Pages 已启用，在线示例可访问。每个版本在 GitHub 上都有一条 Release（正文取自两个包的 CHANGELOG），
 Releases 页面：<https://github.com/wwz914/FlowSail/releases>。下面的"首次准备"保留为记录，后续版本直接走
 [§2 发布前检查](#2-发布前检查r7-5-门禁)、[§3 版本与 CHANGELOG](#3-版本与-changelog) 与
@@ -14,10 +14,14 @@ v1.8 已补齐两个包内的 `README.md`，并让 `files` 与 `check:pack` 显�
   发布 commit `2935566`（PR #32），两个包的 tarball 均含 `package/README.md`；
 - **`0.2.0`（minor，PR #31，已发布）**：主题变量与亮 / 暗、键盘可访问性、P1 交互；
   版本 commit 由收尾 PR #33 生成，Release 工作流 [42010164055](https://github.com/wwz914/FlowSail/actions/runs/42010164055) 于 2026-11-05 发布，tag `@flowsail/core@0.2.0` / `@flowsail/react@0.2.0` 指向 `3c39a40`；
+- **`0.2.1`（patch，PR #36，已发布）**：视觉打磨第一版（节点类型色、画布层次、面板与工具栏细节、示例布局）；
+  Release 工作流 [42977390678](https://github.com/wwz914/FlowSail/actions/runs/42977390678) 于 2026-11-11 发布，
+  两个包 tag 指向 `ec9267d`，GitHub Release tag `v0.2.1`；Before / After 见
+  [docs/screenshots/v0.2.1](./screenshots/v0.2.1/README.md)；
 - PR #30 / #32 先行修复包页面并发布 `0.1.1`；PR #31 已合并，`0.2.0` 的发布记录见 §6。
 
 - 包：`@flowsail/core`（数据层）与 `@flowsail/react`（React 画布）
-- 版本：`0.1.0` 起步、当前 `0.2.0`，changesets 管理；公开 API 在 `1.0.0` 前仍可能变动
+- 版本：`0.1.0` 起步、当前 `0.2.1`，changesets 管理；公开 API 在 `1.0.0` 前仍可能变动
 - 许可证：MIT（根目录与两个包内各有一份 `LICENSE`）
 
 ---
@@ -98,8 +102,8 @@ git commit -m "chore: release v0.1.0"
 git push
 ```
 
-`changeset version` 会删除已消费的 changeset 文件。`0.1.0`、`0.1.1` 与 `0.2.0` 的 changeset 均已消费，两个包当前是
-`0.2.0`。后续版本继续按本节执行。发布前确认：
+`changeset version` 会删除已消费的 changeset 文件。`0.1.0`、`0.1.1`、`0.2.0` 与 `0.2.1` 的 changeset 均已消费，两个包当前是
+`0.2.1`。后续版本继续按本节执行。发布前确认：
 
 - 两个包的 `version` 一致（本版`fixed` 未启用，靠 changeset 同时 bump 保持一致）；
 - tarball 含 `package/README.md`（`pnpm check:pack` 会断言），npm 页面显示包内 README；
@@ -199,11 +203,14 @@ npm 的不可变发布策略决定了回滚手段有限，按影响从小到大�
 | 0.1.0 | 2026-11-04 | 首个公开版本：包改名、dist 入口、MIT、changesets、在线示例 | 维护者（Q29） | PR #28 | [v0.1.0](https://github.com/wwz914/FlowSail/releases/tag/v0.1.0) |
 | 0.1.1 | 2026-11-05 | 两个包内 README、`files` 与 `check:pack` 断言；修复 npm 页面空壳 | 维护者 | PR #30 / #32（`2935566`） | [v0.1.1](https://github.com/wwz914/FlowSail/releases/tag/v0.1.1) |
 | 0.2.0 | 2026-11-05 | 主题变量与亮 / 暗、键盘可达与可访问性、P1 交互补全 | 代理（负责人授权，Q29） | `.changeset/v18-theme-a11y.md`，PR #31 + 收尾 PR #33 | [v0.2.0](https://github.com/wwz914/FlowSail/releases/tag/v0.2.0) |
+| 0.2.1 | 2026-11-11 | 视觉打磨第一版：节点类型色、画布层次、工具栏 / 面板细节、示例布局 | 代理（本工单明确授权） | `.changeset/visual-refresh-021.md`，PR #36（`ec9267d`） | [v0.2.1](https://github.com/wwz914/FlowSail/releases/tag/v0.2.1) |
 
 > `0.1.1` 发布后已复核：registry tarball 含 `package/README.md`，干净工程从 registry 安装后 `tsc --noEmit` 与 `vite build` 通过。发布记录与实现证据见
 > [v0.2.0](https://github.com/wwz914/FlowSail/releases/tag/v0.2.0) 与 [ROADMAP §2](./ROADMAP.md#2-已完成阶段与版本索引)。
 >
 > `0.2.0` 发布复核（2026-11-05）：`npm view @flowsail/react version` / `@flowsail/core version` 均为 `0.2.0`；两个 tag 指向发布 commit `3c39a40`。首次运行时 changeset 创建 annotated tag 需要 git 身份，Actions 默认没有配置，导致 tag 未生成；已在 `release.yml` 的 Publish 前补 `git config user.name/user.email`，并手工补推本次两个 tag。
+>
+> `0.2.1` 发布复核（2026-11-11）：公共 registry 的 `dist-tags.latest` 为 `0.2.1`（`@flowsail/core` / `@flowsail/react` 一致）；两个包 tag 指向 `ec9267d`，GitHub Release `v0.2.1` 正文包含本版 CHANGELOG 条目；PR #36 的 CI 5/5 通过。公司内网 npm 镜像可能晚于公共 registry 同步，复核以 `--registry=https://registry.npmjs.org` 为准。
 >
 > `v0.1.0` / `v0.1.1` / `v0.2.0` 的 GitHub Release 已于 2026-11-05 用 `scripts/release-github.mjs` 补齐：
 > `v0.1.0` 指向 `dfc7d69`，`v0.1.1` 沿用已有 tag 并更新正文，`v0.2.0` 指向发布 commit `3c39a40`；

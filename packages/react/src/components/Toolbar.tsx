@@ -113,7 +113,20 @@ export const Toolbar = ({ title = 'FlowSail', className, children }: ToolbarProp
   return (
     <div className="flow-toolbar-wrap">
       <div className={classNames} role="toolbar" aria-label="工具栏">
-        <span className="flow-toolbar__title">{title}</span>
+        <span className="flow-toolbar__brand">
+          <span className="flow-toolbar__logo" aria-hidden="true">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+              <path
+                d="M2.6 4.6h5.6c1.7 0 2.7.8 2.7 2.1s-1 2.1-2.7 2.1H5.1c-1.3 0-2 .5-2 1.4s.7 1.4 2 1.4h6.3"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+          <span className="flow-toolbar__title">{title}</span>
+        </span>
 
         <div className="flow-toolbar__group">
           <button
@@ -200,7 +213,9 @@ export const Toolbar = ({ title = 'FlowSail', className, children }: ToolbarProp
           />
         </div>
 
-        {children ? <div className="flow-toolbar__group">{children}</div> : null}
+        {children ? (
+          <div className="flow-toolbar__group flow-toolbar__group--end">{children}</div>
+        ) : null}
 
         {message ? <span className="flow-toolbar__message">{message}</span> : null}
       </div>

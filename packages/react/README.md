@@ -105,7 +105,7 @@ document.documentElement.dataset.theme = 'dark'
   `--flow-focus`、`--flow-node-selected-bg`
 - 状态：`--flow-success`、`--flow-success-bg`、`--flow-danger`、`--flow-danger-bg`、
   `--flow-warning`、`--flow-warning-bg`、`--flow-running-bg`、`--flow-skipped`、`--flow-skipped-bg`
-- 其他：`--flow-edge`、`--flow-code-bg`、`--flow-shadow`、`--flow-shadow-strong`
+- 其他：`--flow-edge`、`--flow-code-bg`、`--flow-shadow`、`--flow-shadow-strong`、`--flow-shadow-brand`
 
 背景默认是点阵网格；`background={false}` 关闭，传入 ReactNode 作为自定义背景：
 

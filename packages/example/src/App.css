@@ -1,7 +1,9 @@
 body {
   margin: 0;
-  background: var(--flow-bg, #fafafa);
-  color: var(--flow-text-secondary, #3e4c59);
+  background: var(--flow-bg, #f4f6fb);
+  color: var(--flow-text-secondary, #334155);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 /* 三栏布局（R3-8）：顶部工具栏 + 左节点面板 + 中画布 + 右配置面板。 */
@@ -10,8 +12,9 @@ body {
   flex-direction: column;
   width: 100vw;
   height: 100vh;
+  overflow: hidden;
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  color: var(--flow-text-secondary, #3e4c59);
+  color: var(--flow-text-secondary, #334155);
 }
 
 .app-toolbar {
@@ -20,7 +23,7 @@ body {
   align-items: baseline;
   gap: 12px;
   padding: 10px 16px;
-  border-bottom: 1px solid var(--flow-border, #e4e7eb);
+  border-bottom: 1px solid var(--flow-border, #e2e8f0);
   background: var(--flow-surface, #fff);
 }
 
@@ -30,7 +33,7 @@ body {
 }
 
 .app-toolbar__hint {
-  color: var(--flow-text-muted, #7b8794);
+  color: var(--flow-text-muted, #64748b);
   font-size: 12px;
 }
 
@@ -40,22 +43,44 @@ body {
   min-height: 0;
 }
 
-/* v1.6 交互提示条：说明框选 / 复制粘贴 / 重命名 / 网格吸附（R6-9）。 */
+/* v1.6 交互提示条（R6-9）：压成单行，把高度留给画布（v0.2.1）。 */
 .app-hint {
+  display: flex;
   flex: none;
+  align-items: center;
+  gap: 8px;
   margin: 0;
   padding: 6px 16px;
-  border-bottom: 1px solid var(--flow-border, #e4e7eb);
-  background: var(--flow-surface-subtle, #f8f9fa);
-  color: var(--flow-text-muted, #7b8794);
+  overflow: hidden;
+  border-bottom: 1px solid var(--flow-border, #e2e8f0);
+  background: var(--flow-surface-subtle, #f7f9fc);
+  color: var(--flow-text-muted, #64748b);
   font-size: 12px;
   line-height: 1.6;
+  white-space: nowrap;
+}
+
+.app-hint__badge {
+  flex: none;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--flow-accent-bg, #eef4ff);
+  color: var(--flow-accent-text, #1d4ed8);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.app-hint > span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .app-sidebar {
   display: flex;
   flex: none;
-  width: 160px;
+  width: 168px;
   background: var(--flow-surface, #fff);
 }
 

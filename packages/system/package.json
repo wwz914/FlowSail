@@ -1,6 +1,6 @@
 {
   "name": "@flowsail/core",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "FlowSail 的框架无关数据层：工作流文档模型、类型定义与变更合并纯函数",
   "license": "MIT",
   "type": "module",

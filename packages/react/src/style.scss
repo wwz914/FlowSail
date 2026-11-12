@@ -10,82 +10,83 @@
 [data-theme='light'] {
   color-scheme: light;
 
-  --flow-bg: #fafafa;
+  --flow-bg: #f4f6fb;
   --flow-surface: #fff;
-  --flow-surface-subtle: #f8f9fa;
-  --flow-surface-hover: #f0f4f8;
-  --flow-surface-translucent: rgb(255 255 255 / 70%);
-  --flow-text: #1f2933;
-  --flow-text-secondary: #3e4c59;
-  --flow-text-strong: #52606d;
-  --flow-text-muted: #7b8794;
-  --flow-text-faint: #9aa5b1;
-  --flow-border: #e4e7eb;
-  --flow-border-subtle: #eef1f4;
-  --flow-border-input: #d9dee3;
-  --flow-border-strong: #cbd2d9;
-  --flow-grid-dot: #cbd2d9;
-  --flow-accent: #1e88e5;
-  --flow-accent-strong: #1565c0;
-  --flow-accent-bg: #e7f5ff;
-  --flow-accent-text: #1864ab;
-  --flow-accent-soft: rgb(30 136 229 / 8%);
-  --flow-accent-ring-soft: rgb(30 136 229 / 15%);
-  --flow-accent-ring: rgb(30 136 229 / 25%);
-  --flow-handle-ring: rgb(30 136 229 / 35%);
-  --flow-node-selected-bg: #f5faff;
+  --flow-surface-subtle: #f7f9fc;
+  --flow-surface-hover: #eef2f9;
+  --flow-surface-translucent: rgb(255 255 255 / 78%);
+  --flow-text: #0f172a;
+  --flow-text-secondary: #334155;
+  --flow-text-strong: #1e293b;
+  --flow-text-muted: #64748b;
+  --flow-text-faint: #94a3b8;
+  --flow-border: #e2e8f0;
+  --flow-border-subtle: #edf1f7;
+  --flow-border-input: #d6dee9;
+  --flow-border-strong: #cbd5e1;
+  --flow-grid-dot: #cfd8e6;
+  --flow-accent: #2563eb;
+  --flow-accent-strong: #1d4ed8;
+  --flow-accent-bg: #eef4ff;
+  --flow-accent-text: #1d4ed8;
+  --flow-accent-soft: rgb(37 99 235 / 7%);
+  --flow-accent-ring-soft: rgb(37 99 235 / 14%);
+  --flow-accent-ring: rgb(37 99 235 / 22%);
+  --flow-handle-ring: rgb(37 99 235 / 30%);
+  --flow-node-selected-bg: #f7faff;
   --flow-edge: #94a3b8;
-  --flow-focus: #1e88e5;
+  --flow-focus: #2563eb;
   --flow-danger: #e5484d;
-  --flow-danger-strong: #e03131;
-  --flow-danger-text: #c92a2a;
-  --flow-danger-bg: #fff5f5;
-  --flow-danger-border: #ffc9c9;
-  --flow-danger-ring: rgb(229 72 77 / 18%);
-  --flow-hint-bg: rgb(229 72 77 / 95%);
-  --flow-success: #2f9e44;
-  --flow-success-text: #2b8a3e;
-  --flow-success-bg: #f1fbf3;
-  --flow-warning: #d9480f;
-  --flow-warning-bg: #fff4e6;
-  --flow-running-bg: #eef6ff;
-  --flow-skipped: #868e96;
-  --flow-skipped-bg: #f8f9fa;
-  --flow-code-bg: #f1f3f5;
-  --flow-cancelled: #c2255c;
-  --flow-shadow: rgb(15 23 42 / 8%);
-  --flow-shadow-strong: rgb(15 23 42 / 16%);
+  --flow-danger-strong: #dc2626;
+  --flow-danger-text: #b91c1c;
+  --flow-danger-bg: #fef2f2;
+  --flow-danger-border: #fecaca;
+  --flow-danger-ring: rgb(220 38 38 / 16%);
+  --flow-hint-bg: rgb(220 38 38 / 95%);
+  --flow-success: #16a34a;
+  --flow-success-text: #15803d;
+  --flow-success-bg: #f0fdf4;
+  --flow-warning: #d97706;
+  --flow-warning-bg: #fffbeb;
+  --flow-running-bg: #eff6ff;
+  --flow-skipped: #94a3b8;
+  --flow-skipped-bg: #f8fafc;
+  --flow-code-bg: #f1f5f9;
+  --flow-cancelled: #db2777;
+  --flow-shadow: rgb(15 23 42 / 6%);
+  --flow-shadow-strong: rgb(15 23 42 / 14%);
+  --flow-shadow-brand: rgb(37 99 235 / 24%);
 }
 
 [data-theme='dark'] {
   color-scheme: dark;
 
-  --flow-bg: #0f1720;
-  --flow-surface: #16202b;
-  --flow-surface-subtle: #1b2733;
-  --flow-surface-hover: #22303f;
-  --flow-surface-translucent: rgb(22 32 43 / 75%);
-  --flow-text: #e6edf3;
-  --flow-text-secondary: #c2cdd8;
-  --flow-text-strong: #d7e0e8;
-  --flow-text-muted: #93a2b1;
-  --flow-text-faint: #7b8b9b;
-  --flow-border: #2a3a4a;
-  --flow-border-subtle: #22303f;
-  --flow-border-input: #3b4c5e;
-  --flow-border-strong: #3b4c5e;
-  --flow-grid-dot: #31424f;
-  --flow-accent: #4dabf7;
-  --flow-accent-strong: #74c0fc;
-  --flow-accent-bg: #1b3a57;
-  --flow-accent-text: #a5d8ff;
-  --flow-accent-soft: rgb(77 171 247 / 12%);
-  --flow-accent-ring-soft: rgb(77 171 247 / 18%);
-  --flow-accent-ring: rgb(77 171 247 / 32%);
-  --flow-handle-ring: rgb(77 171 247 / 45%);
-  --flow-node-selected-bg: #17324a;
-  --flow-edge: #64748b;
-  --flow-focus: #74c0fc;
+  --flow-bg: #0b1220;
+  --flow-surface: #131c2b;
+  --flow-surface-subtle: #182333;
+  --flow-surface-hover: #1f2c3f;
+  --flow-surface-translucent: rgb(19 28 43 / 78%);
+  --flow-text: #e8eef7;
+  --flow-text-secondary: #c3cedd;
+  --flow-text-strong: #dbe4ef;
+  --flow-text-muted: #8fa0b5;
+  --flow-text-faint: #6f8096;
+  --flow-border: #263548;
+  --flow-border-subtle: #1e2b3d;
+  --flow-border-input: #35465c;
+  --flow-border-strong: #3b4d64;
+  --flow-grid-dot: #26374a;
+  --flow-accent: #60a5fa;
+  --flow-accent-strong: #93c5fd;
+  --flow-accent-bg: #15283f;
+  --flow-accent-text: #bfdbfe;
+  --flow-accent-soft: rgb(96 165 250 / 12%);
+  --flow-accent-ring-soft: rgb(96 165 250 / 18%);
+  --flow-accent-ring: rgb(96 165 250 / 30%);
+  --flow-handle-ring: rgb(96 165 250 / 42%);
+  --flow-node-selected-bg: #16283d;
+  --flow-edge: #5b6e85;
+  --flow-focus: #93c5fd;
   --flow-danger: #ff6b6b;
   --flow-danger-strong: #ff8787;
   --flow-danger-text: #ffa8a8;
@@ -103,8 +104,9 @@
   --flow-skipped-bg: #1b2733;
   --flow-code-bg: #1b2733;
   --flow-cancelled: #f06595;
-  --flow-shadow: rgb(0 0 0 / 35%);
-  --flow-shadow-strong: rgb(0 0 0 / 55%);
+  --flow-shadow: rgb(0 0 0 / 32%);
+  --flow-shadow-strong: rgb(0 0 0 / 52%);
+  --flow-shadow-brand: rgb(96 165 250 / 22%);
 }
 
 .react-flow {
@@ -114,6 +116,19 @@
   background: var(--flow-bg);
   overflow: hidden;
   touch-action: none;
+
+  // 顶部一层极淡的品牌色光晕，让大面积画布不再是一片平色（v0.2.1）。
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      900px 420px at 50% -12%,
+      var(--flow-accent-soft),
+      transparent 72%
+    );
+    pointer-events: none;
+  }
 
   &.is-pannable {
     cursor: grab;
@@ -132,7 +147,8 @@
 .flow-background {
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, var(--flow-grid-dot) 1px, transparent 1px);
+  background-image: radial-gradient(circle, var(--flow-grid-dot) 1px, transparent 1.1px);
+  mask-image: radial-gradient(ellipse at center, #000 48%, transparent 100%);
   pointer-events: none;
 }
 
@@ -154,45 +170,53 @@
   z-index: 2;
 }
 
-// 节点卡片（C-11、PRD Q7）：160 × 48，图标 + 标题 + 类型徽标，常态 / 悬停 / 选中三态。
+// 节点卡片（C-11、PRD Q7）：160 × 48。左侧强调条与图标底色取节点类型色，
+// 标题与类型徽标分两行，避免长标题被徽标挤成省略号（v0.2.1）。
 .flow-node {
   position: absolute;
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
   width: 160px;
   height: 48px;
-  padding: 0 10px;
-  border: 2px solid var(--flow-accent);
-  border-radius: 8px;
+  padding: 0 10px 0 8px;
+  border: 1px solid var(--flow-border-strong);
+  border-left: 3px solid var(--flow-accent);
+  border-radius: 10px;
   background: var(--flow-surface);
   color: var(--flow-text);
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  font-size: 13px;
   cursor: move;
   user-select: none;
   pointer-events: auto;
-  transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
+  transition:
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    background 140ms ease;
   z-index: 1;
 
   &:hover {
-    box-shadow: 0 4px 12px var(--flow-shadow);
+    box-shadow: 0 6px 18px -6px var(--flow-shadow-strong);
   }
 
   &.is-selected {
-    border-color: var(--flow-accent-strong);
+    border-color: var(--flow-accent);
     background: var(--flow-node-selected-bg);
-    box-shadow: 0 0 0 3px var(--flow-accent-ring);
+    box-shadow:
+      0 0 0 3px var(--flow-accent-ring-soft),
+      0 8px 22px -12px var(--flow-shadow-strong);
   }
 
   &.is-dragging {
     z-index: 3;
-    box-shadow: 0 6px 16px var(--flow-shadow-strong);
+    box-shadow: 0 14px 28px -12px var(--flow-shadow-strong);
   }
 
   &.is-connection-source {
-    box-shadow: 0 0 0 2px var(--flow-accent-ring-soft);
+    box-shadow:
+      0 0 0 2px var(--flow-accent-ring-soft),
+      0 6px 18px -8px var(--flow-shadow-strong);
   }
 }
 
@@ -201,49 +225,75 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+}
+
+.flow-node__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.flow-node__meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .flow-node__title {
-  flex: 1;
-  min-width: 0;
   overflow: hidden;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 // 就地重命名的输入框（R6-3）：占据标题的位置，样式与标题对齐。
 .flow-node__rename {
-  flex: 1;
+  width: 100%;
   min-width: 0;
-  padding: 2px 4px;
+  padding: 1px 4px;
   border: 1px solid var(--flow-accent);
-  border-radius: 4px;
+  border-radius: 5px;
   background: var(--flow-surface);
   color: inherit;
   font: inherit;
+  font-size: 12.5px;
   outline: none;
   user-select: text;
   cursor: text;
+  box-shadow: 0 0 0 2px var(--flow-accent-ring-soft);
 }
 
 .flow-node.is-renaming {
   cursor: text;
 
-  // 重命名时隐藏类型徽标，把宽度让给输入框（R6-3）。
-  .flow-node__badge {
+  // 重命名时整行让给输入框（R6-3）。
+  .flow-node__meta {
     display: none;
   }
 }
 
 .flow-node__badge {
   flex: none;
-  padding: 2px 6px;
-  border-radius: 999px;
-  font-size: 11px;
-  line-height: 1.3;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 0 4px;
+  border-radius: 4px;
+  font-size: 9.5px;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
   white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 // 锚点：16px 命中区（≥ 12px），默认隐藏，悬停节点或连线时显示（C-4）。
@@ -251,8 +301,8 @@
 .flow-handle {
   position: absolute;
   left: 50%;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
@@ -263,25 +313,36 @@
 
   &::after {
     content: '';
-    width: 8px;
-    height: 8px;
+    width: 9px;
+    height: 9px;
     border-radius: 50%;
     background: var(--flow-accent);
-    border: 1px solid var(--flow-surface);
-    box-shadow: 0 0 0 1px var(--flow-handle-ring);
-    transition: transform 120ms ease, background 120ms ease;
+    border: 2px solid var(--flow-surface);
+    box-shadow:
+      0 0 0 1px var(--flow-handle-ring),
+      0 1px 2px var(--flow-shadow);
+    transition:
+      transform 120ms ease,
+      background 120ms ease,
+      box-shadow 120ms ease;
   }
 
   &--target {
-    top: -8px;
+    top: -9px;
     cursor: crosshair;
     pointer-events: none;
   }
 
   &--source {
-    bottom: -8px;
+    bottom: -9px;
     cursor: crosshair;
   }
+}
+
+.flow-node:hover .flow-handle::after,
+.flow-node.is-connection-source .flow-handle::after,
+.react-flow.is-connecting .flow-handle::after {
+  transform: scale(1.12);
 }
 
 .flow-node:hover .flow-handle,
@@ -324,9 +385,10 @@
 .flow-edge__line {
   fill: none;
   stroke: var(--flow-edge);
-  stroke-width: 2;
+  stroke-width: 1.8;
+  stroke-linecap: round;
   vector-effect: non-scaling-stroke;
-  transition: stroke 120ms ease;
+  transition: stroke 120ms ease, stroke-width 120ms ease;
 }
 
 .flow-edge__arrowhead {
@@ -336,19 +398,22 @@
 .flow-edge__label {
   fill: var(--flow-text-strong);
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  font-size: 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   text-anchor: middle;
   dominant-baseline: middle;
   paint-order: stroke;
   stroke: var(--flow-bg);
-  stroke-width: 4px;
+  stroke-width: 5px;
+  stroke-linejoin: round;
   pointer-events: none;
   user-select: none;
 }
 
 .flow-edge:hover .flow-edge__line {
   stroke: var(--flow-accent);
-  stroke-width: 3;
+  stroke-width: 2.6;
 }
 
 .flow-edge:hover .flow-edge__arrowhead {
@@ -357,7 +422,7 @@
 
 .flow-edge.is-selected .flow-edge__line {
   stroke: var(--flow-accent);
-  stroke-width: 3;
+  stroke-width: 2.6;
 }
 
 .flow-edge__arrowhead.is-selected {
@@ -368,7 +433,8 @@
   fill: none;
   stroke: var(--flow-accent);
   stroke-width: 2;
-  stroke-dasharray: 6 4;
+  stroke-linecap: round;
+  stroke-dasharray: 7 5;
   vector-effect: non-scaling-stroke;
   pointer-events: none;
 
@@ -384,13 +450,13 @@
   left: 16px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  width: 132px;
-  padding: 8px;
+  gap: 3px;
+  width: 140px;
+  padding: 10px 8px;
   border: 1px solid var(--flow-border);
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--flow-surface);
-  box-shadow: 0 2px 8px var(--flow-shadow);
+  box-shadow: 0 8px 24px -12px var(--flow-shadow-strong);
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-size: 13px;
   color: var(--flow-text-secondary);
@@ -398,26 +464,31 @@
 }
 
 .flow-node-panel__title {
-  padding: 2px 8px 6px;
+  padding: 2px 8px 8px;
   color: var(--flow-text-muted);
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
 }
 
 .flow-node-panel__item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 8px;
+  gap: 9px;
+  padding: 5px 7px;
   border: 0;
-  border-radius: 6px;
+  border-radius: 8px;
   background: transparent;
   color: inherit;
   font: inherit;
+  font-size: 12.5px;
   text-align: left;
   cursor: grab;
+  transition: background 120ms ease, color 120ms ease;
 
   &:hover {
     background: var(--flow-surface-hover);
+    color: var(--flow-text);
   }
 
   &:active {
@@ -430,8 +501,9 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
 }
 
 // 左下角视口控件：比例显示、重置、缩放与适应画布（C-1、C-2）。
@@ -441,12 +513,12 @@
   bottom: 16px;
   display: flex;
   align-items: center;
-  gap: 2px;
-  padding: 2px;
+  gap: 1px;
+  padding: 3px;
   border: 1px solid var(--flow-border);
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--flow-surface);
-  box-shadow: 0 2px 8px var(--flow-shadow);
+  box-shadow: 0 8px 24px -12px var(--flow-shadow-strong);
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-size: 12px;
   line-height: 1.4;
@@ -457,14 +529,16 @@
 .flow-controls__zoom {
   padding: 4px 8px;
   border: 0;
-  border-radius: 6px;
+  border-radius: 7px;
   background: transparent;
   color: inherit;
   font: inherit;
   cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
 
   &:hover:not(:disabled) {
     background: var(--flow-surface-hover);
+    color: var(--flow-text);
   }
 
   &:disabled {
@@ -476,19 +550,29 @@
 
 .flow-controls__zoom {
   min-width: 48px;
+  color: var(--flow-text-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.flow-controls__fit {
+  margin-left: 2px;
+  border-left: 1px solid var(--flow-border-subtle);
+  border-radius: 0 7px 7px 0;
 }
 
 .flow-hint {
   position: absolute;
   left: 50%;
   bottom: 24px;
-  padding: 6px 12px;
+  padding: 7px 14px;
   border-radius: 999px;
   background: var(--flow-hint-bg);
   color: var(--flow-surface);
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-size: 12px;
+  font-weight: 500;
   line-height: 1.4;
+  box-shadow: 0 8px 20px -8px var(--flow-danger-ring);
   transform: translateX(-50%);
   pointer-events: none;
 }
@@ -501,11 +585,11 @@
   bottom: 16px;
   display: flex;
   flex-direction: column;
-  width: 280px;
+  width: 300px;
   border: 1px solid var(--flow-border);
-  border-radius: 10px;
+  border-radius: 14px;
   background: var(--flow-surface);
-  box-shadow: 0 2px 8px var(--flow-shadow);
+  box-shadow: 0 12px 32px -18px var(--flow-shadow-strong);
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-size: 13px;
   color: var(--flow-text-secondary);
@@ -517,8 +601,8 @@
   display: flex;
   flex: none;
   align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
+  gap: 10px;
+  padding: 13px 16px;
   border-bottom: 1px solid var(--flow-border-subtle);
 }
 
@@ -527,14 +611,17 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
 }
 
 .flow-config-panel__title {
   flex: 1;
   min-width: 0;
   overflow: hidden;
+  color: var(--flow-text);
+  font-size: 13.5px;
   font-weight: 600;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -544,8 +631,12 @@
   flex: none;
   max-width: 120px;
   overflow: hidden;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--flow-code-bg);
   color: var(--flow-text-faint);
-  font-size: 11px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -553,35 +644,67 @@
 .flow-config-panel__body {
   flex: 1;
   min-height: 0;
-  padding: 12px;
+  padding: 16px;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--flow-border-strong) transparent;
 }
 
 .flow-config-panel__empty {
-  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 24px 20px 48px;
+  text-align: center;
   color: var(--flow-text-muted);
+}
+
+.flow-config-panel__empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  border: 1px dashed var(--flow-border-strong);
+  border-radius: 14px;
+  background: var(--flow-surface-subtle);
+  color: var(--flow-text-faint);
+}
+
+.flow-config-panel__empty-title {
+  margin: 0 0 4px;
+  color: var(--flow-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .flow-config-panel__field {
   display: block;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .flow-config-panel__label {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 4px;
-  color: var(--flow-text-strong);
-  font-size: 12px;
+  margin-bottom: 6px;
+  color: var(--flow-text-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .flow-config-panel__required {
-  padding: 1px 5px;
+  padding: 0 5px;
   border-radius: 999px;
   background: var(--flow-warning-bg);
   color: var(--flow-warning);
   font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0;
 }
 
 .flow-config-panel__input,
@@ -589,18 +712,19 @@
 .flow-config-panel__textarea {
   box-sizing: border-box;
   width: 100%;
-  padding: 6px 8px;
+  padding: 7px 10px;
   border: 1px solid var(--flow-border-input);
-  border-radius: 6px;
+  border-radius: 8px;
   background: var(--flow-surface);
-  color: inherit;
+  color: var(--flow-text);
   font: inherit;
   font-size: 13px;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
 
   &:focus {
     border-color: var(--flow-accent);
     outline: none;
-    box-shadow: 0 0 0 2px var(--flow-accent-ring-soft);
+    box-shadow: 0 0 0 3px var(--flow-accent-ring-soft);
   }
 }
 
@@ -616,14 +740,18 @@
 .flow-config-panel__checkbox {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   color: var(--flow-text-strong);
   font-size: 12px;
+
+  input {
+    accent-color: var(--flow-accent);
+  }
 }
 
 .flow-config-panel__description {
   display: block;
-  margin-top: 4px;
+  margin-top: 5px;
   color: var(--flow-text-faint);
   font-size: 11px;
   line-height: 1.5;
@@ -631,7 +759,7 @@
 
 .flow-config-panel__error {
   display: block;
-  margin-top: 4px;
+  margin-top: 5px;
   color: var(--flow-danger);
   font-size: 11px;
   line-height: 1.5;
@@ -673,13 +801,14 @@
 // 节点卡片上的变量引用标记（R4-5）：轻量提示，不抢占标题与徽标的视觉权重。
 .flow-node__reference {
   flex: none;
-  padding: 1px 4px;
-  border-radius: 4px;
+  padding: 0 3px;
+  border-radius: 3px;
   background: var(--flow-accent-bg);
   color: var(--flow-accent-text);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 9px;
-  line-height: 1.3;
+  font-size: 8.5px;
+  font-weight: 600;
+  line-height: 1.5;
 }
 
 // 变量选择器（R4-6）：按节点分组列出上游节点的输出字段。
@@ -688,17 +817,19 @@
 }
 
 .flow-variable-picker__toggle {
-  padding: 3px 8px;
+  padding: 4px 9px;
   border: 1px solid var(--flow-border-input);
-  border-radius: 6px;
+  border-radius: 7px;
   background: var(--flow-surface);
   color: var(--flow-text-strong);
   font: inherit;
   font-size: 11px;
   cursor: pointer;
+  transition: border-color 120ms ease, color 120ms ease, background 120ms ease;
 
   &:hover {
     border-color: var(--flow-accent);
+    background: var(--flow-accent-soft);
     color: var(--flow-accent-strong);
   }
 }
@@ -710,8 +841,9 @@
   margin-top: 6px;
   padding: 6px;
   border: 1px solid var(--flow-border);
-  border-radius: 8px;
-  background: var(--flow-surface-subtle);
+  border-radius: 10px;
+  background: var(--flow-surface);
+  box-shadow: 0 8px 20px -14px var(--flow-shadow-strong);
   max-height: 180px;
   overflow-y: auto;
 }
@@ -858,9 +990,9 @@
   width: 320px;
   max-height: 40%;
   border: 1px solid var(--flow-border);
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--flow-surface);
-  box-shadow: 0 2px 8px var(--flow-shadow);
+  box-shadow: 0 12px 32px -20px var(--flow-shadow-strong);
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-size: 12px;
   color: var(--flow-text-secondary);
@@ -873,8 +1005,9 @@
   flex: none;
   align-items: center;
   gap: 8px;
-  padding: 8px 10px;
+  padding: 8px 14px;
   border-bottom: 1px solid var(--flow-border-subtle);
+  background: var(--flow-surface-subtle);
 }
 
 .flow-validation-panel__toggle {
@@ -885,6 +1018,7 @@
   background: transparent;
   color: var(--flow-text-secondary);
   font: inherit;
+  font-size: 12px;
   font-weight: 600;
   text-align: left;
   cursor: pointer;
@@ -896,11 +1030,12 @@
 
 .flow-validation-panel__summary {
   flex: none;
-  padding: 1px 6px;
+  padding: 2px 8px;
   border-radius: 999px;
   background: var(--flow-border);
   color: var(--flow-text-strong);
-  font-size: 11px;
+  font-size: 10.5px;
+  font-weight: 600;
 
   &.is-error {
     background: var(--flow-danger-bg);
@@ -916,7 +1051,7 @@
 .flow-validation-panel__body {
   flex: 1;
   min-height: 0;
-  padding: 8px 10px 10px;
+  padding: 10px 14px 12px;
   overflow-y: auto;
 }
 
@@ -985,8 +1120,8 @@
 .flow-toolbar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
+  gap: 10px;
+  padding: 10px 16px;
   border-bottom: 1px solid var(--flow-border);
   background: var(--flow-surface);
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -994,34 +1129,75 @@
   color: var(--flow-text-secondary);
 }
 
+.flow-toolbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 4px;
+}
+
+.flow-toolbar__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, var(--flow-accent), var(--flow-accent-strong));
+  color: var(--flow-surface);
+  box-shadow: 0 3px 8px -2px var(--flow-shadow-brand);
+}
+
 .flow-toolbar__title {
-  font-weight: 600;
+  color: var(--flow-text);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .flow-toolbar__group {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 1px;
+  padding: 2px;
+  border: 1px solid var(--flow-border-subtle);
+  border-radius: 9px;
+  background: var(--flow-surface-subtle);
+}
+
+// 宿主自定义操作（如主题切换）靠右，与文件操作分开（v0.2.1）。
+.flow-toolbar__group--end {
+  margin-left: auto;
+}
+
+.flow-toolbar__group--end + .flow-toolbar__message {
+  margin-left: 10px;
 }
 
 .flow-toolbar__button {
-  padding: 4px 10px;
-  border: 1px solid var(--flow-border-input);
-  border-radius: 6px;
-  background: var(--flow-surface);
-  color: inherit;
+  padding: 5px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--flow-text-secondary);
   font: inherit;
   font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, box-shadow 120ms ease;
 
   &:hover:not(:disabled) {
-    border-color: var(--flow-accent);
-    color: var(--flow-accent-strong);
+    background: var(--flow-surface);
+    color: var(--flow-text);
+    box-shadow: 0 1px 2px var(--flow-shadow);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0.5px);
   }
 
   &:disabled {
     color: var(--flow-text-faint);
-    border-color: var(--flow-border-subtle);
     cursor: not-allowed;
   }
 }
@@ -1033,7 +1209,7 @@
 .flow-toolbar__message {
   margin-left: auto;
   color: var(--flow-text-muted);
-  font-size: 12px;
+  font-size: 11.5px;
 }
 
 // ---------------------------------------------------------------------------
@@ -1067,15 +1243,17 @@
 
 .flow-node__run-badge {
   position: absolute;
-  top: -9px;
-  right: -6px;
-  padding: 1px 6px;
+  top: -10px;
+  right: -8px;
+  padding: 1px 7px;
   border-radius: 999px;
   font-size: 10px;
+  font-weight: 600;
   line-height: 1.5;
   white-space: nowrap;
   color: var(--flow-surface);
   background: var(--flow-text-muted);
+  box-shadow: 0 0 0 2px var(--flow-surface);
 
   &.is-running {
     background: var(--flow-accent);
@@ -1200,9 +1378,9 @@
   display: flex;
   flex-direction: column;
   border: 1px solid var(--flow-border);
-  border-radius: 8px;
+  border-radius: 12px;
   background: var(--flow-surface);
-  box-shadow: 0 6px 18px var(--flow-shadow-strong);
+  box-shadow: 0 12px 32px -20px var(--flow-shadow-strong);
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-size: 12px;
   color: var(--flow-text-secondary);
@@ -1222,7 +1400,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 10px;
+  padding: 8px 14px;
   border-bottom: 1px solid var(--flow-border-subtle);
   background: var(--flow-surface-subtle);
 }
@@ -1240,6 +1418,7 @@
 .flow-run-panel__summary {
   margin-left: auto;
   color: var(--flow-text-muted);
+  font-size: 11px;
 
   &.is-success {
     color: var(--flow-success);
@@ -1259,7 +1438,7 @@
 }
 
 .flow-run-panel__body {
-  padding: 6px 10px 10px;
+  padding: 8px 14px 12px;
   overflow: auto;
 }
 
@@ -1279,8 +1458,8 @@
 
 .flow-run-panel__record {
   border: 1px solid var(--flow-border-subtle);
-  border-radius: 6px;
-  padding: 4px 6px;
+  border-radius: 8px;
+  padding: 5px 8px;
   background: var(--flow-surface);
 
   &.is-failed {
@@ -1449,17 +1628,19 @@
 
 .flow-node-test__button {
   margin-left: auto;
-  padding: 3px 10px;
+  padding: 4px 10px;
   border: 1px solid var(--flow-border-input);
-  border-radius: 6px;
+  border-radius: 7px;
   background: var(--flow-surface);
   color: var(--flow-text-secondary);
   font: inherit;
   font-size: 12px;
   cursor: pointer;
+  transition: border-color 120ms ease, color 120ms ease, background 120ms ease;
 
   &:hover:not(:disabled) {
     border-color: var(--flow-accent);
+    background: var(--flow-accent-soft);
     color: var(--flow-accent-strong);
   }
 
@@ -1502,11 +1683,19 @@
 }
 
 .flow-node-test__input {
-  padding: 4px 6px;
+  padding: 5px 8px;
   border: 1px solid var(--flow-border-input);
-  border-radius: 6px;
+  border-radius: 7px;
+  background: var(--flow-surface);
+  color: var(--flow-text);
   font: inherit;
   font-size: 12px;
+
+  &:focus {
+    border-color: var(--flow-accent);
+    outline: none;
+    box-shadow: 0 0 0 2px var(--flow-accent-ring-soft);
+  }
 }
 
 .flow-node-test__result {
@@ -1548,24 +1737,25 @@
 
 // 工具栏的试运行按钮（R5-9）。
 .flow-toolbar__button--primary {
-  border-color: var(--flow-accent);
   background: var(--flow-accent);
   color: var(--flow-surface);
+  font-weight: 600;
+  box-shadow: 0 2px 6px -1px var(--flow-shadow-brand);
 
   &:hover:not(:disabled) {
     background: var(--flow-accent-strong);
-    border-color: var(--flow-accent-strong);
     color: var(--flow-surface);
+    box-shadow: 0 4px 10px -2px var(--flow-shadow-brand);
   }
 }
 
 .flow-toolbar__button--danger {
-  border-color: var(--flow-danger-strong);
-  color: var(--flow-danger-strong);
+  background: var(--flow-danger-bg);
+  color: var(--flow-danger-text);
 
   &:hover:not(:disabled) {
-    border-color: var(--flow-danger-text);
-    color: var(--flow-danger-text);
+    background: var(--flow-danger-strong);
+    color: var(--flow-surface);
   }
 }
 
@@ -1576,11 +1766,11 @@
   left: 12px;
   z-index: 20;
   width: 340px;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border: 1px solid var(--flow-border);
-  border-radius: 8px;
+  border-radius: 12px;
   background: var(--flow-surface);
-  box-shadow: 0 8px 24px var(--flow-shadow-strong);
+  box-shadow: 0 16px 40px -22px var(--flow-shadow-strong);
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-size: 12px;
   color: var(--flow-text-secondary);
@@ -1599,17 +1789,19 @@
 }
 
 .flow-session-vars__add {
-  padding: 2px 8px;
+  padding: 3px 9px;
   border: 1px solid var(--flow-accent);
-  border-radius: 4px;
+  border-radius: 6px;
   background: var(--flow-surface);
   color: var(--flow-accent);
   font: inherit;
   font-size: 11px;
   cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
 
   &:hover {
-    background: var(--flow-running-bg);
+    background: var(--flow-accent);
+    color: var(--flow-surface);
   }
 }
 
@@ -1636,15 +1828,18 @@
 
 .flow-session-vars__name,
 .flow-session-vars__value {
-  padding: 4px 6px;
+  padding: 5px 8px;
   border: 1px solid var(--flow-border-strong);
-  border-radius: 4px;
+  border-radius: 7px;
+  background: var(--flow-surface);
+  color: var(--flow-text);
   font: inherit;
   font-size: 12px;
   outline: none;
 
   &:focus {
     border-color: var(--flow-accent);
+    box-shadow: 0 0 0 2px var(--flow-accent-ring-soft);
   }
 }
 
@@ -1758,11 +1953,11 @@
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: 4px 6px;
+  padding: 4px 5px;
   border: 1px solid var(--flow-border);
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--flow-surface);
-  box-shadow: 0 4px 14px var(--flow-shadow-strong);
+  box-shadow: 0 10px 30px -12px var(--flow-shadow-strong);
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-size: 12px;
   color: var(--flow-text-secondary);
@@ -1771,23 +1966,28 @@
 }
 
 .flow-selection-toolbar__count {
-  padding: 0 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--flow-surface-subtle);
   color: var(--flow-text-muted);
+  font-size: 11px;
   white-space: nowrap;
 }
 
 .flow-selection-toolbar__button {
-  padding: 3px 8px;
+  padding: 4px 9px;
   border: 0;
-  border-radius: 5px;
+  border-radius: 7px;
   background: transparent;
   color: inherit;
   font: inherit;
   white-space: nowrap;
   cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
 
   &:hover:not(:disabled) {
     background: var(--flow-surface-hover);
+    color: var(--flow-text);
   }
 
   &:disabled {
