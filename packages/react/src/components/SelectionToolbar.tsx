@@ -33,8 +33,8 @@ export const SelectionToolbar = ({ hidden = false }: SelectionToolbarProps) => {
   const minY = Math.min(...bounds.map((item) => item.minY))
 
   const left = viewport.x + ((minX + maxX) / 2) * viewport.zoom
-  // 与选区顶部留出 10px 以上间距，避免浮条压住节点边框（v0.2.1）。
-  const top = Math.max(8, viewport.y + minY * viewport.zoom - 50)
+  // 与选区顶部留出 10px 以上间距，避免浮条压住节点边框（v0.2.2）。
+  const top = Math.max(8, viewport.y + minY * viewport.zoom - 44)
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     // 工具条是画布覆盖层：不让按下穿透到画布（取消选择 / 框选）。
@@ -69,6 +69,7 @@ export const SelectionToolbar = ({ hidden = false }: SelectionToolbarProps) => {
       onDoubleClick={(event) => event.stopPropagation()}
     >
       <span className="flow-selection-toolbar__count">{selected.length} 个节点</span>
+      <span className="flow-selection-toolbar__sep" />
       <button
         type="button"
         className="flow-selection-toolbar__button"
@@ -86,6 +87,7 @@ export const SelectionToolbar = ({ hidden = false }: SelectionToolbarProps) => {
       >
         复制
       </button>
+      <span className="flow-selection-toolbar__sep" />
       <button
         type="button"
         className="flow-selection-toolbar__button flow-selection-toolbar__button--danger"
