@@ -77,7 +77,7 @@ export const BUILTIN_NODE_TYPE_DEFINITIONS: NodeTypeDefinition[] = [
   {
     type: 'start',
     label: '开始',
-    color: '#2f9e44',
+    color: '#3d8a5f',
     icon: <StartIcon />,
     defaultData: { label: 'Start' },
     outputs: singleOutput,
@@ -90,7 +90,7 @@ export const BUILTIN_NODE_TYPE_DEFINITIONS: NodeTypeDefinition[] = [
   {
     type: 'end',
     label: '结束',
-    color: '#e8590c',
+    color: '#bf6733',
     icon: <EndIcon />,
     defaultData: { label: 'End' },
     inputs: singleInput,
@@ -100,7 +100,7 @@ export const BUILTIN_NODE_TYPE_DEFINITIONS: NodeTypeDefinition[] = [
   {
     type: 'llm',
     label: '大模型',
-    color: '#7048e8',
+    color: '#6b5bd0',
     icon: <LlmIcon />,
     defaultData: { label: 'LLM', prompt: '' },
     inputs: singleInput,
@@ -144,7 +144,7 @@ export const BUILTIN_NODE_TYPE_DEFINITIONS: NodeTypeDefinition[] = [
   {
     type: 'plugin',
     label: '插件',
-    color: '#0b7285',
+    color: '#2f7f8c',
     icon: <PluginIcon />,
     defaultData: { label: 'Plugin', tool: '' },
     inputs: singleInput,
@@ -170,7 +170,7 @@ export const BUILTIN_NODE_TYPE_DEFINITIONS: NodeTypeDefinition[] = [
   {
     type: 'condition',
     label: '条件',
-    color: '#c2255c',
+    color: '#b04a68',
     icon: <ConditionIcon />,
     defaultData: { label: 'Condition', expression: '' },
     inputs: singleInput,
@@ -194,7 +194,7 @@ export const BUILTIN_NODE_TYPE_DEFINITIONS: NodeTypeDefinition[] = [
   {
     type: 'code',
     label: '代码',
-    color: '#5f3dc4',
+    color: '#6a59ad',
     icon: <CodeIcon />,
     defaultData: { label: 'Code', code: '', language: 'javascript' },
     inputs: singleInput,

@@ -10,125 +10,132 @@
 [data-theme='light'] {
   color-scheme: light;
 
-  --flow-bg: #f4f6fb;
-  --flow-surface: #fff;
-  --flow-surface-subtle: #f7f9fc;
-  --flow-surface-hover: #eef2f9;
-  --flow-surface-translucent: rgb(255 255 255 / 78%);
-  --flow-text: #0f172a;
-  --flow-text-secondary: #334155;
-  --flow-text-strong: #1e293b;
-  --flow-text-muted: #64748b;
-  --flow-text-faint: #94a3b8;
-  --flow-border: #e2e8f0;
-  --flow-border-subtle: #edf1f7;
-  --flow-border-input: #d6dee9;
-  --flow-border-strong: #cbd5e1;
-  --flow-grid-dot: #cfd8e6;
-  --flow-accent: #2563eb;
-  --flow-accent-strong: #1d4ed8;
-  --flow-accent-bg: #eef4ff;
-  --flow-accent-text: #1d4ed8;
-  --flow-accent-soft: rgb(37 99 235 / 7%);
-  --flow-accent-ring-soft: rgb(37 99 235 / 14%);
-  --flow-accent-ring: rgb(37 99 235 / 22%);
-  --flow-handle-ring: rgb(37 99 235 / 30%);
-  --flow-node-selected-bg: #f7faff;
-  --flow-edge: #94a3b8;
-  --flow-focus: #2563eb;
-  --flow-danger: #e5484d;
-  --flow-danger-strong: #dc2626;
-  --flow-danger-text: #b91c1c;
-  --flow-danger-bg: #fef2f2;
-  --flow-danger-border: #fecaca;
-  --flow-danger-ring: rgb(220 38 38 / 16%);
-  --flow-hint-bg: rgb(220 38 38 / 95%);
-  --flow-success: #16a34a;
-  --flow-success-text: #15803d;
-  --flow-success-bg: #f0fdf4;
-  --flow-warning: #d97706;
-  --flow-warning-bg: #fffbeb;
-  --flow-running-bg: #eff6ff;
-  --flow-skipped: #94a3b8;
-  --flow-skipped-bg: #f8fafc;
-  --flow-code-bg: #f1f5f9;
-  --flow-cancelled: #db2777;
-  --flow-shadow: rgb(15 23 42 / 6%);
-  --flow-shadow-strong: rgb(15 23 42 / 14%);
-  --flow-shadow-brand: rgb(37 99 235 / 24%);
+  --flow-bg: #f4f4f1;
+  --flow-canvas: #fafaf7;
+  --flow-surface: #ffffff;
+  --flow-surface-subtle: #fafaf7;
+  --flow-surface-hover: #f1f1ed;
+  --flow-surface-translucent: rgb(255 255 255 / 80%);
+  --flow-text: #171a1c;
+  --flow-text-secondary: #4f565c;
+  --flow-text-strong: #1b1e21;
+  --flow-text-muted: #7c8288;
+  --flow-text-faint: #8f959a;
+  --flow-border: #e5e5df;
+  --flow-border-subtle: #efefe9;
+  --flow-border-input: #deded9;
+  --flow-border-strong: #d5d5cf;
+  --flow-node-border: #e2e2dc;
+  --flow-node-shadow: 0 1px 2px rgb(20 22 20 / 5%);
+  --flow-node-type: #8d9297;
+  --flow-handle-border: #c8c8c1;
+  --flow-grid-dot: #dcdcd5;
+  --flow-accent: #4f46e5;
+  --flow-accent-strong: #4338ca;
+  --flow-accent-bg: #eef0ff;
+  --flow-accent-text: #4338ca;
+  --flow-accent-soft: rgb(79 70 229 / 6%);
+  --flow-accent-ring-soft: rgb(79 70 229 / 14%);
+  --flow-accent-ring: rgb(79 70 229 / 22%);
+  --flow-handle-ring: rgb(79 70 229 / 30%);
+  --flow-node-selected-bg: #ffffff;
+  --flow-edge: #b7bbbe;
+  --flow-focus: #4f46e5;
+  --flow-primary: #1b1e21;
+  --flow-primary-ink: #ffffff;
+  --flow-primary-hover: #2c3034;
+  --flow-brand-bg: #1b1e21;
+  --flow-brand-ink: #ffffff;
+  --flow-danger: #c0392b;
+  --flow-danger-strong: #b42318;
+  --flow-danger-text: #b42318;
+  --flow-danger-bg: #fbeae7;
+  --flow-danger-border: #f2c9c2;
+  --flow-danger-ring: rgb(192 57 43 / 16%);
+  --flow-hint-bg: rgb(192 57 43 / 95%);
+  --flow-success: #2f8556;
+  --flow-success-text: #276749;
+  --flow-success-bg: #eaf5ee;
+  --flow-warning: #b45309;
+  --flow-warning-bg: #fdf3e1;
+  --flow-running-bg: #eef0ff;
+  --flow-skipped: #8a9096;
+  --flow-skipped-bg: #f6f6f2;
+  --flow-code-bg: #f1f1ed;
+  --flow-cancelled: #b8336a;
+  --flow-shadow: rgb(20 22 20 / 6%);
+  --flow-shadow-strong: rgb(20 22 20 / 14%);
+  --flow-shadow-brand: rgb(79 70 229 / 20%);
 }
 
 [data-theme='dark'] {
   color-scheme: dark;
 
-  --flow-bg: #0b1220;
-  --flow-surface: #131c2b;
-  --flow-surface-subtle: #182333;
-  --flow-surface-hover: #1f2c3f;
-  --flow-surface-translucent: rgb(19 28 43 / 78%);
-  --flow-text: #e8eef7;
-  --flow-text-secondary: #c3cedd;
-  --flow-text-strong: #dbe4ef;
-  --flow-text-muted: #8fa0b5;
-  --flow-text-faint: #6f8096;
-  --flow-border: #263548;
-  --flow-border-subtle: #1e2b3d;
-  --flow-border-input: #35465c;
-  --flow-border-strong: #3b4d64;
-  --flow-grid-dot: #26374a;
-  --flow-accent: #60a5fa;
-  --flow-accent-strong: #93c5fd;
-  --flow-accent-bg: #15283f;
-  --flow-accent-text: #bfdbfe;
-  --flow-accent-soft: rgb(96 165 250 / 12%);
-  --flow-accent-ring-soft: rgb(96 165 250 / 18%);
-  --flow-accent-ring: rgb(96 165 250 / 30%);
-  --flow-handle-ring: rgb(96 165 250 / 42%);
-  --flow-node-selected-bg: #16283d;
-  --flow-edge: #5b6e85;
-  --flow-focus: #93c5fd;
-  --flow-danger: #ff6b6b;
-  --flow-danger-strong: #ff8787;
-  --flow-danger-text: #ffa8a8;
-  --flow-danger-bg: #3a1d1f;
-  --flow-danger-border: #5c2a2d;
-  --flow-danger-ring: rgb(255 107 107 / 25%);
+  --flow-bg: #0c0e11;
+  --flow-canvas: #0e1116;
+  --flow-surface: #15181d;
+  --flow-surface-subtle: #1a1e24;
+  --flow-surface-hover: #21262e;
+  --flow-surface-translucent: rgb(21 24 29 / 80%);
+  --flow-text: #e9ecef;
+  --flow-text-secondary: #b6bcc4;
+  --flow-text-strong: #dfe3e8;
+  --flow-text-muted: #8b939c;
+  --flow-text-faint: #7b848e;
+  --flow-border: #262b33;
+  --flow-border-subtle: #1e232a;
+  --flow-border-input: #323943;
+  --flow-border-strong: #39414c;
+  --flow-node-border: #2a3038;
+  --flow-node-shadow: 0 1px 2px rgb(0 0 0 / 30%);
+  --flow-node-type: #8b939c;
+  --flow-handle-border: #4a5563;
+  --flow-grid-dot: #2a3038;
+  --flow-accent: #8b85ff;
+  --flow-accent-strong: #a5a0ff;
+  --flow-accent-bg: #221f3d;
+  --flow-accent-text: #c7c3ff;
+  --flow-accent-soft: rgb(139 133 255 / 10%);
+  --flow-accent-ring-soft: rgb(139 133 255 / 16%);
+  --flow-accent-ring: rgb(139 133 255 / 28%);
+  --flow-handle-ring: rgb(139 133 255 / 35%);
+  --flow-node-selected-bg: #15181d;
+  --flow-edge: #5c646e;
+  --flow-focus: #a5a0ff;
+  --flow-primary: #f2f3f5;
+  --flow-primary-ink: #141619;
+  --flow-primary-hover: #ffffff;
+  --flow-brand-bg: #f2f3f5;
+  --flow-brand-ink: #0c0e11;
+  --flow-danger: #ff7b72;
+  --flow-danger-strong: #ff9a91;
+  --flow-danger-text: #ffb4ac;
+  --flow-danger-bg: #3a1d1b;
+  --flow-danger-border: #5c2f2a;
+  --flow-danger-ring: rgb(255 123 114 / 22%);
   --flow-hint-bg: rgb(224 49 49 / 95%);
-  --flow-success: #51cf66;
-  --flow-success-text: #69db7c;
-  --flow-success-bg: #16301f;
-  --flow-warning: #ffa94d;
-  --flow-warning-bg: #3d2a15;
-  --flow-running-bg: #17324a;
-  --flow-skipped: #5c6b7a;
-  --flow-skipped-bg: #1b2733;
-  --flow-code-bg: #1b2733;
-  --flow-cancelled: #f06595;
-  --flow-shadow: rgb(0 0 0 / 32%);
-  --flow-shadow-strong: rgb(0 0 0 / 52%);
-  --flow-shadow-brand: rgb(96 165 250 / 22%);
+  --flow-success: #5fd39a;
+  --flow-success-text: #7ee2b1;
+  --flow-success-bg: #12261c;
+  --flow-warning: #f0b45c;
+  --flow-warning-bg: #3a2a12;
+  --flow-running-bg: #1d2340;
+  --flow-skipped: #6d757e;
+  --flow-skipped-bg: #191d23;
+  --flow-code-bg: #1b1f26;
+  --flow-cancelled: #f06aa6;
+  --flow-shadow: rgb(0 0 0 / 35%);
+  --flow-shadow-strong: rgb(0 0 0 / 55%);
+  --flow-shadow-brand: rgb(139 133 255 / 24%);
 }
 
 .react-flow {
   position: relative;
   width: 100%;
   height: 100%;
-  background: var(--flow-bg);
+  background: var(--flow-canvas);
   overflow: hidden;
   touch-action: none;
-
-  // 顶部一层极淡的品牌色光晕，让大面积画布不再是一片平色（v0.2.1）。
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      900px 420px at 50% -12%,
-      var(--flow-accent-soft),
-      transparent 72%
-    );
-    pointer-events: none;
-  }
 
   &.is-pannable {
     cursor: grab;
@@ -147,8 +154,7 @@
 .flow-background {
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, var(--flow-grid-dot) 1px, transparent 1.1px);
-  mask-image: radial-gradient(ellipse at center, #000 48%, transparent 100%);
+  background-image: radial-gradient(circle, var(--flow-grid-dot) 1px, transparent 1.4px);
   pointer-events: none;
 }
 
@@ -171,25 +177,25 @@
 }
 
 // 节点卡片（C-11、PRD Q7）：160 × 48。左侧强调条与图标底色取节点类型色，
-// 标题与类型徽标分两行，避免长标题被徽标挤成省略号（v0.2.1）。
+// 标题与类型名分两行，避免长标题被类型名挤成省略号（v0.2.2）。
 .flow-node {
   position: absolute;
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
   width: 160px;
   height: 48px;
-  padding: 0 10px 0 8px;
-  border: 1px solid var(--flow-border-strong);
-  border-left: 3px solid var(--flow-accent);
-  border-radius: 10px;
+  padding: 0 9px;
+  border: 1px solid var(--flow-node-border);
+  border-radius: 8px;
   background: var(--flow-surface);
   color: var(--flow-text);
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
   cursor: move;
   user-select: none;
   pointer-events: auto;
+  box-shadow: var(--flow-node-shadow);
   transition:
     border-color 140ms ease,
     box-shadow 140ms ease,
@@ -197,7 +203,8 @@
   z-index: 1;
 
   &:hover {
-    box-shadow: 0 6px 18px -6px var(--flow-shadow-strong);
+    border-color: var(--flow-border-strong);
+    box-shadow: 0 2px 8px -2px var(--flow-shadow-strong);
   }
 
   &.is-selected {
@@ -205,7 +212,7 @@
     background: var(--flow-node-selected-bg);
     box-shadow:
       0 0 0 3px var(--flow-accent-ring-soft),
-      0 8px 22px -12px var(--flow-shadow-strong);
+      0 2px 6px var(--flow-shadow);
   }
 
   &.is-dragging {
@@ -225,16 +232,21 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
 }
 
 .flow-node__body {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   min-width: 0;
 }
 
@@ -248,10 +260,10 @@
 
 .flow-node__title {
   overflow: hidden;
-  font-size: 12.5px;
+  font-size: 11.5px;
   font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -282,15 +294,16 @@
   }
 }
 
-.flow-node__badge {
+.flow-node__type {
   flex: none;
   max-width: 100%;
   overflow: hidden;
-  padding: 0 4px;
-  border-radius: 4px;
-  font-size: 9.5px;
-  font-weight: 600;
-  line-height: 1.5;
+  padding: 0;
+  border-radius: 0;
+  color: var(--flow-node-type);
+  font-size: 9px;
+  font-weight: 400;
+  line-height: 1.3;
   letter-spacing: 0.01em;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -307,23 +320,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
+  opacity: 1;
   transition: opacity 120ms ease;
   z-index: 2;
 
   &::after {
     content: '';
-    width: 9px;
-    height: 9px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
-    background: var(--flow-accent);
-    border: 2px solid var(--flow-surface);
-    box-shadow:
-      0 0 0 1px var(--flow-handle-ring),
-      0 1px 2px var(--flow-shadow);
+    background: var(--flow-surface);
+    border: 1.5px solid var(--flow-handle-border);
     transition:
       transform 120ms ease,
       background 120ms ease,
+      border-color 120ms ease,
       box-shadow 120ms ease;
   }
 
@@ -339,16 +350,18 @@
   }
 }
 
+.flow-node.is-selected .flow-handle::after {
+  border-color: var(--flow-accent);
+}
+
 .flow-node:hover .flow-handle::after,
 .flow-node.is-connection-source .flow-handle::after,
 .react-flow.is-connecting .flow-handle::after {
-  transform: scale(1.12);
+  transform: scale(1.15);
 }
 
-.flow-node:hover .flow-handle,
-.flow-node.is-connection-source .flow-handle,
-.react-flow.is-connecting .flow-handle {
-  opacity: 1;
+.flow-node:hover .flow-handle::after {
+  border-color: var(--flow-accent);
 }
 
 .flow-handle--target.is-connection-target {
@@ -450,9 +463,9 @@
   left: 16px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   width: 140px;
-  padding: 10px 8px;
+  padding: 12px 8px;
   border: 1px solid var(--flow-border);
   border-radius: 12px;
   background: var(--flow-surface);
@@ -464,9 +477,9 @@
 }
 
 .flow-node-panel__title {
-  padding: 2px 8px 8px;
-  color: var(--flow-text-muted);
-  font-size: 11px;
+  padding: 0 8px 9px;
+  color: var(--flow-text-faint);
+  font-size: 10.5px;
   font-weight: 600;
   letter-spacing: 0.08em;
 }
@@ -475,13 +488,14 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 5px 7px;
+  height: 32px;
+  padding: 0 8px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 6px;
   background: transparent;
   color: inherit;
   font: inherit;
-  font-size: 12.5px;
+  font-size: 12px;
   text-align: left;
   cursor: grab;
   transition: background 120ms ease, color 120ms ease;
@@ -501,35 +515,44 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+
+  svg {
+    width: 13px;
+    height: 13px;
+  }
 }
 
 // 左下角视口控件：比例显示、重置、缩放与适应画布（C-1、C-2）。
 .flow-controls {
   position: absolute;
-  left: 16px;
+  left: 18px;
   bottom: 16px;
   display: flex;
   align-items: center;
   gap: 1px;
-  padding: 3px;
+  height: 30px;
+  padding: 0 5px;
   border: 1px solid var(--flow-border);
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--flow-surface);
-  box-shadow: 0 8px 24px -12px var(--flow-shadow-strong);
+  box-shadow: 0 1px 2px var(--flow-shadow);
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.4;
   color: var(--flow-text-secondary);
 }
 
 .flow-controls__button,
 .flow-controls__zoom {
-  padding: 4px 8px;
+  display: grid;
+  place-items: center;
+  height: 22px;
+  padding: 0 7px;
   border: 0;
-  border-radius: 7px;
+  border-radius: 5px;
   background: transparent;
   color: inherit;
   font: inherit;
@@ -549,15 +572,16 @@
 }
 
 .flow-controls__zoom {
-  min-width: 48px;
+  min-width: 40px;
   color: var(--flow-text-strong);
   font-variant-numeric: tabular-nums;
 }
 
 .flow-controls__fit {
   margin-left: 2px;
+  padding: 0 7px;
   border-left: 1px solid var(--flow-border-subtle);
-  border-radius: 0 7px 7px 0;
+  border-radius: 0 5px 5px 0;
 }
 
 .flow-hint {
@@ -585,7 +609,7 @@
   bottom: 16px;
   display: flex;
   flex-direction: column;
-  width: 300px;
+  width: 320px;
   border: 1px solid var(--flow-border);
   border-radius: 14px;
   background: var(--flow-surface);
@@ -602,7 +626,7 @@
   flex: none;
   align-items: center;
   gap: 10px;
-  padding: 13px 16px;
+  padding: 13px 16px 14px;
   border-bottom: 1px solid var(--flow-border-subtle);
 }
 
@@ -613,30 +637,34 @@
   justify-content: center;
   width: 28px;
   height: 28px;
-  border-radius: 9px;
+  border-radius: 7px;
+}
+
+.flow-config-panel__heading {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
 }
 
 .flow-config-panel__title {
-  flex: 1;
-  min-width: 0;
   overflow: hidden;
   color: var(--flow-text);
-  font-size: 13.5px;
-  font-weight: 600;
+  font-size: 12.5px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .flow-config-panel__node-id {
-  flex: none;
-  max-width: 120px;
+  max-width: 160px;
   overflow: hidden;
-  padding: 1px 7px;
-  border-radius: 999px;
-  background: var(--flow-code-bg);
   color: var(--flow-text-faint);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 10.5px;
+  font-size: 9px;
+  letter-spacing: 0.04em;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -644,7 +672,7 @@
 .flow-config-panel__body {
   flex: 1;
   min-height: 0;
-  padding: 16px;
+  padding: 16px 16px 0;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--flow-border-strong) transparent;
@@ -665,11 +693,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   margin-bottom: 12px;
   border: 1px dashed var(--flow-border-strong);
-  border-radius: 14px;
+  border-radius: 11px;
   background: var(--flow-surface-subtle);
   color: var(--flow-text-faint);
 }
@@ -677,34 +705,34 @@
 .flow-config-panel__empty-title {
   margin: 0 0 4px;
   color: var(--flow-text-secondary);
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
 }
 
 .flow-config-panel__field {
   display: block;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .flow-config-panel__label {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
   color: var(--flow-text-muted);
-  font-size: 11.5px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 
 .flow-config-panel__required {
-  padding: 0 5px;
+  padding: 1px 5px;
   border-radius: 999px;
-  background: var(--flow-warning-bg);
-  color: var(--flow-warning);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0;
+  background: var(--flow-danger-bg);
+  color: var(--flow-danger);
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .flow-config-panel__input,
@@ -712,13 +740,13 @@
 .flow-config-panel__textarea {
   box-sizing: border-box;
   width: 100%;
-  padding: 7px 10px;
+  padding: 7px 9px;
   border: 1px solid var(--flow-border-input);
-  border-radius: 8px;
+  border-radius: 6px;
   background: var(--flow-surface);
   color: var(--flow-text);
   font: inherit;
-  font-size: 13px;
+  font-size: 11.5px;
   transition: border-color 120ms ease, box-shadow 120ms ease;
 
   &:focus {
@@ -728,13 +756,19 @@
   }
 }
 
+.flow-config-panel__input,
+.flow-config-panel__select {
+  height: 32px;
+  padding: 0 9px;
+}
+
 .flow-config-panel__textarea {
   resize: vertical;
 }
 
 .flow-config-panel__textarea--code {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 12px;
+  font-size: 10.5px;
 }
 
 .flow-config-panel__checkbox {
@@ -742,7 +776,7 @@
   align-items: center;
   gap: 7px;
   color: var(--flow-text-strong);
-  font-size: 12px;
+  font-size: 11px;
 
   input {
     accent-color: var(--flow-accent);
@@ -753,7 +787,7 @@
   display: block;
   margin-top: 5px;
   color: var(--flow-text-faint);
-  font-size: 11px;
+  font-size: 9.5px;
   line-height: 1.5;
 }
 
@@ -767,8 +801,8 @@
 
 .flow-config-panel__hint {
   margin: 0 0 10px;
-  color: var(--flow-text-muted);
-  font-size: 12px;
+  color: var(--flow-text-faint);
+  font-size: 10.5px;
   line-height: 1.6;
 }
 
@@ -780,10 +814,19 @@
   bottom: auto;
   width: 100%;
   height: 100%;
+  padding: 16px 18px;
   border: 0;
   border-left: 1px solid var(--flow-border);
   border-radius: 0;
   box-shadow: none;
+
+  .flow-config-panel__header {
+    padding: 0 0 14px;
+  }
+
+  .flow-config-panel__body {
+    padding: 14px 0 0;
+  }
 }
 
 .flow-node-panel--inline {
@@ -792,6 +835,7 @@
   left: auto;
   width: 100%;
   height: 100%;
+  padding: 14px 10px;
   border: 0;
   border-right: 1px solid var(--flow-border);
   border-radius: 0;
@@ -801,12 +845,10 @@
 // 节点卡片上的变量引用标记（R4-5）：轻量提示，不抢占标题与徽标的视觉权重。
 .flow-node__reference {
   flex: none;
-  padding: 0 3px;
-  border-radius: 3px;
-  background: var(--flow-accent-bg);
+  padding: 0;
   color: var(--flow-accent-text);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 8.5px;
+  font-size: 8px;
   font-weight: 600;
   line-height: 1.5;
 }
@@ -817,13 +859,14 @@
 }
 
 .flow-variable-picker__toggle {
-  padding: 4px 9px;
-  border: 1px solid var(--flow-border-input);
-  border-radius: 7px;
-  background: var(--flow-surface);
-  color: var(--flow-text-strong);
+  height: 24px;
+  padding: 0 8px;
+  border: 1px dashed var(--flow-border-input);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--flow-text-secondary);
   font: inherit;
-  font-size: 11px;
+  font-size: 10px;
   cursor: pointer;
   transition: border-color 120ms ease, color 120ms ease, background 120ms ease;
 
@@ -908,15 +951,17 @@
 // 输入 / 输出 schema 预览（R4-8）。
 .flow-schema-preview {
   margin-top: 16px;
-  padding-top: 12px;
+  padding-top: 14px;
   border-top: 1px solid var(--flow-border-subtle);
 }
 
 .flow-schema-preview__title {
-  margin: 0 0 8px;
-  color: var(--flow-text-strong);
-  font-size: 12px;
+  margin: 0 0 10px;
+  color: var(--flow-text-faint);
+  font-size: 10px;
   font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
 }
 
 .flow-schema-preview__empty {
@@ -926,14 +971,14 @@
 }
 
 .flow-schema-preview__section {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .flow-schema-preview__label {
   display: block;
-  margin-bottom: 4px;
-  color: var(--flow-text-muted);
-  font-size: 11px;
+  margin-bottom: 3px;
+  color: var(--flow-text-faint);
+  font-size: 10px;
 }
 
 .flow-schema-preview__list {
@@ -947,8 +992,8 @@
   align-items: baseline;
   flex-wrap: wrap;
   gap: 6px;
-  padding: 3px 0;
-  font-size: 12px;
+  padding: 2px 0;
+  font-size: 10.5px;
 }
 
 .flow-schema-preview__field-name {
@@ -957,16 +1002,16 @@
 }
 
 .flow-schema-preview__field-type {
-  padding: 0 5px;
-  border-radius: 999px;
-  background: var(--flow-border-subtle);
-  color: var(--flow-text-strong);
-  font-size: 10px;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: var(--flow-code-bg);
+  color: var(--flow-text-muted);
+  font-size: 9px;
 }
 
 .flow-schema-preview__field-desc {
   color: var(--flow-text-faint);
-  font-size: 11px;
+  font-size: 9.5px;
 }
 
 // 最近一次运行的快照（R6-5）：与静态字段声明区分开。
@@ -1012,30 +1057,41 @@
 
 .flow-validation-panel__toggle {
   flex: 1;
-  padding: 2px 4px;
+  padding: 0;
   border: 0;
   border-radius: 5px;
   background: transparent;
   color: var(--flow-text-secondary);
   font: inherit;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
   text-align: left;
   cursor: pointer;
 
   &:hover {
-    background: var(--flow-surface-hover);
+    color: var(--flow-text);
   }
 }
 
 .flow-validation-panel__summary {
+  display: inline-flex;
   flex: none;
-  padding: 2px 8px;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 7px;
   border-radius: 999px;
-  background: var(--flow-border);
-  color: var(--flow-text-strong);
-  font-size: 10.5px;
-  font-weight: 600;
+  background: var(--flow-success-bg);
+  color: var(--flow-success);
+  font-size: 9.5px;
+  font-weight: 500;
+
+  &::before {
+    content: '';
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: currentColor;
+  }
 
   &.is-error {
     background: var(--flow-danger-bg);
@@ -1058,7 +1114,7 @@
 .flow-validation-panel__empty {
   margin: 0;
   color: var(--flow-text-faint);
-  font-size: 11px;
+  font-size: 10.5px;
 }
 
 .flow-validation-panel__list {
@@ -1108,6 +1164,16 @@
   border-top: 1px solid var(--flow-border);
   border-radius: 0;
   box-shadow: none;
+
+  .flow-validation-panel__header {
+    padding: 10px 16px 0;
+    border-bottom: 0;
+    background: transparent;
+  }
+
+  .flow-validation-panel__body {
+    padding: 2px 16px 9px;
+  }
 }
 
 // 顶部工具栏（R4-9、FR-U2）。
@@ -1120,20 +1186,21 @@
 .flow-toolbar {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
+  gap: 8px;
+  height: 50px;
+  padding: 0 16px;
   border-bottom: 1px solid var(--flow-border);
   background: var(--flow-surface);
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--flow-text-secondary);
 }
 
 .flow-toolbar__brand {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-right: 4px;
+  gap: 9px;
+  margin-right: 8px;
 }
 
 .flow-toolbar__logo {
@@ -1142,32 +1209,43 @@
   justify-content: center;
   width: 24px;
   height: 24px;
-  border-radius: 7px;
-  background: linear-gradient(135deg, var(--flow-accent), var(--flow-accent-strong));
-  color: var(--flow-surface);
-  box-shadow: 0 3px 8px -2px var(--flow-shadow-brand);
+  border-radius: 6px;
+  background: var(--flow-brand-bg);
+  color: var(--flow-brand-ink);
 }
 
 .flow-toolbar__title {
   color: var(--flow-text);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-size: 13.5px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
 }
 
 .flow-toolbar__group {
   display: flex;
   align-items: center;
-  gap: 1px;
-  padding: 2px;
-  border: 1px solid var(--flow-border-subtle);
-  border-radius: 9px;
-  background: var(--flow-surface-subtle);
+  gap: 2px;
+}
+
+// 分组之间用一条竖线分开，替代 0.2.1 的分组底色（v0.2.2）。
+.flow-toolbar__group + .flow-toolbar__group {
+  margin-left: 6px;
+  padding-left: 8px;
+  border-left: 1px solid var(--flow-border);
+}
+
+// 文件操作与运行操作是一组，不额外画分隔线（v0.2.2）。
+.flow-toolbar__group + .flow-toolbar__group--file {
+  margin-left: 2px;
+  padding-left: 0;
+  border-left: 0;
 }
 
 // 宿主自定义操作（如主题切换）靠右，与文件操作分开（v0.2.1）。
-.flow-toolbar__group--end {
+.flow-toolbar__group + .flow-toolbar__group--end {
   margin-left: auto;
+  padding-left: 0;
+  border-left: 0;
 }
 
 .flow-toolbar__group--end + .flow-toolbar__message {
@@ -1175,21 +1253,31 @@
 }
 
 .flow-toolbar__button {
-  padding: 5px 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 9px;
   border: 0;
-  border-radius: 7px;
+  border-radius: 6px;
   background: transparent;
   color: var(--flow-text-secondary);
   font: inherit;
   font-size: 12px;
   font-weight: 500;
+  white-space: nowrap;
   cursor: pointer;
   transition: background 120ms ease, color 120ms ease, box-shadow 120ms ease;
 
+  svg {
+    flex: none;
+    opacity: 0.8;
+  }
+
   &:hover:not(:disabled) {
-    background: var(--flow-surface);
+    background: var(--flow-surface-hover);
     color: var(--flow-text);
-    box-shadow: 0 1px 2px var(--flow-shadow);
   }
 
   &:active:not(:disabled) {
@@ -1200,6 +1288,11 @@
     color: var(--flow-text-faint);
     cursor: not-allowed;
   }
+}
+
+.flow-toolbar__button--icon {
+  width: 28px;
+  padding: 0;
 }
 
 .flow-toolbar__file {
@@ -1394,12 +1487,23 @@
   border-top: 1px solid var(--flow-border);
   border-radius: 0;
   box-shadow: none;
+
+  .flow-run-panel__header {
+    padding: 10px 16px 0;
+    border-bottom: 0;
+    background: transparent;
+  }
+
+  .flow-run-panel__body {
+    padding: 2px 16px 9px;
+  }
 }
 
 .flow-run-panel__header {
   display: flex;
+  flex: none;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   padding: 8px 14px;
   border-bottom: 1px solid var(--flow-border-subtle);
   background: var(--flow-surface-subtle);
@@ -1409,16 +1513,21 @@
   border: none;
   background: none;
   padding: 0;
-  color: inherit;
+  color: var(--flow-text-secondary);
   font: inherit;
+  font-size: 11.5px;
   font-weight: 600;
   cursor: pointer;
+
+  &:hover {
+    color: var(--flow-text);
+  }
 }
 
 .flow-run-panel__summary {
   margin-left: auto;
-  color: var(--flow-text-muted);
-  font-size: 11px;
+  color: var(--flow-text-faint);
+  font-size: 10.5px;
 
   &.is-success {
     color: var(--flow-success);
@@ -1443,8 +1552,9 @@
 }
 
 .flow-run-panel__empty {
-  margin: 4px 0;
+  margin: 2px 0;
   color: var(--flow-text-faint);
+  font-size: 10.5px;
 }
 
 .flow-run-panel__list {
@@ -1610,8 +1720,8 @@
 
 // 单节点测试（R5-8、FR-P5）。
 .flow-node-test {
-  margin-top: 12px;
-  padding-top: 10px;
+  margin-top: 16px;
+  padding-top: 14px;
   border-top: 1px solid var(--flow-border-subtle);
 }
 
@@ -1622,19 +1732,23 @@
 }
 
 .flow-node-test__title {
+  color: var(--flow-text-faint);
   font-weight: 600;
-  font-size: 12px;
+  font-size: 10px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
 }
 
 .flow-node-test__button {
   margin-left: auto;
-  padding: 4px 10px;
+  height: 22px;
+  padding: 0 9px;
   border: 1px solid var(--flow-border-input);
-  border-radius: 7px;
+  border-radius: 5px;
   background: var(--flow-surface);
   color: var(--flow-text-secondary);
   font: inherit;
-  font-size: 12px;
+  font-size: 10px;
   cursor: pointer;
   transition: border-color 120ms ease, color 120ms ease, background 120ms ease;
 
@@ -1653,7 +1767,7 @@
 .flow-node-test__hint {
   margin: 6px 0 0;
   color: var(--flow-text-faint);
-  font-size: 11px;
+  font-size: 9.5px;
 }
 
 .flow-node-test__inputs {
@@ -1673,7 +1787,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: 10px;
   color: var(--flow-text-strong);
 }
 
@@ -1683,13 +1797,14 @@
 }
 
 .flow-node-test__input {
-  padding: 5px 8px;
+  height: 30px;
+  padding: 0 8px;
   border: 1px solid var(--flow-border-input);
-  border-radius: 7px;
+  border-radius: 5px;
   background: var(--flow-surface);
   color: var(--flow-text);
   font: inherit;
-  font-size: 12px;
+  font-size: 11px;
 
   &:focus {
     border-color: var(--flow-accent);
@@ -1737,15 +1852,13 @@
 
 // 工具栏的试运行按钮（R5-9）。
 .flow-toolbar__button--primary {
-  background: var(--flow-accent);
-  color: var(--flow-surface);
+  background: var(--flow-primary);
+  color: var(--flow-primary-ink);
   font-weight: 600;
-  box-shadow: 0 2px 6px -1px var(--flow-shadow-brand);
 
   &:hover:not(:disabled) {
-    background: var(--flow-accent-strong);
-    color: var(--flow-surface);
-    box-shadow: 0 4px 10px -2px var(--flow-shadow-brand);
+    background: var(--flow-primary-hover);
+    color: var(--flow-primary-ink);
   }
 }
 
@@ -1952,32 +2065,40 @@
   z-index: 5;
   display: flex;
   align-items: center;
-  gap: 2px;
-  padding: 4px 5px;
+  gap: 1px;
+  height: 28px;
+  padding: 0 4px;
   border: 1px solid var(--flow-border);
-  border-radius: 10px;
+  border-radius: 7px;
   background: var(--flow-surface);
-  box-shadow: 0 10px 30px -12px var(--flow-shadow-strong);
+  box-shadow: 0 8px 24px -12px var(--flow-shadow-strong);
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  font-size: 12px;
+  font-size: 10.5px;
   color: var(--flow-text-secondary);
   transform: translateX(-50%);
   pointer-events: auto;
 }
 
 .flow-selection-toolbar__count {
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: var(--flow-surface-subtle);
-  color: var(--flow-text-muted);
-  font-size: 11px;
+  padding: 0 7px;
+  color: var(--flow-text-faint);
+  font-size: 10.5px;
   white-space: nowrap;
 }
 
+.flow-selection-toolbar__sep {
+  width: 1px;
+  height: 12px;
+  background: var(--flow-border);
+  margin: 0 2px;
+  flex: none;
+}
+
 .flow-selection-toolbar__button {
-  padding: 4px 9px;
+  height: 22px;
+  padding: 0 6px;
   border: 0;
-  border-radius: 7px;
+  border-radius: 4px;
   background: transparent;
   color: inherit;
   font: inherit;

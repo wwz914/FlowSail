@@ -199,10 +199,12 @@ pnpm check:pack
   键盘：画布 `role="application"`、节点与连线 `role="button"` + `tabIndex=0` + `aria-label`，
   Enter / Space 选中、方向键按 `DEFAULT_GRID_SIZE` 移动（每次按键压一条历史）。
   **新增颜色不要写字面量，一律加 `--flow-*` token**，并同时补暗色值。
-- **视觉系统（0.2.1 起）**：节点卡片的左侧 3px 强调条与图标底色取注册表里的
-  `NodeTypeDefinition.color`（由 `NodeCard` 内联到 `borderLeftColor` / `backgroundColor`），
-  不再统一使用主题蓝；标题与类型徽标在 `.flow-node__body` 里分两行，避免 160px 卡片把标题
-  截断。画布用 `::before` 品牌色光晕 + 网格渐隐，面板统一 10–14px 圆角与更轻的阴影。
+- **视觉系统（0.2.2 起，方向 A「精炼工作台」）**：节点卡片 160 × 48、8px 圆角，去掉
+  0.2.1 的左侧 3px 强调条，类型色只落在 24px 图标底色上（`NodeCard` 内联
+  `backgroundColor`）；标题与类型名在 `.flow-node__body` 里分两行，类型名用弱化文字而不是
+  彩色胶囊。锚点常显为 7px 白底圆点，选中 / 悬停取强调色。画布是纯点阵网格，不再有
+  品牌色光晕与网格渐隐；强调色改为靛蓝，主按钮在亮色下近黑、暗色下近白。配置面板 320px、
+  输入 32px，校验 / 运行面板压成底部两行。
   **改这些样式时保留节点 160 × 48 的几何常量**（连线端点与适应画布依赖它），
   并同时检查亮 / 暗两套 token；视觉补丁按 `0.2.x` 递增，需求来自对应工单而不是本文。
 - **P1 交互（v1.8）**：`Ctrl/Cmd+A` 走 `store.selectAll`；`components/SelectionToolbar.tsx`
@@ -232,6 +234,11 @@ pnpm check:pack
   工具栏分组并把宿主操作靠右；配置面板、校验 / 运行面板与空状态统一圆角、阴影与间距；
   示例初始布局与提示条收紧。Before / After 见
   [docs/screenshots/v0.2.1](docs/screenshots/v0.2.1/README.md)。
+- **`0.2.2`（视觉补丁序列第 2 版，方向 A「精炼工作台」）**：按评审选定的方向 A 重做视觉层：
+  中性灰白 + 靛蓝强调，节点去掉左侧色条并改为 8px 圆角，锚点常显，工具栏图标化，
+  配置面板 320px，校验 / 运行面板压成底部两行；亮色主按钮近黑、暗色近白。
+  Before / After 见 [docs/screenshots/v0.2.2](docs/screenshots/v0.2.2/README.md)，
+  changeset 已备 `0.2.2`（两个包 patch）；版本尚未发布。
 - `packages/react/src/index.ts` 导出 store、`ReactFlow`、`NodePanel`、`ConfigPanel`、
   `Toolbar`、`SelectionToolbar`、`ValidationPanel`、`VariablePicker`、`SchemaPreview`、`RunPanel`、
   `NodeTestPanel`、`SessionVariablePanel`、`NodeTypeProvider`、注册表与参数校验工具、
