@@ -21,7 +21,7 @@ function resetStore() {
 beforeEach(resetStore)
 
 describe('NodeRenderer', () => {
-  it('渲染节点标题、类型徽标与输入/输出锚点', () => {
+  it('渲染节点标题、类型名与输入/输出锚点', () => {
     useFlowStore.setState({
       workflow: { nodes, edges: [], viewport: { ...DEFAULT_VIEWPORT } },
     })
@@ -34,7 +34,7 @@ describe('NodeRenderer', () => {
     expect(screen.getByText('结束')).toBeTruthy()
     expect(container.querySelectorAll('.flow-node')).toHaveLength(2)
     expect(container.querySelectorAll('.flow-node__icon')).toHaveLength(2)
-    expect(container.querySelectorAll('.flow-node__badge')).toHaveLength(2)
+    expect(container.querySelectorAll('.flow-node__type')).toHaveLength(2)
     // 开始节点没有入口，结束节点没有出口（R3-2 的锚点定义）。
     expect(container.querySelectorAll('.flow-handle--target')).toHaveLength(1)
     expect(container.querySelectorAll('.flow-handle--source')).toHaveLength(1)

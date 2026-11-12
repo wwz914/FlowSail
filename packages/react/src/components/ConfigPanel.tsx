@@ -210,8 +210,10 @@ export const ConfigPanel = ({ className, variant = 'overlay' }: ConfigPanelProps
     return (
       <aside className={classNames} aria-label="配置面板">
         <header className="flow-config-panel__header">
-          <span className="flow-config-panel__title">连线</span>
-          <span className="flow-config-panel__node-id">{selectedEdge.id}</span>
+          <span className="flow-config-panel__heading">
+            <span className="flow-config-panel__title">连线</span>
+            <span className="flow-config-panel__node-id">{selectedEdge.id}</span>
+          </span>
         </header>
         <div className="flow-config-panel__body">
           <p className="flow-config-panel__hint">
@@ -283,8 +285,10 @@ export const ConfigPanel = ({ className, variant = 'overlay' }: ConfigPanelProps
         >
           {definition.icon}
         </span>
-        <span className="flow-config-panel__title">{definition.label}</span>
-        <span className="flow-config-panel__node-id">{selectedNode.id}</span>
+        <span className="flow-config-panel__heading">
+          <span className="flow-config-panel__title">{definition.label}</span>
+          <span className="flow-config-panel__node-id">{selectedNode.id}</span>
+        </span>
       </header>
 
       <div className="flow-config-panel__body">

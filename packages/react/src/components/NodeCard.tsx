@@ -318,8 +318,6 @@ export const NodeCard = ({
       style={{
         left: node.position.x,
         top: node.position.y,
-        // 类型色落在左侧强调条与图标底色上，避免所有节点都是同一种蓝（v0.2.1）。
-        borderLeftColor: meta.color,
       }}
       tabIndex={0}
       role="button"
@@ -356,12 +354,7 @@ export const NodeCard = ({
           </span>
         )}
         <span className="flow-node__meta">
-          <span
-            className="flow-node__badge"
-            style={{ color: meta.color, backgroundColor: `${meta.color}14` }}
-          >
-            {meta.label}
-          </span>
+          <span className="flow-node__type">{meta.label}</span>
 
           {hasVariableReference ? (
             <span
