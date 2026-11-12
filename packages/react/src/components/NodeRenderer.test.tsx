@@ -34,13 +34,37 @@ describe('NodeRenderer', () => {
     expect(screen.getByText('结束')).toBeTruthy()
     expect(container.querySelectorAll('.flow-node')).toHaveLength(2)
     expect(container.querySelectorAll('.flow-node__icon')).toHaveLength(2)
-    expect(container.querySelectorAll('.flow-node__badge')).toHaveLength(2)
+    expect(container.querySelectorAll('.flow-node__type')).toHaveLength(2)
+    // 只有单侧锚点的节点按终端样式渲染（开始 / 结束，0.2.2）。
+    expect(container.querySelectorAll('.flow-node.is-terminal')).toHaveLength(2)
     // 开始节点没有入口，结束节点没有出口（R3-2 的锚点定义）。
     expect(container.querySelectorAll('.flow-handle--target')).toHaveLength(1)
     expect(container.querySelectorAll('.flow-handle--source')).toHaveLength(1)
     expect(container.querySelector('[data-node-id="start"]')?.getAttribute('data-node-type')).toBe(
       'start',
     )
+  })
+
+  it('流程节点按普通卡片渲染，不套终端胶囊', () => {
+    useFlowStore.setState({
+      workflow: {
+        nodes: [
+          {
+            id: 'llm',
+            type: 'llm',
+            position: { x: 10, y: 20 },
+            data: { label: 'LLM' },
+          },
+        ],
+        edges: [],
+        viewport: { ...DEFAULT_VIEWPORT },
+      },
+    })
+
+    const { container } = render(<NodeRenderer connection={null} onConnectStart={vi.fn()} />)
+
+    expect(container.querySelector('.flow-node.is-terminal')).toBeNull()
+    expect(container.querySelector('.flow-node__type')?.textContent).toContain('大模型')
   })
 
   it('增删节点不会触发 Hooks 数量变化错误', () => {

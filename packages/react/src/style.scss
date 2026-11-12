@@ -15,6 +15,7 @@
   --flow-surface-subtle: #f7f9fc;
   --flow-surface-hover: #eef2f9;
   --flow-surface-translucent: rgb(255 255 255 / 78%);
+  --flow-on-solid: #fff;
   --flow-text: #0f172a;
   --flow-text-secondary: #334155;
   --flow-text-strong: #1e293b;
@@ -66,6 +67,7 @@
   --flow-surface-subtle: #182333;
   --flow-surface-hover: #1f2c3f;
   --flow-surface-translucent: rgb(19 28 43 / 78%);
+  --flow-on-solid: #fff;
   --flow-text: #e8eef7;
   --flow-text-secondary: #c3cedd;
   --flow-text-strong: #dbe4ef;
@@ -170,8 +172,32 @@
   z-index: 2;
 }
 
-// 节点卡片（C-11、PRD Q7）：160 × 48。左侧强调条与图标底色取节点类型色，
-// 标题与类型徽标分两行，避免长标题被徽标挤成省略号（v0.2.1）。
+// ---------------------------------------------------------------------------
+// 节点类型视觉系统（0.2.2）
+//
+// 160 × 48 的几何不变（PRD Q7）。类型色由注册表的 NodeTypeDefinition.color 以
+// `--flow-node-color` 内联到卡片上，其余深浅全部在这里派生：亮色用 600 级色值，
+// 暗色把图标 / 文字提亮，避免深色画布上类型色发闷。
+// 结构：类型色强调条 + 图标卡 + 标题 / 类型行；开始 / 结束额外使用终端胶囊造型。
+// ---------------------------------------------------------------------------
+.flow-node,
+.flow-node-panel__icon {
+  --flow-node-color: var(--flow-accent);
+  --flow-node-ink: var(--flow-node-color);
+  --flow-node-wash: color-mix(in srgb, var(--flow-node-color) 12%, transparent);
+  --flow-node-tint: color-mix(in srgb, var(--flow-node-color) 8%, var(--flow-surface));
+  --flow-node-ring: color-mix(in srgb, var(--flow-node-color) 26%, transparent);
+}
+
+[data-theme='dark'] .flow-node,
+[data-theme='dark'] .flow-node-panel__icon {
+  --flow-node-ink: color-mix(in srgb, var(--flow-node-color) 70%, white);
+  --flow-node-wash: color-mix(in srgb, var(--flow-node-color) 24%, transparent);
+  --flow-node-tint: color-mix(in srgb, var(--flow-node-color) 16%, var(--flow-surface));
+  --flow-node-ring: color-mix(in srgb, var(--flow-node-color) 40%, transparent);
+}
+
+// 节点卡片（C-11、PRD Q7）：左侧强调条与图标卡取节点类型色。
 .flow-node {
   position: absolute;
   box-sizing: border-box;
@@ -182,7 +208,7 @@
   height: 48px;
   padding: 0 10px 0 8px;
   border: 1px solid var(--flow-border-strong);
-  border-left: 3px solid var(--flow-accent);
+  border-left: 3px solid var(--flow-node-color);
   border-radius: 10px;
   background: var(--flow-surface);
   color: var(--flow-text);
@@ -202,6 +228,7 @@
 
   &.is-selected {
     border-color: var(--flow-accent);
+    border-left-color: var(--flow-node-color);
     background: var(--flow-node-selected-bg);
     box-shadow:
       0 0 0 3px var(--flow-accent-ring-soft),
@@ -220,21 +247,25 @@
   }
 }
 
+// 图标卡：28px 底色方块 + 统一线性图标，是类型辨识的第一层。
 .flow-node__icon {
   display: flex;
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 8px;
+  color: var(--flow-node-ink);
+  background: var(--flow-node-wash);
+  box-shadow: inset 0 0 0 1px var(--flow-node-ring);
 }
 
 .flow-node__body {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   min-width: 0;
 }
 
@@ -250,10 +281,58 @@
   overflow: hidden;
   font-size: 12.5px;
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.25;
   letter-spacing: -0.01em;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+// 类型行：彩色圆点 + 弱化文字，替代 0.2.1 的彩色胶囊徽标；徽标底色容易显得零碎。
+.flow-node__type {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--flow-text-muted);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.flow-node__type-dot {
+  flex: none;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  // 与图标同一套亮 / 暗派生色，深色画布上圆点不会发闷。
+  background: var(--flow-node-ink);
+}
+
+// 终端节点（开始 / 结束）：胶囊造型 + 类型色浅底 + 实心图标卡，与流程节点区分。
+.flow-node.is-terminal {
+  padding: 0 12px 0 8px;
+  border: 1px solid color-mix(in srgb, var(--flow-node-color) 38%, var(--flow-border));
+  border-radius: 999px;
+  background: var(--flow-node-tint);
+}
+
+.flow-node.is-terminal .flow-node__icon {
+  border-radius: 999px;
+  color: var(--flow-on-solid);
+  background: var(--flow-node-color);
+  box-shadow: none;
+}
+
+.flow-node.is-terminal .flow-node__type-dot {
+  display: none;
+}
+
+.flow-node.is-terminal.is-selected {
+  border-color: var(--flow-accent);
 }
 
 // 就地重命名的输入框（R6-3）：占据标题的位置，样式与标题对齐。
@@ -280,20 +359,6 @@
   .flow-node__meta {
     display: none;
   }
-}
-
-.flow-node__badge {
-  flex: none;
-  max-width: 100%;
-  overflow: hidden;
-  padding: 0 4px;
-  border-radius: 4px;
-  font-size: 9.5px;
-  font-weight: 600;
-  line-height: 1.5;
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 // 锚点：16px 命中区（≥ 12px），默认隐藏，悬停节点或连线时显示（C-4）。
@@ -504,6 +569,9 @@
   width: 26px;
   height: 26px;
   border-radius: 8px;
+  color: var(--flow-node-ink);
+  background: var(--flow-node-wash);
+  box-shadow: inset 0 0 0 1px var(--flow-node-ring);
 }
 
 // 左下角视口控件：比例显示、重置、缩放与适应画布（C-1、C-2）。
@@ -801,14 +869,15 @@
 // 节点卡片上的变量引用标记（R4-5）：轻量提示，不抢占标题与徽标的视觉权重。
 .flow-node__reference {
   flex: none;
-  padding: 0 3px;
-  border-radius: 3px;
+  margin-left: auto;
+  padding: 0 4px;
+  border-radius: 4px;
   background: var(--flow-accent-bg);
   color: var(--flow-accent-text);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 8.5px;
+  font-size: 9px;
   font-weight: 600;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 // 变量选择器（R4-6）：按节点分组列出上游节点的输出字段。
@@ -1239,6 +1308,14 @@
   border-color: var(--flow-skipped);
   background: var(--flow-skipped-bg);
   opacity: 0.75;
+}
+
+// 运行态只接管整圈边框，流程节点左侧的类型色仍保留，节点在运行时也不丢类型身份。
+.flow-node:not(.is-terminal).is-run-running,
+.flow-node:not(.is-terminal).is-run-success,
+.flow-node:not(.is-terminal).is-run-error,
+.flow-node:not(.is-terminal).is-run-skipped {
+  border-left-color: var(--flow-node-color);
 }
 
 .flow-node__run-badge {

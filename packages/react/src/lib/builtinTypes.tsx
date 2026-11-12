@@ -1,64 +1,68 @@
 import type { NodeTypeDefinition } from './registry.ts'
 
+/**
+ * 节点图标统一为一套 20 × 20 的线性图标：同一描边宽度、圆角端点、无填充，
+ * 避免不同类型混用实心 / 线性图标造成视觉语言不统一（0.2.2）。
+ */
 const ICON_PROPS = {
-  width: 16,
-  height: 16,
-  viewBox: '0 0 16 16',
+  width: 18,
+  height: 18,
+  viewBox: '0 0 20 20',
   fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 1.6,
+  strokeLinecap: 'round',
+  strokeLinejoin: 'round',
   'aria-hidden': true,
 } as const
 
 const StartIcon = () => (
   <svg {...ICON_PROPS}>
-    <path d="M5.2 3.3v9.4L12.6 8 5.2 3.3Z" fill="currentColor" />
+    <circle cx="10" cy="10" r="6.6" />
+    <path d="M8.5 7.4 12.5 10 8.5 12.6V7.4Z" />
   </svg>
 )
 
 const LlmIcon = () => (
   <svg {...ICON_PROPS}>
-    <path
-      d="m8 1.8 1.5 3.9 3.9 1.5-3.9 1.5L8 12.6 6.5 8.7 2.6 7.2l3.9-1.5L8 1.8Z"
-      fill="currentColor"
-    />
+    <path d="M10 3.2l1.9 4.9 4.9 1.9-4.9 1.9L10 16.8 8.1 11.9 3.2 10l4.9-1.9L10 3.2Z" />
   </svg>
 )
 
 const EndIcon = () => (
   <svg {...ICON_PROPS}>
-    <rect x="4" y="4" width="8" height="8" rx="2" fill="currentColor" />
+    <circle cx="10" cy="10" r="6.6" />
+    <rect x="7.6" y="7.6" width="4.8" height="4.8" rx="1" />
   </svg>
 )
 
 const PluginIcon = () => (
   <svg {...ICON_PROPS}>
-    <path
-      d="M6 1.8v3.4H2.6a.8.8 0 0 0-.8.8V10a.8.8 0 0 0 .8.8h3.4V14.2h.8a.8.8 0 0 0 .8-.8v-3.4h3.4a.8.8 0 0 0 .8-.8V6a.8.8 0 0 0-.8-.8h-3.4V1.8a.8.8 0 0 0-.8-.8H6.8a.8.8 0 0 0-.8.8Z"
-      fill="currentColor"
-    />
+    <path d="M7 3.2v3.1M13 3.2v3.1" />
+    <path d="M5.4 6.3h9.2v3.1a4.6 4.6 0 0 1-9.2 0V6.3Z" />
+    <path d="M10 14v3.2" />
   </svg>
 )
 
 const ConditionIcon = () => (
   <svg {...ICON_PROPS}>
-    <path
-      d="M3.2 2.6h9.6a.8.8 0 0 1 .61 1.31L8.9 8l4.51 4.09a.8.8 0 0 1-.61 1.31H3.2a.8.8 0 0 1-.61-1.31L7.1 8 2.59 3.91A.8.8 0 0 1 3.2 2.6Z"
-      fill="currentColor"
-    />
+    {/* 流程图里的菱形 = 判断 / 分支，比叉形图标更不容易被误读。 */}
+    <path d="M10 3.2 16.8 10 10 16.8 3.2 10 10 3.2Z" />
   </svg>
 )
 
 const CodeIcon = () => (
   <svg {...ICON_PROPS}>
-    <path
-      d="M5.6 4.4 2.2 8l3.4 3.6 1-1L4.1 8l2.5-2.6-1-1Zm4.8 0-1 1L11.9 8l-2.5 2.6 1 1L13.8 8l-3.4-3.6Z"
-      fill="currentColor"
-    />
+    <path d="m7.4 6.8-3.2 3.2 3.2 3.2" />
+    <path d="m12.6 6.8 3.2 3.2-3.2 3.2" />
+    <path d="m11.2 4.4-2.4 11.2" />
   </svg>
 )
 
 const DefaultIcon = () => (
   <svg {...ICON_PROPS}>
-    <circle cx="8" cy="8" r="4.5" fill="currentColor" />
+    <circle cx="10" cy="10" r="6.2" />
+    <circle cx="10" cy="10" r="2" fill="currentColor" stroke="none" />
   </svg>
 )
 
@@ -77,7 +81,7 @@ export const BUILTIN_NODE_TYPE_DEFINITIONS: NodeTypeDefinition[] = [
   {
     type: 'start',
     label: '开始',
-    color: '#2f9e44',
+    color: '#16a34a',
     icon: <StartIcon />,
     defaultData: { label: 'Start' },
     outputs: singleOutput,
@@ -90,7 +94,7 @@ export const BUILTIN_NODE_TYPE_DEFINITIONS: NodeTypeDefinition[] = [
   {
     type: 'end',
     label: '结束',
-    color: '#e8590c',
+    color: '#ea580c',
     icon: <EndIcon />,
     defaultData: { label: 'End' },
     inputs: singleInput,
@@ -100,7 +104,7 @@ export const BUILTIN_NODE_TYPE_DEFINITIONS: NodeTypeDefinition[] = [
   {
     type: 'llm',
     label: '大模型',
-    color: '#7048e8',
+    color: '#7c3aed',
     icon: <LlmIcon />,
     defaultData: { label: 'LLM', prompt: '' },
     inputs: singleInput,
@@ -144,7 +148,7 @@ export const BUILTIN_NODE_TYPE_DEFINITIONS: NodeTypeDefinition[] = [
   {
     type: 'plugin',
     label: '插件',
-    color: '#0b7285',
+    color: '#0891b2',
     icon: <PluginIcon />,
     defaultData: { label: 'Plugin', tool: '' },
     inputs: singleInput,
@@ -170,7 +174,7 @@ export const BUILTIN_NODE_TYPE_DEFINITIONS: NodeTypeDefinition[] = [
   {
     type: 'condition',
     label: '条件',
-    color: '#c2255c',
+    color: '#b45309',
     icon: <ConditionIcon />,
     defaultData: { label: 'Condition', expression: '' },
     inputs: singleInput,
@@ -194,7 +198,7 @@ export const BUILTIN_NODE_TYPE_DEFINITIONS: NodeTypeDefinition[] = [
   {
     type: 'code',
     label: '代码',
-    color: '#5f3dc4',
+    color: '#4f46e5',
     icon: <CodeIcon />,
     defaultData: { label: 'Code', code: '', language: 'javascript' },
     inputs: singleInput,

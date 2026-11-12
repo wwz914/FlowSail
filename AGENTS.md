@@ -90,8 +90,9 @@ pnpm check:pack
 **UI 改动的验证要求**：改 `packages/react` 或 `packages/example` 的界面后，
 必须在 PR 里给出 **Before / After 两张截图**，同一视口、同一场景、同一主题。
 截图用 dev server 实际截取，不要用设计稿冒充旧实现。v1.8 的四组对比见
-[docs/screenshots/v1.8](docs/screenshots/v1.8/README.md)，0.2.1 的四组对比见
-[docs/screenshots/v0.2.1](docs/screenshots/v0.2.1/README.md)，键盘走查脚本为
+[docs/screenshots/v1.8](docs/screenshots/v1.8/README.md)，0.2.1 / 0.2.2 的对比见
+[docs/screenshots/v0.2.1](docs/screenshots/v0.2.1/README.md) 与
+[docs/screenshots/v0.2.2](docs/screenshots/v0.2.2/README.md)，键盘走查脚本为
 `node scripts/verify-v18.mjs [url]`。
 
 ## 发布与在线示例
@@ -199,12 +200,15 @@ pnpm check:pack
   键盘：画布 `role="application"`、节点与连线 `role="button"` + `tabIndex=0` + `aria-label`，
   Enter / Space 选中、方向键按 `DEFAULT_GRID_SIZE` 移动（每次按键压一条历史）。
   **新增颜色不要写字面量，一律加 `--flow-*` token**，并同时补暗色值。
-- **视觉系统（0.2.1 起）**：节点卡片的左侧 3px 强调条与图标底色取注册表里的
-  `NodeTypeDefinition.color`（由 `NodeCard` 内联到 `borderLeftColor` / `backgroundColor`），
-  不再统一使用主题蓝；标题与类型徽标在 `.flow-node__body` 里分两行，避免 160px 卡片把标题
-  截断。画布用 `::before` 品牌色光晕 + 网格渐隐，面板统一 10–14px 圆角与更轻的阴影。
-  **改这些样式时保留节点 160 × 48 的几何常量**（连线端点与适应画布依赖它），
-  并同时检查亮 / 暗两套 token；视觉补丁按 `0.2.x` 递增，需求来自对应工单而不是本文。
+- **视觉系统（0.2.1 起，0.2.2 重构节点类型）**：节点卡片的类型色统一由
+  `NodeTypeDefinition.color` 以 CSS 变量 `--flow-node-color` 内联到卡片，强调条、图标卡、
+  类型圆点共用；亮 / 暗主题在 `style.scss` 里用 `color-mix` 派生图标色与底色，
+  **不要再往 NodeCard / NodePanel 里塞 `${color}1f` 这类内联色**。0.2.2 起内置图标统一为
+  20 × 20 线性图标（描边 1.6、圆角端点），开始 / 结束用终端胶囊造型，其余节点用
+  「3px 类型色左条 + 图标卡 + 标题 / 类型行」。画布用 `::before` 品牌色光晕 + 网格渐隐，
+  面板统一 10–14px 圆角与更轻的阴影。**改这些样式时保留节点 160 × 48 的几何常量**
+  （连线端点与适应画布依赖它），并同时检查亮 / 暗两套 token；视觉补丁按 `0.2.x` 递增，
+  需求来自对应工单而不是本文。
 - **P1 交互（v1.8）**：`Ctrl/Cmd+A` 走 `store.selectAll`；`components/SelectionToolbar.tsx`
   按屏幕坐标浮在选区上方，复制与 Ctrl/Cmd+C 共用 `lib/clipboard.ts` 的模块级剪贴板；
   输入锚点反向拖拽复用连线预览与 `findTargetNode`，松手时 `removeEdge`（空白）或
@@ -232,6 +236,11 @@ pnpm check:pack
   工具栏分组并把宿主操作靠右；配置面板、校验 / 运行面板与空状态统一圆角、阴影与间距；
   示例初始布局与提示条收紧。Before / After 见
   [docs/screenshots/v0.2.1](docs/screenshots/v0.2.1/README.md)。
+- **`0.2.2`（2026-11-12，视觉补丁序列第 2 版）**：节点 160 × 48 几何不变；6 类内置图标
+  统一为线性图标，图标底色 / 类型圆点 / 左侧强调条共用类型色；开始 / 结束改为终端胶囊，
+  条件图标改为流程图菱形；类型名从彩色胶囊改为「圆点 + 弱化文字」，长标题不再被挤断；
+  亮 / 暗主题分别派生图标色与底色。Before / After 见
+  [docs/screenshots/v0.2.2](docs/screenshots/v0.2.2/README.md)。
 - `packages/react/src/index.ts` 导出 store、`ReactFlow`、`NodePanel`、`ConfigPanel`、
   `Toolbar`、`SelectionToolbar`、`ValidationPanel`、`VariablePicker`、`SchemaPreview`、`RunPanel`、
   `NodeTestPanel`、`SessionVariablePanel`、`NodeTypeProvider`、注册表与参数校验工具、

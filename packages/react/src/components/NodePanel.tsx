@@ -1,4 +1,4 @@
-import type { DragEvent } from 'react'
+import type { CSSProperties, DragEvent } from 'react'
 import { useNodeTypeRegistry } from '../lib/registryContext.tsx'
 import { listNodeTypes, resolveNodeType } from '../lib/registry.ts'
 import { useFlowStore } from '../store/index.ts'
@@ -85,7 +85,11 @@ export const NodePanel = ({ onAddNode, title = '节点', variant = 'overlay' }: 
         >
           <span
             className="flow-node-panel__icon"
-            style={{ color: definition.color, backgroundColor: `${definition.color}1f` }}
+            style={
+              {
+                '--flow-node-color': definition.color,
+              } as CSSProperties
+            }
           >
             {definition.icon}
           </span>

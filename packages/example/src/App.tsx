@@ -22,13 +22,21 @@ const customNodeTypes: NodeTypeDefinition[] = [
   {
     type: 'notify',
     label: '通知',
-    color: '#5c7cfa',
+    color: '#2563eb',
     icon: (
-      <svg width={16} height={16} viewBox="0 0 16 16" fill="none" aria-hidden>
-        <path
-          d="M8 1.8a4.2 4.2 0 0 0-4.2 4.2v2.4L2.6 11a.6.6 0 0 0 .5.9h9.8a.6.6 0 0 0 .5-.9L12.2 8.4V6A4.2 4.2 0 0 0 8 1.8Zm-1.6 11.4a1.6 1.6 0 0 0 3.2 0H6.4Z"
-          fill="currentColor"
-        />
+      <svg
+        width={18}
+        height={18}
+        viewBox="0 0 20 20"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.6}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden
+      >
+        <path d="M6.2 8.2a3.8 3.8 0 0 1 7.6 0v2.3l1.2 2.2H5l1.2-2.2V8.2Z" />
+        <path d="M8.4 15a1.7 1.7 0 0 0 3.2 0" />
       </svg>
     ),
     defaultData: { label: 'Notify' },

@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from 'react'
+import type {
+  CSSProperties,
+  KeyboardEvent as ReactKeyboardEvent,
+  PointerEvent as ReactPointerEvent,
+} from 'react'
 import type { Edge, Node, Workflow } from '@flowsail/core'
 import { useNodeTypeRegistry } from '../lib/registryContext.tsx'
 import { resolveNodeType } from '../lib/registry.ts'
@@ -283,8 +287,16 @@ export const NodeCard = ({
     useFlowStore.getState().pushHistory(before)
   }
 
+  const inputs = meta.inputs ?? []
+  const outputs = meta.outputs ?? []
+  // 终端节点（开始 / 结束）：只有一个方向的锚点。用注册表的锚点定义判断，
+  // 而不是写死类型 id，宿主自定义的起止节点也能获得终端样式（0.2.2）。
+  const isTerminal =
+    (inputs.length === 0 && outputs.length > 0) || (inputs.length > 0 && outputs.length === 0)
+
   const className = [
     'flow-node',
+    isTerminal ? 'is-terminal' : '',
     isSelected ? 'is-selected' : '',
     isDragging ? 'is-dragging' : '',
     isConnectionSource ? 'is-connection-source' : '',
@@ -296,8 +308,6 @@ export const NodeCard = ({
 
   const title = String(node.data?.label ?? meta.label)
 
-  const inputs = meta.inputs ?? []
-  const outputs = meta.outputs ?? []
   const connectedInputId = incomingEdge
     ? (findInputHandle(inputs, incomingEdge.targetHandle)?.id ?? inputs[0]?.id)
     : undefined
@@ -315,12 +325,15 @@ export const NodeCard = ({
       className={className}
       data-node-id={node.id}
       data-node-type={node.type ?? 'unknown'}
-      style={{
-        left: node.position.x,
-        top: node.position.y,
-        // 类型色落在左侧强调条与图标底色上，避免所有节点都是同一种蓝（v0.2.1）。
-        borderLeftColor: meta.color,
-      }}
+      style={
+        {
+          left: node.position.x,
+          top: node.position.y,
+          // 类型色以 CSS 变量下发：强调条、图标底色、类型圆点共用同一份来源，
+          // 由样式表根据亮 / 暗主题派生深浅（0.2.2）。
+          '--flow-node-color': meta.color,
+        } as CSSProperties
+      }
       tabIndex={0}
       role="button"
       aria-label={ariaLabel}
@@ -332,12 +345,7 @@ export const NodeCard = ({
       onPointerCancel={endDrag}
       onDoubleClick={startRename}
     >
-      <span
-        className="flow-node__icon"
-        style={{ color: meta.color, backgroundColor: `${meta.color}1f` }}
-      >
-        {meta.icon}
-      </span>
+      <span className="flow-node__icon">{meta.icon}</span>
       <span className="flow-node__body">
         {isRenaming ? (
           <input
@@ -356,10 +364,8 @@ export const NodeCard = ({
           </span>
         )}
         <span className="flow-node__meta">
-          <span
-            className="flow-node__badge"
-            style={{ color: meta.color, backgroundColor: `${meta.color}14` }}
-          >
+          <span className="flow-node__type">
+            <span className="flow-node__type-dot" aria-hidden="true" />
             {meta.label}
           </span>
 

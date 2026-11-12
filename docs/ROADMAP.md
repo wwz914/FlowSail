@@ -63,8 +63,9 @@
 | M4 | v1.7 | 包改名与产物、发布流程、文档、在线示例、质量门禁 | [#28](https://github.com/wwz914/FlowSail/pull/28) | [v0.1.0](https://github.com/wwz914/FlowSail/releases/tag/v0.1.0) |
 | M4 收口 | v1.8 | 包内 README、主题与可访问性、P1 交互补全 | [#30](https://github.com/wwz914/FlowSail/pull/30) / [#31](https://github.com/wwz914/FlowSail/pull/31) / [#32](https://github.com/wwz914/FlowSail/pull/32) | [v0.1.1](https://github.com/wwz914/FlowSail/releases/tag/v0.1.1) · [v0.2.0](https://github.com/wwz914/FlowSail/releases/tag/v0.2.0) |
 | 视觉补丁 1 | `0.2.1` | 节点类型色、画布层次、工具栏 / 面板细节、示例布局 | [#36](https://github.com/wwz914/FlowSail/pull/36) | [v0.2.1](https://github.com/wwz914/FlowSail/releases/tag/v0.2.1) |
+| 视觉补丁 2 | `0.2.2` | 节点类型视觉重设计：线性图标、终端胶囊、类型行 | [#37](https://github.com/wwz914/FlowSail/pull/37) | 待发布 |
 
-**版本序列**：v1.0 → v1.1 → v1.3 → v1.4 → v1.5 → v1.6 → v1.7 → v1.8 → `0.2.1` → … → `0.2.10`（视觉补丁）→ **v1.9（规划中）**。v1.2 没有对应内容，不预留。
+**版本序列**：v1.0 → v1.1 → v1.3 → v1.4 → v1.5 → v1.6 → v1.7 → v1.8 → `0.2.1` → `0.2.2` → … → `0.2.10`（视觉补丁）→ **v1.9（规划中）**。v1.2 没有对应内容，不预留。
 
 ---
 
