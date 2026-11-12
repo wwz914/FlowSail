@@ -22,7 +22,7 @@ const customNodeTypes: NodeTypeDefinition[] = [
   {
     type: 'notify',
     label: '通知',
-    color: '#5c7cfa',
+    color: '#4b6fae',
     icon: (
       <svg width={16} height={16} viewBox="0 0 16 16" fill="none" aria-hidden>
         <path
@@ -125,6 +125,31 @@ function createInitialDocument(): Workflow {
   };
 }
 
+
+/** 宿主主题切换图标：与库工具栏的 14px 线性图标保持一致。 */
+const MoonIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <path
+      d="M13.2 9.4A5.6 5.6 0 0 1 6.6 2.8 5.6 5.6 0 1 0 13.2 9.4Z"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinejoin="round"
+    />
+  </svg>
+)
+
+const SunIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <circle cx="8" cy="8" r="2.6" stroke="currentColor" strokeWidth="1.3" />
+    <path
+      d="M8 1.6v1.7M8 12.7v1.7M1.6 8h1.7M12.7 8h1.7M3.5 3.5l1.2 1.2M11.3 11.3l1.2 1.2M12.5 3.5l-1.2 1.2M4.7 11.3l-1.2 1.2"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinecap="round"
+    />
+  </svg>
+)
+
 function App() {
   // 受控模式（R4-2）：宿主持有文档，内部编辑通过 onChange 写回。
   const [document, setDocument] = useState<Workflow>(() => createInitialDocument())
@@ -164,6 +189,7 @@ function App() {
             aria-pressed={theme === 'dark'}
             title="切换亮色 / 暗色主题"
           >
+            {theme === 'light' ? <MoonIcon /> : <SunIcon />}
             {theme === 'light' ? '暗色主题' : '亮色主题'}
           </button>
         </Toolbar>

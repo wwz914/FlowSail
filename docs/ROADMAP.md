@@ -34,7 +34,7 @@
 | 文档 | schema v1、JSON 导入导出、版本迁移、受控 `workflow` + `onChange`、未知字段保留 | ✅ |
 | 运行与调试 | `Runner` 接口、内置 Mock Runner、试运行 / 取消、运行记录、节点五态、单节点测试 | ✅ 基础能力 |
 | 主题与可访问性 | `--flow-*` 变量、亮 / 暗主题、键盘关键路径、焦点环、`aria-label` | ✅ |
-| 视觉效果 | 节点类型色、画布光晕与网格、工具栏 / 面板层级、示例布局（`0.2.1` 起逐版打磨） | ✅ 进行中 |
+| 视觉效果 | 节点类型色与画布层次（`0.2.1`）、方向 A 中性灰白与 8px 节点（`0.2.2`，待发布） | ✅ 进行中 |
 | 交付与工程 | npm `0.2.1`、GitHub Pages 在线示例、changeset / Release 工作流、lint / 测试 / 覆盖率 / 体积 / pack / 链接门禁 | ✅ |
 | **运行容错与部分执行** | 重试、忽略、异常分支、运行到指定节点、运行汇总 | ❌ **v1.9** |
 | **复杂控制流** | 循环、批处理、并行、子工作流 | ❌ v1.10 |
@@ -64,7 +64,7 @@
 | M4 收口 | v1.8 | 包内 README、主题与可访问性、P1 交互补全 | [#30](https://github.com/wwz914/FlowSail/pull/30) / [#31](https://github.com/wwz914/FlowSail/pull/31) / [#32](https://github.com/wwz914/FlowSail/pull/32) | [v0.1.1](https://github.com/wwz914/FlowSail/releases/tag/v0.1.1) · [v0.2.0](https://github.com/wwz914/FlowSail/releases/tag/v0.2.0) |
 | 视觉补丁 1 | `0.2.1` | 节点类型色、画布层次、工具栏 / 面板细节、示例布局 | [#36](https://github.com/wwz914/FlowSail/pull/36) | [v0.2.1](https://github.com/wwz914/FlowSail/releases/tag/v0.2.1) |
 
-**版本序列**：v1.0 → v1.1 → v1.3 → v1.4 → v1.5 → v1.6 → v1.7 → v1.8 → `0.2.1` → … → `0.2.10`（视觉补丁）→ **v1.9（规划中）**。v1.2 没有对应内容，不预留。
+**版本序列**：v1.0 → v1.1 → v1.3 → v1.4 → v1.5 → v1.6 → v1.7 → v1.8 → `0.2.1` → `0.2.2`（方向 A，待发布）→ … → `0.2.10`（视觉补丁）→ **v1.9（规划中）**。v1.2 没有对应内容，不预留。
 
 ---
 

@@ -97,12 +97,16 @@ document.documentElement.dataset.theme = 'dark'
 
 主要变量（完整列表见[仓库里的 `style.scss`](https://github.com/wwz914/FlowSail/blob/main/packages/react/src/style.scss) 顶部）：
 
-- 画布：`--flow-bg`、`--flow-grid-dot`
+- 画布：`--flow-bg`、`--flow-canvas`、`--flow-grid-dot`
 - 表面与文字：`--flow-surface`、`--flow-surface-subtle`、`--flow-surface-hover`、`--flow-text`、
   `--flow-text-secondary`、`--flow-text-strong`、`--flow-text-muted`、`--flow-text-faint`
-- 边框：`--flow-border`、`--flow-border-subtle`、`--flow-border-input`、`--flow-border-strong`
+- 边框：`--flow-border`、`--flow-border-subtle`、`--flow-border-input`、`--flow-border-strong`、
+  `--flow-handle-border`
 - 强调 / 焦点：`--flow-accent`、`--flow-accent-strong`、`--flow-accent-bg`、`--flow-accent-text`、
   `--flow-focus`、`--flow-node-selected-bg`
+- 节点：`--flow-node-border`、`--flow-node-type`、`--flow-node-shadow`
+- 主按钮 / 品牌：`--flow-primary`、`--flow-primary-ink`、`--flow-primary-hover`、
+  `--flow-brand-bg`、`--flow-brand-ink`
 - 状态：`--flow-success`、`--flow-success-bg`、`--flow-danger`、`--flow-danger-bg`、
   `--flow-warning`、`--flow-warning-bg`、`--flow-running-bg`、`--flow-skipped`、`--flow-skipped-bg`
 - 其他：`--flow-edge`、`--flow-code-bg`、`--flow-shadow`、`--flow-shadow-strong`、`--flow-shadow-brand`

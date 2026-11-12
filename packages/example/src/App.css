@@ -1,7 +1,7 @@
 body {
   margin: 0;
-  background: var(--flow-bg, #f4f6fb);
-  color: var(--flow-text-secondary, #334155);
+  background: var(--flow-bg, #f4f4f1);
+  color: var(--flow-text-secondary, #4f565c);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -14,7 +14,7 @@ body {
   height: 100vh;
   overflow: hidden;
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  color: var(--flow-text-secondary, #334155);
+  color: var(--flow-text-secondary, #4f565c);
 }
 
 .app-toolbar {
@@ -43,19 +43,20 @@ body {
   min-height: 0;
 }
 
-/* v1.6 交互提示条（R6-9）：压成单行，把高度留给画布（v0.2.1）。 */
+/* v1.6 交互提示条（R6-9）：压成单行，把高度留给画布（v0.2.2）。 */
 .app-hint {
   display: flex;
   flex: none;
   align-items: center;
   gap: 8px;
+  height: 30px;
   margin: 0;
-  padding: 6px 16px;
+  padding: 0 16px;
   overflow: hidden;
-  border-bottom: 1px solid var(--flow-border, #e2e8f0);
-  background: var(--flow-surface-subtle, #f7f9fc);
-  color: var(--flow-text-muted, #64748b);
-  font-size: 12px;
+  border-bottom: 1px solid var(--flow-border, #e5e5df);
+  background: var(--flow-surface-subtle, #fafaf7);
+  color: var(--flow-text-muted, #7c8288);
+  font-size: 11px;
   line-height: 1.6;
   white-space: nowrap;
 }
@@ -64,11 +65,11 @@ body {
   flex: none;
   padding: 1px 7px;
   border-radius: 999px;
-  background: var(--flow-accent-bg, #eef4ff);
-  color: var(--flow-accent-text, #1d4ed8);
-  font-size: 10.5px;
+  background: var(--flow-accent-bg, #eef0ff);
+  color: var(--flow-accent-text, #4338ca);
+  font-size: 9.5px;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
 }
 
 .app-hint > span:last-child {
@@ -80,7 +81,7 @@ body {
 .app-sidebar {
   display: flex;
   flex: none;
-  width: 168px;
+  width: 180px;
   background: var(--flow-surface, #fff);
 }
 
@@ -101,6 +102,6 @@ body {
 .app-inspector {
   display: flex;
   flex: none;
-  width: 300px;
+  width: 320px;
   background: var(--flow-surface, #fff);
 }
